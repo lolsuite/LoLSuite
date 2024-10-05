@@ -15,9 +15,9 @@ WCHAR szWindowClass[MAX_LOADSTRING];
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-const wchar_t* box[9] = {
+const wchar_t* box[10] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye",
-	L"MAME", L"Creative ALChemy", L"VCRedist AIO", L"FinalBurn Neo"
+	L"MAME", L"Creative ALChemy", L"VCRedist AIO", L"FinalBurn Neo", L"ROG Ally Emulator"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
@@ -404,6 +404,8 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		else
 		{
 			std::vector<std::wstring> installCommands = {
+				L"winget source update", L"winget upgrade", L"winget install Microsoft.Terminal",
+				L"winget install Microsoft.PowerShell",
 				L"winget install 9NQPSL29BFFF --accept-package-agreements",
 				L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
 				L"winget install 9NCTDW2W1BH8 --accept-package-agreements",
@@ -467,6 +469,12 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		}
 		SHELLEXECUTE(v[4], v[6], true);
 	}
+	else if (task == L"allyemu")
+	{
+		std::vector<std::wstring> installCommands = {
+				L"winget source update", L"winget upgrade", L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
+		executeCommands(installCommands);
+	}
 }
 
 void handleCommand(int cb, bool flag)
@@ -480,7 +488,8 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageTasks(L"mame"); },
 		[flag]() { manageTasks(L"EAX"); },
 		[flag]() { manageTasks(L"support", flag); },
-		[flag]() { manageTasks(L"finalburnneo"); }
+		[flag]() { manageTasks(L"finalburnneo"); },
+		[flag]() { manageTasks(L"allyemu"); }
 	};
 	if (cb >= 0 && cb < commands.size())
 	{
