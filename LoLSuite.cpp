@@ -387,7 +387,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		if (restore)
 		{
 			std::vector<std::wstring> uninstallCommands = {
-				L"winget uninstall 9NQPSL29BFFF", L"winget uninstall Microsoft.DirectX",
+				L"winget uninstall 9NQPSL29BFFF", L"winget uninstall Microsoft.EdgeWebView2Runtime"
 				L"winget uninstall 9N95Q1ZZPMH4", L"winget uninstall 9NCTDW2W1BH8",
 				L"winget uninstall 9MVZQVXJBQ9V", L"winget uninstall 9PMMSR1CGPWG",
 				L"winget uninstall 9N4D0MSMP0PT", L"winget uninstall 9PG2DK419DRG",
@@ -404,7 +404,6 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		else
 		{
 			std::vector<std::wstring> installCommands = {
-				L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
 				L"winget install 9NQPSL29BFFF --accept-package-agreements",
 				L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
 				L"winget install 9NCTDW2W1BH8 --accept-package-agreements",
@@ -414,6 +413,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget install 9PG2DK419DRG --accept-package-agreements",
 				L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 				L"winget install 9N5TDP8VCMHS --accept-package-agreements",
+				L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
 				L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements",
 				L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
 				L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
