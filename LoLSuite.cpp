@@ -321,8 +321,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		};
 		executeCommands(PreCommands);
 
-		std::vector<std::wstring> PostCommands = { L"winget install Mojang.MinecraftLauncher"
-	L"winget install Oracle.JavaRuntimeEnvironment"
+		std::vector<std::wstring> PostCommands = { L"winget install Mojang.MinecraftLauncher", L"winget install Oracle.JavaRuntimeEnvironment"
 		};
 		executeCommands(PostCommands);
 
