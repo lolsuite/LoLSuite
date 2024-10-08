@@ -17,7 +17,7 @@ BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 const wchar_t* box[10] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye",
-	L"MAME", L"Creative ALChemy", L"VCRedist AIO", L"FinalBurn Neo", L"ROG Ally Emulator"
+	L"MAME", L"Creative ALChemy", L"VCRedist AIO", L"FinalBurn Neo", L"Game Clients AIO"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
@@ -307,7 +307,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			std::filesystem::remove_all(v[i]);
 		}
 	}
-	else if (task == L"InstallJDK")
+	else if (task == L"JDK")
 	{
 		v[0].clear();
 		PathAppend(0, std::filesystem::current_path());
@@ -384,11 +384,35 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	}
 	else if (task == L"support")
 	{
-		if (restore)
-		{
-			std::vector<std::wstring> uninstallCommands = {
+		std::vector<std::wstring> installCommands = {
+			L"winget install Microsoft.Terminal --accept-package-agreements",
+			L"winget install Microsoft.PowerShell --accept-package-agreements", L"winget install Microsoft.Edge --accept-package-agreement"
+			L"winget install 9NQPSL29BFFF --accept-package-agreements",
+			L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
+			L"winget install 9NCTDW2W1BH8 --accept-package-agreements",
+			L"winget install 9MVZQVXJBQ9V --accept-package-agreements",
+			L"winget install 9PMMSR1CGPWG --accept-package-agreements",
+			L"winget install 9N4D0MSMP0PT --accept-package-agreements",
+			L"winget install 9PG2DK419DRG --accept-package-agreements",
+			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
+			L"winget install 9N5TDP8VCMHS --accept-package-agreements",
+			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
+			L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
+			L"winget install Microsoft.VSTOR --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements", L"winget upgrade"};
+
+		std::vector<std::wstring> PreCommands = { L"winget source update",
 				L"winget uninstall 9NQPSL29BFFF", L"winget uninstall Microsoft.EdgeWebView2Runtime"
-				L"winget uninstall 9N95Q1ZZPMH4", L"winget uninstall 9NCTDW2W1BH8",
+				L"winget uninstall 9N95Q1ZZPMH4", L"winget uninstall 9NCTDW2W1BH8", L"winget uninstall Microsoft.Edge"
 				L"winget uninstall 9MVZQVXJBQ9V", L"winget uninstall 9PMMSR1CGPWG",
 				L"winget uninstall 9N4D0MSMP0PT", L"winget uninstall 9PG2DK419DRG",
 				L"winget uninstall 9PB0TRCNRHFX", L"winget uninstall 9N5TDP8VCMHS",
@@ -398,43 +422,13 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget uninstall Microsoft.VCRedist.2005.x64", L"winget uninstall Microsoft.VCRedist.2008.x64",
 				L"winget uninstall Microsoft.VCRedist.2010.x64", L"winget uninstall Microsoft.VCRedist.2012.x64",
 				L"winget uninstall Microsoft.VCRedist.2013.x64", L"winget uninstall Microsoft.VCRedist.2015+.x64"
-			};
-			executeCommands(uninstallCommands);
-		}
-		else
-		{
-			std::vector<std::wstring> installCommands = {
-				L"winget source update", L"winget upgrade", L"winget install Microsoft.Terminal",
-				L"winget install Microsoft.PowerShell",
-				L"winget install 9NQPSL29BFFF --accept-package-agreements",
-				L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
-				L"winget install 9NCTDW2W1BH8 --accept-package-agreements",
-				L"winget install 9MVZQVXJBQ9V --accept-package-agreements",
-				L"winget install 9PMMSR1CGPWG --accept-package-agreements",
-				L"winget install 9N4D0MSMP0PT --accept-package-agreements",
-				L"winget install 9PG2DK419DRG --accept-package-agreements",
-				L"winget install 9PB0TRCNRHFX --accept-package-agreements",
-				L"winget install 9N5TDP8VCMHS --accept-package-agreements",
-				L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
-				L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements",
-				L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
-				L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
-				L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
-				L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
-				L"winget install Microsoft.VSTOR --accept-package-agreements",
-				L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements",
-				L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
-				L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
-				L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
-				L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
-				L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
-			};
+		};
+		    executeCommands(PreCommands);
 			executeCommands(installCommands);
 			clearAndAppend(0, L"dxwebsetup.exe");
 			Download(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
 			SHELLEXECUTE(v[0], L"/Q", true);
 			std::filesystem::remove_all(v[0]);
-		}
 	}
 	else if (task == L"xenia")
 	{
@@ -469,10 +463,13 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		}
 		SHELLEXECUTE(v[4], v[6], true);
 	}
-	else if (task == L"allyemu")
+	else if (task == L"gameclients")
 	{
+		std::vector<std::wstring> PreCommands = {
+				L"winget source update", L"winget upgrade", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet"};
 		std::vector<std::wstring> installCommands = {
-				L"winget source update", L"winget upgrade", L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
+				L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet"};
+		executeCommands(PreCommands);
 		executeCommands(installCommands);
 	}
 }
@@ -482,14 +479,14 @@ void handleCommand(int cb, bool flag)
 	std::vector<std::function<void()>> commands = {
 		[flag]() { manageGame(L"leagueoflegends", flag); },
 		[flag]() { manageGame(L"dota2", flag); },
-		[flag]() { manageTasks(L"InstallJDK"); },
+		[flag]() { manageTasks(L"JDK"); },
 		[flag]() { manageTasks(L"mesen"); },
 		[flag]() { manageTasks(L"xenia"); },
 		[flag]() { manageTasks(L"mame"); },
 		[flag]() { manageTasks(L"EAX"); },
 		[flag]() { manageTasks(L"support", flag); },
 		[flag]() { manageTasks(L"finalburnneo"); },
-		[flag]() { manageTasks(L"allyemu"); }
+		[flag]() { manageTasks(L"gameclients"); }
 	};
 	if (cb >= 0 && cb < commands.size())
 	{
