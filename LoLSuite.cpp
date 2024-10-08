@@ -309,15 +309,32 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	}
 	else if (task == L"JDK")
 	{
+		std::vector<std::wstring> PreCommands = { L"winget source update", L"winget uninstall Mojang.MinecraftLauncher"
+			L"winget uninstall Oracle.JavaRuntimeEnvironment",
+			L"winget uninstall Oracle.JDK.23",
+			L"winget uninstall Oracle.JDK.22",
+			L"winget uninstall Oracle.JDK.21",
+			L"winget uninstall Oracle.JDK.20",
+			L"winget uninstall Oracle.JDK.19",
+			L"winget uninstall Oracle.JDK.18",
+			L"winget uninstall Oracle.JDK.17"
+		};
+		executeCommands(PreCommands);
+
+		std::vector<std::wstring> PostCommands = { L"winget install Mojang.MinecraftLauncher"
+	L"winget install Oracle.JavaRuntimeEnvironment"
+		};
+		executeCommands(PostCommands);
+
 		v[0].clear();
 		PathAppend(0, std::filesystem::current_path());
-		PathAppend(0, L"jdk-22_windows-x64_bin.exe");
-		Download(L"https://download.oracle.com/java/22/latest/jdk-22_windows-x64_bin.exe", 0, false);
+		PathAppend(0, L"jdk-23_windows-x64_bin.exe");
+		Download(L"https://download.oracle.com/java/23/latest/jdk-23_windows-x64_bin.exe", 0, false);
 		SHELLEXECUTE(v[0], L"", true);
 		std::filesystem::remove_all(v[0]);
 		MessageBoxEx(
 			nullptr,
-			L"Minecraft Launcher > Minecraft: Java Edition > Installations > Latest > Edit > More Options > Java Executable Path > <drive>:\\Program Files\\Java\\jdk-22\\bin\\javaw.exe",
+			L"Minecraft Launcher > Minecraft: Java Edition > Installations > Latest Release > Edit > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
 			L"LoLSuite",
 			MB_OK,
 			0 // Language identifier (0 for default)
@@ -408,7 +425,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements", L"winget upgrade"};
+			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements", L"winget upgrade" };
 
 		std::vector<std::wstring> PreCommands = { L"winget source update",
 				L"winget uninstall 9NQPSL29BFFF", L"winget uninstall Microsoft.EdgeWebView2Runtime"
@@ -423,12 +440,12 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget uninstall Microsoft.VCRedist.2010.x64", L"winget uninstall Microsoft.VCRedist.2012.x64",
 				L"winget uninstall Microsoft.VCRedist.2013.x64", L"winget uninstall Microsoft.VCRedist.2015+.x64"
 		};
-		    executeCommands(PreCommands);
-			executeCommands(installCommands);
-			clearAndAppend(0, L"dxwebsetup.exe");
-			Download(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
-			SHELLEXECUTE(v[0], L"/Q", true);
-			std::filesystem::remove_all(v[0]);
+		executeCommands(PreCommands);
+		executeCommands(installCommands);
+		clearAndAppend(0, L"dxwebsetup.exe");
+		Download(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
+		SHELLEXECUTE(v[0], L"/Q", true);
+		std::filesystem::remove_all(v[0]);
 	}
 	else if (task == L"xenia")
 	{
@@ -466,9 +483,9 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	else if (task == L"gameclients")
 	{
 		std::vector<std::wstring> PreCommands = {
-				L"winget source update", L"winget upgrade", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet"};
+				L"winget source update", L"winget upgrade", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet" };
 		std::vector<std::wstring> installCommands = {
-				L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet"};
+				L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
 	}
