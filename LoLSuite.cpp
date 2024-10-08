@@ -309,7 +309,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	}
 	else if (task == L"JDK")
 	{
-		std::vector<std::wstring> PreCommands = { L"winget source update", L"winget uninstall Mojang.MinecraftLauncher"
+		std::vector<std::wstring> PreCommands = { L"winget source update", L"winget uninstall Mojang.MinecraftLauncher",
 			L"winget uninstall Oracle.JavaRuntimeEnvironment",
 			L"winget uninstall Oracle.JDK.23",
 			L"winget uninstall Oracle.JDK.22",
