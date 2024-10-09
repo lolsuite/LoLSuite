@@ -426,7 +426,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements", L"winget upgrade" };
 
-		std::vector<std::wstring> PreCommands = { L"winget source update",
+		std::vector<std::wstring> PreCommands = { L"winget source update", L"powercfg -h off"
 				L"winget uninstall 9NQPSL29BFFF", L"winget uninstall Microsoft.EdgeWebView2Runtime"
 				L"winget uninstall 9N95Q1ZZPMH4", L"winget uninstall 9NCTDW2W1BH8", L"winget uninstall Microsoft.Edge"
 				L"winget uninstall 9MVZQVXJBQ9V", L"winget uninstall 9PMMSR1CGPWG",
