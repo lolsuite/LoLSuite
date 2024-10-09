@@ -403,7 +403,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		std::vector<std::wstring> installCommands = {
 			L"winget install Microsoft.Terminal --accept-package-agreements",
 			L"winget install Microsoft.PowerShell --accept-package-agreements", L"winget install Microsoft.Edge --accept-package-agreement"
-			L"winget install 9NQPSL29BFFF --accept-package-agreements",
+			L"winget install 9NQPSL29BFFF --accept-package-agreements",L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
 			L"winget install 9NCTDW2W1BH8 --accept-package-agreements",
 			L"winget install 9MVZQVXJBQ9V --accept-package-agreements",
@@ -426,7 +426,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements", L"winget upgrade" };
 
-		std::vector<std::wstring> PreCommands = { L"winget source update", L"powercfg -h off"
+		std::vector<std::wstring> PreCommands = { L"winget source update", L"powercfg -h off", L"winget uninstall 9PB0TRCNRHFX"
 				L"winget uninstall 9NQPSL29BFFF", L"winget uninstall Microsoft.EdgeWebView2Runtime"
 				L"winget uninstall 9N95Q1ZZPMH4", L"winget uninstall 9NCTDW2W1BH8", L"winget uninstall Microsoft.Edge"
 				L"winget uninstall 9MVZQVXJBQ9V", L"winget uninstall 9PMMSR1CGPWG",
@@ -545,8 +545,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPWSTR    lpCmdLine,
+	_In_ int       nCmdShow)
 {
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadStringW(hInstance, IDC_BUFFER, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
