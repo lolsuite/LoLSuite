@@ -17,7 +17,7 @@ BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 const wchar_t* box[10] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye",
-	L"MAME", L"Creative ALChemy", L"VCRedist AIO", L"FinalBurn Neo", L"Game Clients AIO"
+	L"MAME", L"Creative ALChemy", L"VCRedist", L"FinalBurn Neo", L"Game Clients"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
