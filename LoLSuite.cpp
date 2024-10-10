@@ -402,7 +402,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	{
 		std::vector<std::wstring> installCommands = {
 			L"winget install Microsoft.Terminal --accept-package-agreements",
-			L"winget install Microsoft.PowerShell --accept-package-agreements", L"winget install Microsoft.Edge --accept-package-agreement"
+			L"winget install Microsoft.PowerShell --accept-package-agreements", L"winget install Microsoft.Edge --accept-package-agreement",
 			L"winget install 9NQPSL29BFFF --accept-package-agreements",L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
 			L"winget install 9NCTDW2W1BH8 --accept-package-agreements",
