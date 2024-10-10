@@ -309,7 +309,10 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	}
 	else if (task == L"JDK")
 	{
-		std::vector<std::wstring> PreCommands = { L"winget source update", L"winget uninstall Mojang.MinecraftLauncher",
+		std::vector<std::wstring> PreCommands = { 
+			L"winget source update",
+			L"winget upgrade",
+			L"winget uninstall Mojang.MinecraftLauncher",
 			L"winget uninstall Oracle.JavaRuntimeEnvironment",
 			L"winget uninstall Oracle.JDK.23",
 			L"winget uninstall Oracle.JDK.22",
@@ -321,7 +324,9 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		};
 		executeCommands(PreCommands);
 
-		std::vector<std::wstring> PostCommands = { L"winget install Mojang.MinecraftLauncher", L"winget install Oracle.JavaRuntimeEnvironment"
+		std::vector<std::wstring> PostCommands = {
+			L"winget install Mojang.MinecraftLauncher",
+			L"winget install Oracle.JavaRuntimeEnvironment"
 		};
 		executeCommands(PostCommands);
 
@@ -402,8 +407,10 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	{
 		std::vector<std::wstring> installCommands = {
 			L"winget install Microsoft.Terminal --accept-package-agreements",
-			L"winget install Microsoft.PowerShell --accept-package-agreements", L"winget install Microsoft.Edge --accept-package-agreement",
-			L"winget install 9NQPSL29BFFF --accept-package-agreements",L"winget install 9PB0TRCNRHFX --accept-package-agreements",
+			L"winget install Microsoft.PowerShell --accept-package-agreements",
+			L"winget install Microsoft.Edge --accept-package-agreement",
+			L"winget install 9NQPSL29BFFF --accept-package-agreements",
+			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
 			L"winget install 9NCTDW2W1BH8 --accept-package-agreements",
 			L"winget install 9MVZQVXJBQ9V --accept-package-agreements",
@@ -424,20 +431,36 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements", L"winget upgrade" };
+			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements" };
 
-		std::vector<std::wstring> PreCommands = { L"winget source update", L"powercfg -h off", L"winget uninstall 9PB0TRCNRHFX",
-				L"winget uninstall 9NQPSL29BFFF", L"winget uninstall Microsoft.EdgeWebView2Runtime",
-				L"winget uninstall 9N95Q1ZZPMH4", L"winget uninstall 9NCTDW2W1BH8", L"winget uninstall Microsoft.Edge",
-				L"winget uninstall 9MVZQVXJBQ9V", L"winget uninstall 9PMMSR1CGPWG",
-				L"winget uninstall 9N4D0MSMP0PT", L"winget uninstall 9PG2DK419DRG",
-				L"winget uninstall 9PB0TRCNRHFX", L"winget uninstall 9N5TDP8VCMHS",
-				L"winget uninstall Microsoft.VCRedist.2005.x86", L"winget uninstall Microsoft.VCRedist.2008.x86",
-				L"winget uninstall Microsoft.VCRedist.2010.x86", L"winget uninstall Microsoft.VCRedist.2012.x86",
-				L"winget uninstall Microsoft.VCRedist.2013.x86", L"winget uninstall Microsoft.VSTOR",
-				L"winget uninstall Microsoft.VCRedist.2005.x64", L"winget uninstall Microsoft.VCRedist.2008.x64",
-				L"winget uninstall Microsoft.VCRedist.2010.x64", L"winget uninstall Microsoft.VCRedist.2012.x64",
-				L"winget uninstall Microsoft.VCRedist.2013.x64", L"winget uninstall Microsoft.VCRedist.2015+.x64"
+		std::vector<std::wstring> PreCommands = { 
+			    L"winget source update",
+			    L"winget upgrade",
+			    L"powercfg -h off",
+			    L"winget uninstall 9PB0TRCNRHFX",
+				L"winget uninstall 9NQPSL29BFFF",
+			    L"winget uninstall Microsoft.EdgeWebView2Runtime",
+				L"winget uninstall 9N95Q1ZZPMH4",
+			    L"winget uninstall 9NCTDW2W1BH8", 
+			    L"winget uninstall Microsoft.Edge",
+				L"winget uninstall 9MVZQVXJBQ9V",
+			    L"winget uninstall 9PMMSR1CGPWG",
+				L"winget uninstall 9N4D0MSMP0PT",
+			    L"winget uninstall 9PG2DK419DRG",
+				L"winget uninstall 9PB0TRCNRHFX",
+			    L"winget uninstall 9N5TDP8VCMHS",
+				L"winget uninstall Microsoft.VCRedist.2005.x86",
+			    L"winget uninstall Microsoft.VCRedist.2008.x86",
+				L"winget uninstall Microsoft.VCRedist.2010.x86",
+			    L"winget uninstall Microsoft.VCRedist.2012.x86",
+				L"winget uninstall Microsoft.VCRedist.2013.x86",
+			    L"winget uninstall Microsoft.VSTOR",
+				L"winget uninstall Microsoft.VCRedist.2005.x64",
+			    L"winget uninstall Microsoft.VCRedist.2008.x64",
+				L"winget uninstall Microsoft.VCRedist.2010.x64",
+			    L"winget uninstall Microsoft.VCRedist.2012.x64",
+				L"winget uninstall Microsoft.VCRedist.2013.x64",
+			    L"winget uninstall Microsoft.VCRedist.2015+.x64"
 		};
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
