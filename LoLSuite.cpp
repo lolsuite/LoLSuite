@@ -17,7 +17,7 @@ BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 const wchar_t* box[10] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye",
-	L"MAME & HBMAME", L"Creative ALChemy", L"VCRedist", L"FBNeo", L"Internet Café Client Installer"
+	L"MAME & HBMAME", L"Creative Sound Card (Driver)", L"VCRedist", L"FBNeo", L"Internet Café Client Installer"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
@@ -281,6 +281,8 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		for (int i : {0, 1, 2}) {
 			std::filesystem::remove_all(v[i]);
 		}
+		_wsystem(L"winget uninstall CreativeTechnology.SoundBlasterCommand");
+		_wsystem(L"winget install CreativeTechnology.SoundBlasterCommand");
 	}
 	else if (task == L"finalburnneo")
 	{
