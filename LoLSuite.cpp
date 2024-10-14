@@ -9,6 +9,8 @@
 #include <windows.h>
 #include <filesystem>
 
+// Written in C++ by https://lolsuite.org
+
 constexpr auto MAX_LOADSTRING = 100;
 std::vector<std::wstring> v(58);
 HINSTANCE hInst;
