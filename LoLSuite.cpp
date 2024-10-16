@@ -20,7 +20,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 const wchar_t* box[10] = {
-	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye",
+	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye XBLA",
 	L"MAME & HBMAME", L"Creative Sound Card (Driver)", L"VCRedist", L"FBNeo", L"Internet Café Client Installer"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -116,7 +116,7 @@ void PKill(const std::wstring& process_name)
 }
 void DeleteZoneIdentifier(const std::wstring& file)
 {
-	std::wstring zoneIdentifierPath = file + L":Zone.Identifier";
+	std::wstring zoneIdentifierPath = L"\\?\"" + file + L":Zone.Identifier";
 	!DeleteFile(zoneIdentifierPath.c_str());
 }
 void Download(const std::wstring& url, int j, bool serv)
