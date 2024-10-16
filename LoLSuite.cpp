@@ -248,7 +248,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		}
 	}
 	for (const auto& str : box) {
-		SendMessageW(hComboBox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
+		SendMessage(hComboBox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
 	}
 	SendMessageW(hComboBox, CB_SETCURSEL, 0, 0);
 	ShowWindow(hWnd, nCmdShow);
@@ -402,10 +402,10 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			PathAppend(index, subPath);
 		}
 		_wsystem(L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements");
+		Download(L"7z.exe", 0, true);
 		Download(
 			L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip",
 			1, false);
-		Download(L"7z.exe", 0, true);
 		SHELLEXECUTE(v[0], L"x Mesen.zip -y", true);
 		for (int i : {0, 1}) std::filesystem::remove_all(v[i]);
 	}
