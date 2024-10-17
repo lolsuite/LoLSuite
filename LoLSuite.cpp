@@ -390,11 +390,12 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	}
 	else if (task == L"mesen")
 	{
-		for (int i : {0, 1}) v[i].clear();
+		for (int i : {0, 1, 2}) v[i].clear();
 		auto currentPath = std::filesystem::current_path();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
-			{1, L"Mesen.zip"}
+			{1, L"Mesen.zip"},
+			{2, L"mesen.exe"},
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -408,6 +409,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			1, false);
 		SHELLEXECUTE(v[0], L"x Mesen.zip -y", true);
 		for (int i : {0, 1}) std::filesystem::remove_all(v[i]);
+		SHELLEXECUTE(v[2], L"--nes.disableGameDatabase=true", true);
 	}
 	else if (task == L"support")
 	{
