@@ -19,9 +19,9 @@ WCHAR szWindowClass[MAX_LOADSTRING];
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-const wchar_t* box[10] = {
+const wchar_t* box[9] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye XBLA",
-	L"MAME & HBMAME", L"Creative Sound Card (Driver)", L"VCRedist", L"FBNeo", L"Internet Café Client Installer"
+	L"MAME, HBMAME & FBNeo", L"Creative Sound Card (Driver)", L"VCRedist", L"Internet Café Client Installer"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
@@ -288,34 +288,9 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		_wsystem(L"winget uninstall CreativeTechnology.SoundBlasterCommand");
 		_wsystem(L"winget install CreativeTechnology.SoundBlasterCommand");
 	}
-	else if (task == L"finalburnneo")
-	{
-		for (auto& path : v) path.clear();
-		auto currentPath = std::filesystem::current_path();
-		std::vector<std::pair<int, std::wstring>> paths = {
-			{0, L"7z.exe"},
-			{1, L"FBNeo.zip"},
-			{2, L"FBNeo"}
-		};
-		for (const auto& [index, subPath] : paths)
-		{
-			PathAppend(index, currentPath);
-			PathAppend(index, subPath);
-		}
-		Download(L"7z.exe", 0, true);
-		Download(IsProcess64Bit()
-			? L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip"
-			: L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 1, false);
-		CreateDirectory(v[2].c_str(), nullptr);
-		SHELLEXECUTE(v[0], L"x FBNeo.zip -oFBNeo -y", true);
-		for (int i : {0, 1})
-		{
-			std::filesystem::remove_all(v[i]);
-		}
-	}
 	else if (task == L"JDK")
 	{
-		std::vector<std::wstring> PreCommands = { 
+		std::vector<std::wstring> PreCommands = {
 			L"winget source update",
 			L"winget upgrade",
 			L"winget uninstall Mojang.MinecraftLauncher",
@@ -354,12 +329,16 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	{
 		for (auto& path : v) path.clear();
 		auto currentPath = std::filesystem::current_path();
+
+
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
 			{1, L"HBMAME.7z"},
 			{2, L"HBMAME"},
 			{3, L"MAME.exe"},
-			{4, L"MAME"}
+			{4, L"MAME"},
+			{5, L"FBNeo.zip" },
+			{6, L"FBNeo"}
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -369,21 +348,24 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		std::vector<std::tuple<std::wstring, int, bool>> downloads = {
 			{L"7z.exe", 0, true},
 			{L"https://hbmame.1emulation.com/hbmameui20.7z", 1, false},
-			{L"https://github.com/mamedev/mame/releases/download/mame0270/mame0270b_64bit.exe", 3, false}
+			{L"https://github.com/mamedev/mame/releases/download/mame0270/mame0270b_64bit.exe", 3, false},
+		{IsProcess64Bit()
+			? L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip"
+			: L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 5, false}
 		};
 		for (const auto& [url, index, flag] : downloads)
 		{
 			Download(url, index, flag);
 		}
-		for (int i : {2, 4})
+		for (int i : {2, 4, 6})
 		{
 			CreateDirectory(v[i].c_str(), nullptr);
 		}
-		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y" })
+		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y", L"x FBNeo.zip -oFBNeo -y" })
 		{
 			SHELLEXECUTE(v[0], cmd, true);
 		}
-		for (int i : {0, 1, 3})
+		for (int i : {0, 1, 3, 5})
 		{
 			std::filesystem::remove_all(v[i]);
 		}
@@ -441,34 +423,34 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements" };
 
-		std::vector<std::wstring> PreCommands = { 
-			    L"winget source update",
-			    L"winget upgrade",
-			    L"powercfg -h off",
-			    L"winget uninstall 9PB0TRCNRHFX",
-				L"winget uninstall 9NQPSL29BFFF",
-			    L"winget uninstall Microsoft.EdgeWebView2Runtime",
-				L"winget uninstall 9N95Q1ZZPMH4",
-			    L"winget uninstall 9NCTDW2W1BH8", 
-			    L"winget uninstall Microsoft.Edge",
-				L"winget uninstall 9MVZQVXJBQ9V",
-			    L"winget uninstall 9PMMSR1CGPWG",
-				L"winget uninstall 9N4D0MSMP0PT",
-			    L"winget uninstall 9PG2DK419DRG",
+		std::vector<std::wstring> PreCommands = {
+				L"winget source update",
+				L"winget upgrade",
+				L"powercfg -h off",
 				L"winget uninstall 9PB0TRCNRHFX",
-			    L"winget uninstall 9N5TDP8VCMHS",
+				L"winget uninstall 9NQPSL29BFFF",
+				L"winget uninstall Microsoft.EdgeWebView2Runtime",
+				L"winget uninstall 9N95Q1ZZPMH4",
+				L"winget uninstall 9NCTDW2W1BH8",
+				L"winget uninstall Microsoft.Edge",
+				L"winget uninstall 9MVZQVXJBQ9V",
+				L"winget uninstall 9PMMSR1CGPWG",
+				L"winget uninstall 9N4D0MSMP0PT",
+				L"winget uninstall 9PG2DK419DRG",
+				L"winget uninstall 9PB0TRCNRHFX",
+				L"winget uninstall 9N5TDP8VCMHS",
 				L"winget uninstall Microsoft.VCRedist.2005.x86",
-			    L"winget uninstall Microsoft.VCRedist.2008.x86",
+				L"winget uninstall Microsoft.VCRedist.2008.x86",
 				L"winget uninstall Microsoft.VCRedist.2010.x86",
-			    L"winget uninstall Microsoft.VCRedist.2012.x86",
+				L"winget uninstall Microsoft.VCRedist.2012.x86",
 				L"winget uninstall Microsoft.VCRedist.2013.x86",
-			    L"winget uninstall Microsoft.VSTOR",
+				L"winget uninstall Microsoft.VSTOR",
 				L"winget uninstall Microsoft.VCRedist.2005.x64",
-			    L"winget uninstall Microsoft.VCRedist.2008.x64",
+				L"winget uninstall Microsoft.VCRedist.2008.x64",
 				L"winget uninstall Microsoft.VCRedist.2010.x64",
-			    L"winget uninstall Microsoft.VCRedist.2012.x64",
+				L"winget uninstall Microsoft.VCRedist.2012.x64",
 				L"winget uninstall Microsoft.VCRedist.2013.x64",
-			    L"winget uninstall Microsoft.VCRedist.2015+.x64"
+				L"winget uninstall Microsoft.VCRedist.2015+.x64"
 		};
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
@@ -532,7 +514,6 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageTasks(L"mame"); },
 		[flag]() { manageTasks(L"EAX"); },
 		[flag]() { manageTasks(L"support", flag); },
-		[flag]() { manageTasks(L"finalburnneo"); },
 		[flag]() { manageTasks(L"gameclients"); }
 	};
 	if (cb >= 0 && cb < commands.size())
