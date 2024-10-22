@@ -300,8 +300,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget uninstall Oracle.JDK.20",
 			L"winget uninstall Oracle.JDK.19",
 			L"winget uninstall Oracle.JDK.18",
-			L"winget uninstall Oracle.JDK.17",
-			L"winget upgrade"
+			L"winget uninstall Oracle.JDK.17"
 		};
 		executeCommands(PreCommands);
 
@@ -449,8 +448,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget uninstall Microsoft.VCRedist.2010.x64",
 				L"winget uninstall Microsoft.VCRedist.2012.x64",
 				L"winget uninstall Microsoft.VCRedist.2013.x64",
-				L"winget uninstall Microsoft.VCRedist.2015+.x64",
-				L"winget upgrade",
+				L"winget uninstall Microsoft.VCRedist.2015+.x64"
 		};
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
@@ -495,7 +493,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	else if (task == L"gameclients")
 	{
 		std::vector<std::wstring> PreCommands = {
-				L"winget source update", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet", L"winget upgrade"};
+				L"winget source update", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet"};
 		std::vector<std::wstring> installCommands = {
 				L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
 		executeCommands(PreCommands);
