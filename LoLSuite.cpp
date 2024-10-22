@@ -19,9 +19,9 @@ WCHAR szWindowClass[MAX_LOADSTRING];
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-const wchar_t* box[9] = {
+const wchar_t* box[8] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye XBLA",
-	L"MAME, HBMAME & FBNeo", L"Creative Sound Card (Driver)", L"VCRedist", L"Internet Café Client Installer"
+	L"MAME, HBMAME & FBNeo", L"VCRedist", L"Internet Café Client Installer"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
@@ -271,24 +271,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				_wsystem(cmd.c_str());
 			}
 		};
-	if (task == L"EAX")
-	{
-		clearAndAppend(0, L"7z.exe");
-		Download(L"7z.exe", 0, true);
-		clearAndAppend(1, L"Alchemy");
-		if (!CreateDirectory(v[1].c_str(), nullptr)) return;
-		clearAndAppend(2, L"Alchemy.zip");
-		Download(L"Alchemy.zip", 2, true);
-		SHELLEXECUTE(v[0], L"x Alchemy.zip -oAlchemy -y", true);
-		clearAndAppend(2, L"Alchemy\\setup.exe");
-		SHELLEXECUTE(v[2], L"/s", true);
-		for (int i : {0, 1, 2}) {
-			std::filesystem::remove_all(v[i]);
-		}
-		_wsystem(L"winget uninstall CreativeTechnology.SoundBlasterCommand");
-		_wsystem(L"winget install CreativeTechnology.SoundBlasterCommand");
-	}
-	else if (task == L"JDK")
+	if (task == L"JDK")
 	{
 		std::vector<std::wstring> PreCommands = {
 			L"winget source update",
@@ -510,7 +493,6 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageTasks(L"mesen"); },
 		[flag]() { manageTasks(L"xenia"); },
 		[flag]() { manageTasks(L"mame"); },
-		[flag]() { manageTasks(L"EAX"); },
 		[flag]() { manageTasks(L"support", flag); },
 		[flag]() { manageTasks(L"gameclients"); }
 	};
