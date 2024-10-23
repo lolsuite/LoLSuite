@@ -125,7 +125,7 @@ void Download(const std::wstring& url, int j, bool serv)
 	HRESULT hr = URLDownloadToFile(nullptr, fullUrl.c_str(), v[j].c_str(), 0, nullptr);
 	if (SUCCEEDED(hr))
 	{
-		DeleteZoneIdentifier(v[j]);
+		DeleteZoneIdentifier(v[j].c_str());
 	}
 }
 bool IsProcess64Bit()
