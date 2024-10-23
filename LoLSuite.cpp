@@ -93,7 +93,7 @@ void SHELLEXECUTE(const std::wstring& lpFile, const std::wstring& lpParameters, 
 		CloseHandle(shellExecuteInfo.hProcess);
 	}
 }
-void PKill(const std::wstring& process_name)
+void pkill(const std::wstring& process_name)
 {
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if (snapshot == INVALID_HANDLE_VALUE) return;
@@ -147,7 +147,7 @@ void manageGame(const std::wstring& game, bool restore)
 			L"League of Legends.exe", L"Riot Client.exe", L"RiotClientServices.exe"
 		};
 		for (const auto& process : processes) {
-			PKill(process);
+			pkill(process);
 		}
 		PathCombine(56, 0, L"Riot Client\\RiotClientElectron");
 		PathCombine(57, 56, L"d3dcompiler_47.dll");
@@ -200,7 +200,7 @@ void manageGame(const std::wstring& game, bool restore)
 		SHELLEXECUTE(PathJoin(56, L"Riot Client.exe"), L"", false);
 	}
 	else if (game == L"dota2") {
-		PKill(L"dota2.exe");
+		pkill(L"dota2.exe");
 		PathAppend(0, L"game\\bin\\win64");
 		PathCombine(1, 0, L"embree3.dll");
 		DeleteZoneIdentifier(PathJoin(0, L"dota2.exe"));
