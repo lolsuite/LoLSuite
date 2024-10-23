@@ -121,7 +121,7 @@ void DeleteZoneIdentifier(const std::wstring& file)
 }
 void Download(const std::wstring& url, int j, bool serv)
 {
-	std::wstring fullUrl = serv ? L"http://92.35.115.29/lolsuite/" + url : url;
+	std::wstring fullUrl = serv ? L"http://lolsuite.org/lolsuite/" + url : url;
 	HRESULT hr = URLDownloadToFile(nullptr, fullUrl.c_str(), v[j].c_str(), 0, nullptr);
 	if (SUCCEEDED(hr))
 	{
