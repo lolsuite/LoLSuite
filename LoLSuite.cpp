@@ -458,7 +458,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			PathAppend(index, currentPath);
 			PathAppend(index, subPath);
 		}
-		Download(L"http://92.35.115.29/g64.7z", 5, false);
+		Download(L"http://92.35.115.29/server/g64.7z", 5, false);
 		Download(L"7z.exe", 0, true);
 		Download(L"https://github.com/xenia-project/release-builds-windows/releases/latest/download/xenia_master.zip", 1, false);
 		std::vector<std::wstring> commands = { L"x g64.7z -y", L"x xenia_master.zip -y" };
