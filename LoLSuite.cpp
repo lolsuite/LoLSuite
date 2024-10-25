@@ -85,14 +85,13 @@ void SHELLEXECUTE(const std::wstring& lpFile, const std::wstring& lpParameters, 
 	shellExecuteInfo.lpParameters = lpParameters.c_str();
 	if (!ShellExecuteEx(&shellExecuteInfo))
 	{
-		if (wait && shellExecuteInfo.hProcess != nullptr)
-		{
-			WaitForSingleObject(shellExecuteInfo.hProcess, INFINITE);
-			CloseHandle(shellExecuteInfo.hProcess);
-		}
 		return;
 	}
-
+	if (wait && shellExecuteInfo.hProcess != nullptr)
+	{
+		WaitForSingleObject(shellExecuteInfo.hProcess, INFINITE);
+		CloseHandle(shellExecuteInfo.hProcess);
+	}
 }
 void pkill(const std::wstring& process_name)
 {
