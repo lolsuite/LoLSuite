@@ -205,7 +205,7 @@ void manageGame(const std::wstring& game, bool restore)
 		PathCombine(1, 0, L"embree3.dll");
 		DeleteZoneIdentifier(PathJoin(0, L"dota2.exe"));
 		Download(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
-		SHELLEXECUTE(L"steam://rungameid/570", L"", false);
+		SHELLEXECUTE(L"steam://rungameid/570//-high/", L"", false);
 	}
 }
 
