@@ -4,7 +4,7 @@
 #include <shellapi.h>
 #include <vector>
 #include <functional>
-#include <windows.h>
+#include <winbase.h>
 #include <filesystem>
 #include <string>
 
