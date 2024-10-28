@@ -1,9 +1,8 @@
-#include <shobjidl.h>
+#include <shobjidl_core.h>
 #include "resource.h"
 #include <TlHelp32.h>
 #include <shellapi.h>
 #include <vector>
-#include <format>
 #include <functional>
 #include <windows.h>
 #include <filesystem>
