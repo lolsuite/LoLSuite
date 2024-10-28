@@ -18,12 +18,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler 2024</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <VCToolsVersion>14.41.34120</VCToolsVersion>
     <EnableUnitySupport>false</EnableUnitySupport>
-    <PreferredToolArchitecture>x86</PreferredToolArchitecture>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
     <SpectreMitigation>Spectre</SpectreMitigation>
     <EnableASAN>false</EnableASAN>
   </PropertyGroup>
@@ -47,14 +47,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_UNICODE;UNICODE;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>Default</LanguageStandard>
       <DebugInformationFormat>None</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <IncludeInUnityFile>false</IncludeInUnityFile>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
@@ -67,7 +67,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableModules>true</EnableModules>
       <BuildStlModules>false</BuildStlModules>
-      <LanguageStandard_C>stdclatest</LanguageStandard_C>
+      <LanguageStandard_C>Default</LanguageStandard_C>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ErrorReporting>None</ErrorReporting>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -83,7 +83,6 @@
       <LargeAddressAware>true</LargeAddressAware>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
       <EnableUAC>false</EnableUAC>
-      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
     </Link>

@@ -7,6 +7,7 @@
 #include <functional>
 #include <windows.h>
 #include <filesystem>
+#include <string>
 
 // Written in C++ by https://lolsuite.org
 
@@ -20,7 +21,7 @@ BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 const wchar_t* box[8] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye XBLA",
-	L"MAME, HBMAME & FBNeo", L"VCRedist (RunAs Admin)", L"Internet Café Client Installer"
+	L"MAME, HBMAME & FBNeo", L"VCRedist (RunAs Admin)", L"Internet Cafe Client Installer"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
