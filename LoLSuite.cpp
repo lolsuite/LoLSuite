@@ -1,14 +1,17 @@
-#include <shobjidl_core.h>
-#include "resource.h"
-#include <TlHelp32.h>
-#include <shellapi.h>
-#include <vector>
+#include <windows.h>
 #include <functional>
-#include <winbase.h>
-#include <filesystem>
+#include <shellapi.h>
+#include <shobjidl.h>
 #include <string>
+#include <TlHelp32.h>
+#include <vector>
+#include "resource.h"
+#include <filesystem>
+namespace fs = std::filesystem;
 
-// Written in C++ by https://lolsuite.org
+
+
+
 
 constexpr auto MAX_LOADSTRING = 100;
 std::vector<std::wstring> v(58);
@@ -65,7 +68,7 @@ HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPat
 
 std::wstring PathJoin(const int index, const std::wstring& add)
 {
-	return (std::filesystem::path(v[index]) / add).wstring();
+	return (fs::path(v[index]) / add).wstring();
 }
 void PathAppend(const int index, const std::wstring& add)
 {
@@ -261,7 +264,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	auto clearAndAppend = [](int index, const std::wstring& path)
 		{
 			v[index].clear();
-			PathAppend(index, std::filesystem::current_path());
+			PathAppend(index,fs::current_path());
 			PathAppend(index, path);
 		};
 	auto executeCommands = [](const std::vector<std::wstring>& commands)
@@ -294,11 +297,11 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		executeCommands(PostCommands);
 
 		v[0].clear();
-		PathAppend(0, std::filesystem::current_path());
+		PathAppend(0,fs::current_path());
 		PathAppend(0, L"jdk-23_windows-x64_bin.exe");
 		Download(L"https://download.oracle.com/java/23/latest/jdk-23_windows-x64_bin.exe", 0, false);
 		SHELLEXECUTE(v[0], L"", true);
-		std::filesystem::remove_all(v[0]);
+		fs::remove_all(v[0]);
 		MessageBoxEx(
 			nullptr,
 			L"Minecraft Launcher > Minecraft: Java Edition > Installations > Latest Release > Edit > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
@@ -310,7 +313,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	else if (task == L"mame")
 	{
 		for (auto& path : v) path.clear();
-		auto currentPath = std::filesystem::current_path();
+		auto currentPath = fs::current_path();
 
 
 		std::vector<std::pair<int, std::wstring>> paths = {
@@ -349,13 +352,13 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		}
 		for (int i : {0, 1, 3, 5})
 		{
-			std::filesystem::remove_all(v[i]);
+			fs::remove_all(v[i]);
 		}
 	}
 	else if (task == L"mesen")
 	{
 		for (int i : {0, 1, 2}) v[i].clear();
-		auto currentPath = std::filesystem::current_path();
+		auto currentPath = fs::current_path();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
 			{1, L"Mesen.zip"},
@@ -372,7 +375,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip",
 			1, false);
 		SHELLEXECUTE(v[0], L"x Mesen.zip -y", true);
-		for (int i : {0, 1}) std::filesystem::remove_all(v[i]);
+		for (int i : {0, 1})fs::remove_all(v[i]);
 		SHELLEXECUTE(v[2], L"--nes.disableGameDatabase=true", true);
 	}
 	else if (task == L"support")
@@ -438,12 +441,12 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		clearAndAppend(0, L"dxwebsetup.exe");
 		Download(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
 		SHELLEXECUTE(v[0], L"/Q", true);
-		std::filesystem::remove_all(v[0]);
+		fs::remove_all(v[0]);
 	}
 	else if (task == L"xenia")
 	{
 		for (auto& path : v) path.clear();
-		auto currentPath = std::filesystem::current_path();
+		auto currentPath = fs::current_path();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{5, L"g64.7z"},
 			{0, L"7z.exe"},
@@ -469,14 +472,14 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		}
 		for (int i : indices)
 		{
-			std::filesystem::remove_all(v[i]);
+			fs::remove_all(v[i]);
 		}
 		SHELLEXECUTE(v[4], v[6], true);
 	}
 	else if (task == L"gameclients")
 	{
 		std::vector<std::wstring> PreCommands = {
-				L"winget source update", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet"};
+				L"winget source update", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet" };
 		std::vector<std::wstring> installCommands = {
 				L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
 		executeCommands(PreCommands);

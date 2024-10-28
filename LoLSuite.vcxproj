@@ -58,7 +58,7 @@
       <IncludeInUnityFile>false</IncludeInUnityFile>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
-      <CompileAs>Default</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <UseUnicodeForAssemblerListing>true</UseUnicodeForAssemblerListing>
       <OpenMPSupport>false</OpenMPSupport>
@@ -71,13 +71,17 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ErrorReporting>None</ErrorReporting>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
+      <CCppSupport>Cpp17Support</CCppSupport>
+      <CheckUnicodeSecurity>false</CheckUnicodeSecurity>
+      <PGOUsePreTrainedModel>true</PGOUsePreTrainedModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
+      <MinimumRequiredVersion>10.00</MinimumRequiredVersion>
       <AdditionalDependencies>urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AllowIsolation>false</AllowIsolation>
       <LargeAddressAware>true</LargeAddressAware>
