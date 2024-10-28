@@ -63,6 +63,7 @@ HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPat
 	pfd->Release();
 	return hr;
 }
+
 std::wstring PathJoin(const int index, const std::wstring& add)
 {
 	return (std::filesystem::path(v[index]) / add).wstring();
