@@ -406,7 +406,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements" };
+			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements" };
 
 		std::vector<std::wstring> PreCommands = {
 				L"winget source update",
