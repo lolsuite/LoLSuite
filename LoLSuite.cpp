@@ -264,7 +264,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	auto clearAndAppend = [](int index, const std::wstring& path)
 		{
 			v[index].clear();
-			PathAppend(index,fs::current_path());
+			PathAppend(index, fs::current_path());
 			PathAppend(index, path);
 		};
 	auto executeCommands = [](const std::vector<std::wstring>& commands)
@@ -297,7 +297,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		executeCommands(PostCommands);
 
 		v[0].clear();
-		PathAppend(0,fs::current_path());
+		PathAppend(0, fs::current_path());
 		PathAppend(0, L"jdk-23_windows-x64_bin.exe");
 		Download(L"https://download.oracle.com/java/23/latest/jdk-23_windows-x64_bin.exe", 0, false);
 		SHELLEXECUTE(v[0], L"", true);
