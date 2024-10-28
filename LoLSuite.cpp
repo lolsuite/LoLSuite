@@ -1,4 +1,3 @@
-#define WIN32_LEAN_AND_MEAN
 #include <shobjidl.h>
 #include "resource.h"
 #include <TlHelp32.h>
