@@ -407,7 +407,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 
 		std::vector<std::wstring> PreCommands = {
 				L"winget source update",
-				L"powercfg -h off",
+				L"powercfg /hibernate off",
 				L"winget uninstall 9PB0TRCNRHFX",
 				L"winget uninstall 9NQPSL29BFFF",
 				L"winget uninstall Microsoft.EdgeWebView2Runtime",
