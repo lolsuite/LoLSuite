@@ -7,11 +7,8 @@
 #include <vector>
 #include "resource.h"
 #include <filesystem>
+
 namespace fs = std::filesystem;
-
-
-
-
 
 constexpr auto MAX_LOADSTRING = 100;
 std::vector<std::wstring> v(58);
