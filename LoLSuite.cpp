@@ -431,7 +431,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget uninstall Microsoft.VCRedist.2010.x64",
 				L"winget uninstall Microsoft.VCRedist.2012.x64",
 				L"winget uninstall Microsoft.VCRedist.2013.x64",
-				L"winget uninstall Microsoft.VCRedist.2015+.x64"
+				L"winget uninstall Microsoft.VCRedist.2015+.x86"
 		};
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
