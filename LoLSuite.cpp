@@ -330,7 +330,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		std::vector<std::tuple<std::wstring, int, bool>> downloads = {
 			{L"7z.exe", 0, true},
 			{L"https://hbmame.1emulation.com/hbmameui20.7z", 1, false},
-			{L"https://github.com/mamedev/mame/releases/download/mame0270/mame0270b_64bit.exe", 3, false},
+			{L"https://github.com/mamedev/mame/releases/download/mame0271/mame0271b_64bit.exe", 3, false},
 		{IsProcess64Bit()
 			? L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip"
 			: L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 5, false}
