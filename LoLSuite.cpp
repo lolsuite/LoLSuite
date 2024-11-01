@@ -403,7 +403,8 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements" };
+			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
+			L"winget install 9PCSD6N03BKV --accept-package-agreements" };
 
 		std::vector<std::wstring> PreCommands = {
 				L"winget source update",
@@ -420,6 +421,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget uninstall 9PG2DK419DRG",
 				L"winget uninstall 9PB0TRCNRHFX",
 				L"winget uninstall 9N5TDP8VCMHS",
+				L"winget install 9PCSD6N03BKV",
 				L"winget uninstall Microsoft.VCRedist.2005.x86",
 				L"winget uninstall Microsoft.VCRedist.2008.x86",
 				L"winget uninstall Microsoft.VCRedist.2010.x86",
