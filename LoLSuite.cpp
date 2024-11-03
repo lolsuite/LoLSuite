@@ -20,8 +20,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 const wchar_t* box[8] = {
-	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye XBLA",
-	L"MAME, HBMAME & FBNeo", L"VCRedis AIO", L"Internet Cafe Client Installer"
+	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye CE",
+	L"MAME, HBMAME & FBNeo", L"VCRedist AIO", L"Internet Cafe Client Installer"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
