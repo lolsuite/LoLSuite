@@ -11,6 +11,7 @@
 
 namespace fs = std::filesystem;
 
+auto currentPath = fs::current_path();
 constexpr auto MAX_LOADSTRING = 100;
 std::vector<std::wstring> v(58);
 HINSTANCE hInst;
@@ -311,8 +312,6 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	else if (task == L"mame")
 	{
 		for (auto& path : v) path.clear();
-		auto currentPath = fs::current_path();
-
 
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
@@ -356,7 +355,6 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	else if (task == L"mesen")
 	{
 		for (int i : {0, 1, 2}) v[i].clear();
-		auto currentPath = fs::current_path();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
 			{1, L"Mesen.zip"},
@@ -446,7 +444,6 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	else if (task == L"xenia")
 	{
 		for (auto& path : v) path.clear();
-		auto currentPath = fs::current_path();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{5, L"g64.7z"},
 			{0, L"7z.exe"},
