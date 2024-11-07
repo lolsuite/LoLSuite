@@ -381,7 +381,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	else if (task == L"support")
 	{
 		std::vector<std::wstring> installCommands = {
-			L"winget install Microsoft.Terminal --accept-package-agreements",
+			L"winget install Microsoft.WindowsTerminal --accept-package-agreements",
 			L"winget install Microsoft.PowerShell --accept-package-agreements",
 			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
 			L"winget install 9NQPSL29BFFF --accept-package-agreements",
@@ -412,7 +412,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		std::vector<std::wstring> PreCommands = {
 				L"powercfg /hibernate off",
 				L"winget source update",
-				L"winget uninstall Microsoft.Terminal --purge -h",
+				L"winget uninstall Microsoft.WindowsTerminal --purge -h",
 				L"winget uninstall Microsoft.PowerShell --purge -h",
 				L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
 				L"winget uninstall 9NQPSL29BFFF --purge -h",
