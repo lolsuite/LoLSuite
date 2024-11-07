@@ -21,7 +21,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 const wchar_t* box[8] = {
-	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen", L"GoldenEye CE",
+	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen", L"GoldenEye CE",
 	L"MAME, HBMAME & FBNeo", L"VCRedist AIO", L"Internet Cafe Client Installer"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -379,7 +379,6 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		std::vector<std::wstring> installCommands = {
 			L"winget install Microsoft.Terminal --accept-package-agreements",
 			L"winget install Microsoft.PowerShell --accept-package-agreements",
-			L"winget install Microsoft.Edge --accept-package-agreement",
 			L"winget install 9NQPSL29BFFF --accept-package-agreements",
 			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
@@ -405,6 +404,8 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget install 9PCSD6N03BKV --accept-package-agreements" };
 
 		std::vector<std::wstring> PreCommands = {
+				L"winget uninstall Microsoft.Terminal",
+				L"winget uninstall Microsoft.PowerShell",
 				L"winget source update",
 				L"powercfg /hibernate off",
 				L"winget uninstall 9PB0TRCNRHFX",
@@ -412,7 +413,6 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget uninstall Microsoft.EdgeWebView2Runtime",
 				L"winget uninstall 9N95Q1ZZPMH4",
 				L"winget uninstall 9NCTDW2W1BH8",
-				L"winget uninstall Microsoft.Edge",
 				L"winget uninstall 9MVZQVXJBQ9V",
 				L"winget uninstall 9PMMSR1CGPWG",
 				L"winget uninstall 9N4D0MSMP0PT",
