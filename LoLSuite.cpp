@@ -427,7 +427,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget uninstall Microsoft.VCRedist.2010.x86",
 				L"winget uninstall Microsoft.VCRedist.2012.x86",
 				L"winget uninstall Microsoft.VCRedist.2013.x86",
-				L"winget uninstall Microsoft.VSTOR",
+				L"winget uninstall Microsoft.VSTOR --accept-package-agreements",
 				L"winget uninstall Microsoft.VCRedist.2005.x64",
 				L"winget uninstall Microsoft.VCRedist.2008.x64",
 				L"winget uninstall Microsoft.VCRedist.2010.x64",
