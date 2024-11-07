@@ -421,7 +421,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget uninstall 9PG2DK419DRG",
 				L"winget uninstall 9PB0TRCNRHFX",
 				L"winget uninstall 9N5TDP8VCMHS",
-				L"winget install 9PCSD6N03BKV",
+				L"winget uninstall 9PCSD6N03BKV",
 				L"winget uninstall Microsoft.VCRedist.2005.x86",
 				L"winget uninstall Microsoft.VCRedist.2008.x86",
 				L"winget uninstall Microsoft.VCRedist.2010.x86",
