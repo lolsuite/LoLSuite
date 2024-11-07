@@ -60,10 +60,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <GenerateManifest>false</GenerateManifest>
     <UseStructuredOutput>false</UseStructuredOutput>
+    <OutDir>C:\Users\mobas\OneDrive\Documents\GitHub\LoLSuite\Release\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateManifest>false</GenerateManifest>
     <UseStructuredOutput>false</UseStructuredOutput>
+    <OutDir>C:\Users\mobas\OneDrive\Documents\GitHub\LoLSuite\Release\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

@@ -1,4 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
+#define UNICODE
 #include <windows.h>
 #include <functional>
 #include <shellapi.h>
@@ -22,7 +23,7 @@ BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 const wchar_t* box[8] = {
 	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen", L"GoldenEye CE",
-	L"MAME, HBMAME & FBNeo", L"VCRedist AIO", L"Internet Café Client Installer"
+	L"MAME, HBMAME & FBNeo", L"VCRedist AIO", L"Internet Cafe Client Installer"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
@@ -372,7 +373,8 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			1, false);
 		SHELLEXECUTE(v[0], L"x Mesen.zip -y", true);
 		for (int i : {0, 1})fs::remove_all(v[i]);
-		SHELLEXECUTE(v[2], L"--nes.disableGameDatabase=true", true);
+		SHELLEXECUTE(v[2], L"--nes.disableGameDatabase=true", false);
+		exit(0);
 	}
 	else if (task == L"support")
 	{
@@ -469,7 +471,8 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		{
 			fs::remove_all(v[i]);
 		}
-		SHELLEXECUTE(v[4], v[6], true);
+		SHELLEXECUTE(v[4], v[6], false);
+		exit(0);
 	}
 	else if (task == L"gameclients")
 	{
