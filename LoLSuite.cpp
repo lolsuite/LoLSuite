@@ -201,6 +201,7 @@ void manageGame(const std::wstring& game, bool restore)
 			Download(L"D3DCompiler_47.dll", 57, true);
 		}
 		SHELLEXECUTE(PathJoin(56, L"Riot Client.exe"), L"", false);
+		exit(0);
 	}
 	else if (game == L"dota2") {
 		pkill(L"dota2.exe");
@@ -209,6 +210,7 @@ void manageGame(const std::wstring& game, bool restore)
 		DeleteZoneIdentifier(PathJoin(0, L"dota2.exe"));
 		Download(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
 		SHELLEXECUTE(L"steam://rungameid/570//-high/", L"", false);
+		exit(0);
 	}
 }
 
