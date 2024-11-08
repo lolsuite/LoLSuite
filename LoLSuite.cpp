@@ -7,7 +7,7 @@
 #include <vector>
 #include "resource.h"
 #include <filesystem>
-#include <ShObjIdl.h>
+#include <ShObjIdl_core.h>
 
 namespace fs = std::filesystem;
 
