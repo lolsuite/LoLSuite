@@ -4,7 +4,6 @@
 #include <functional>
 #include <shellapi.h>
 #include <shobjidl.h>
-#include <string>
 #include <TlHelp32.h>
 #include <vector>
 #include "resource.h"
@@ -444,6 +443,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		Download(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
 		SHELLEXECUTE(v[0], L"/Q", true);
 		fs::remove_all(v[0]);
+		exit(0);
 	}
 	else if (task == L"xenia")
 	{
@@ -486,6 +486,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
+		exit(0);
 	}
 }
 
