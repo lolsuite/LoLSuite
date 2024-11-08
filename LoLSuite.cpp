@@ -3,11 +3,11 @@
 #include <windows.h>
 #include <functional>
 #include <shellapi.h>
-#include <shobjidl.h>
 #include <TlHelp32.h>
 #include <vector>
 #include "resource.h"
 #include <filesystem>
+#include <ShObjIdl.h>
 
 namespace fs = std::filesystem;
 
