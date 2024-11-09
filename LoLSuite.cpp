@@ -20,8 +20,8 @@ WCHAR szWindowClass[MAX_LOADSTRING];
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-const wchar_t* box[7] = {
-	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen",
+const wchar_t* box[8] = {
+	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen", L"GoldenEye CE",
 	L"MAME, HBMAME & FBNeo", L"VCRedist AIO", L"Internet Cafe Client Installer"
 };
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -445,6 +445,39 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		fs::remove_all(v[0]);
 		exit(0);
 	}
+	else if (task == L"xenia")
+	{
+		for (auto& path : v) path.clear();
+		std::vector<std::pair<int, std::wstring>> paths = {
+			{5, L"g64.7z"},
+			{0, L"7z.exe"},
+			{1, L"xenia_master.zip"},
+			{3, L"LICENSE"},
+			{2, L"xenia.pdb"},
+			{4, L"xenia.exe"},
+			{6, L"defaultCE.xex"}
+		};
+		for (const auto& [index, subPath] : paths)
+		{
+			PathAppend(index, currentPath);
+			PathAppend(index, subPath);
+		}
+		Download(L"g64.7z", 5, true);
+		Download(L"7z.exe", 0, true);
+		Download(L"https://github.com/xenia-project/release-builds-windows/releases/latest/download/xenia_master.zip", 1, false);
+		std::vector<std::wstring> commands = { L"x g64.7z -y", L"x xenia_master.zip -y" };
+		std::vector<int> indices = { 0, 1, 2, 3, 5 };
+		for (const auto& cmd : commands)
+		{
+			SHELLEXECUTE(v[0], cmd, true);
+		}
+		for (int i : indices)
+		{
+			fs::remove_all(v[i]);
+		}
+		SHELLEXECUTE(v[4], v[6], false);
+		exit(0);
+	}
 	else if (task == L"gameclients")
 	{
 		std::vector<std::wstring> PreCommands = {
@@ -464,6 +497,7 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageGame(L"dota2", flag); },
 		[flag]() { manageTasks(L"JDK"); },
 		[flag]() { manageTasks(L"mesen"); },
+		[flag]() { manageTasks(L"xenia"); },
 		[flag]() { manageTasks(L"mame"); },
 		[flag]() { manageTasks(L"support", flag); },
 		[flag]() { manageTasks(L"gameclients"); }
