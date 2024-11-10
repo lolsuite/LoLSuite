@@ -27,7 +27,7 @@
     <CharacterSet>Unicode</CharacterSet>
     <VCToolsVersion>14.41.34120</VCToolsVersion>
     <EnableUnitySupport>false</EnableUnitySupport>
-    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <PreferredToolArchitecture>x86</PreferredToolArchitecture>
     <SpectreMitigation>Spectre</SpectreMitigation>
     <EnableASAN>false</EnableASAN>
     <InterproceduralOptimization>true</InterproceduralOptimization>
@@ -78,7 +78,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
@@ -116,7 +116,7 @@
       <EnableUAC>false</EnableUAC>
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
-      <OutputFile>$(OutDir)$(TargetName)_x86$(TargetExt)</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -168,7 +168,7 @@
       <EnableUAC>false</EnableUAC>
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
-      <OutputFile>$(OutDir)$(TargetName)_x64$(TargetExt)</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)_intel_x64$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
