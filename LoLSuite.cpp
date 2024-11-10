@@ -360,7 +360,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
 			{1, L"Mesen.zip"},
-			{2, L"Mesen2\\mesen.exe"},
+			{2, L"Mesen2\\Mesen.exe"},
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -375,7 +375,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		CreateDirectory(L"Mesen2", nullptr);
 		SHELLEXECUTE(v[0], L"x Mesen.zip -oMesen2 -y", true);
 		for (int i : {0, 1})fs::remove_all(v[i]);
-		SHELLEXECUTE(v[2], nullptr, false);
+		SHELLEXECUTE(v[2], L"", false);
 		exit(0);
 	}
 	else if (task == L"support")
