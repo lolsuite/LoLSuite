@@ -406,6 +406,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
 			L"winget install Microsoft.VSTOR --accept-package-agreements"
 
 		}
@@ -437,6 +438,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 				L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h",
 				L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
 				L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h",
+				L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
 				L"winget uninstall Microsoft.VSTOR --purge -h"
 		};
 		executeCommands(PreCommands);
@@ -545,14 +547,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+int APIENTRY wWinMain(
+	_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPWSTR lpCmdLine,
+	_In_ int nShowCmd
+)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadStringW(hInstance, IDC_BUFFER, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
-	if (!InitInstance(hInstance, nCmdShow)) return FALSE;
+	if (!InitInstance(hInstance, nShowCmd)) return FALSE;
 
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 	if (FAILED(hr))
