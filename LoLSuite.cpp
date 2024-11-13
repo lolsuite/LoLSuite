@@ -451,22 +451,22 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	{
 		for (auto& path : v) path.clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
-			{5, L"g64.7z"},
+			{5, L"Bean.zip"},
 			{0, L"7z.exe"},
 			{1, L"xenia.zip"},
 			{3, L"LICENSE"},
-			{4, L"xenia_canary.exe"},
-			{6, L"defaultCE.xex"}
+			{4, L"Xenia\\xenia_canary.exe"},
+			{6, L"Bean\\defaultCE.xex"}
 		};
 		for (const auto& [index, subPath] : paths)
 		{
 			PathAppend(index, currentPath);
 			PathAppend(index, subPath);
 		}
-		Download(L"http://92.35.115.29/server/g64.7z", 5, false);
+		Download(L"http://92.35.115.29/Bean.zip", 5, false);
 		Download(L"7z.exe", 0, true);
 		Download(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 1, false);
-		std::vector<std::wstring> commands = { L"x g64.7z -y", L"x xenia.zip -y" };
+		std::vector<std::wstring> commands = { L"x Bean.zip -oBean -y", L"x xenia.zip -oXenia -y" };
 		std::vector<int> indices = { 0, 1, 3, 5 };
 		for (const auto& cmd : commands)
 		{
