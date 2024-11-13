@@ -1,5 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define UNICODE
+#define _UNICODE
+
 #include <windows.h>
 #include <functional>
 #include <shellapi.h>
@@ -24,6 +26,7 @@ const wchar_t* box[8] = {
 	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen", L"GoldenEye CE",
 	L"MAME, HBMAME & FBNeo", L"VCRedist AIO", L"Game Clients Installer"
 };
+
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
 	IFileDialog* pfd = nullptr;

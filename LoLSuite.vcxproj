@@ -58,7 +58,6 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <GenerateManifest>false</GenerateManifest>
     <UseStructuredOutput>false</UseStructuredOutput>
     <OutDir>C:\Users\mobas\OneDrive\Documents\GitHub\LoLSuite\Release\</OutDir>
   </PropertyGroup>
@@ -110,13 +109,12 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <MinimumRequiredVersion>10.00</MinimumRequiredVersion>
       <AdditionalDependencies>urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AllowIsolation>false</AllowIsolation>
       <LargeAddressAware>true</LargeAddressAware>
-      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
-      <EnableUAC>false</EnableUAC>
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
