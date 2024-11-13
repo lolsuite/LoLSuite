@@ -403,7 +403,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		std::vector<std::wstring> PreCommands = {
 			//Clear Hibernation File
 			L"powercfg /hibernate off",
-			// Prepear Winget Sources
+			// Prepare Winget Sources
 			L"winget source update",
 			// Utility
 			L"winget uninstall Microsoft.WindowsTerminal --purge -h",
