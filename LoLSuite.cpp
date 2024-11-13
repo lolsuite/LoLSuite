@@ -24,7 +24,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 const wchar_t* box[8] = {
-	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen", L"GoldenEye CE",
+	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen", L"XBLA",
 	L"MAME, HBMAME & FBNeo", L"VCRedist AIO", L"Game Clients Installer"
 };
 
@@ -277,7 +277,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-void manageTasks(const std::wstring& task, bool restore = false)
+void manageTasks(const std::wstring& task)
 {
 	auto clearAndAppend = [](int index, const std::wstring& path)
 		{
@@ -487,9 +487,16 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			{5, L"Bean.zip"},
 			{0, L"7z.exe"},
 			{1, L"xenia.zip"},
-			{3, L"LICENSE"},
+			{3, L"Xenia\\LICENSE"},
 			{4, L"Xenia\\xenia_canary.exe"},
-			{6, L"Bean\\defaultCE.xex"}
+			{6, L"Bean\\defaultCE.xex"},
+			{7, L"Xenia_patches.zip"},
+			{9, L"PD.zip"},
+			{11, L"BK.zip"},
+			{13, L"BT.zip"},
+			{14, L"PD\\35C1CDD22DD0D4E54B858859C0052124FFFAD17958 --license_mask -1"},
+			{15, L"BK\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
+			{16, L"BT\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -497,15 +504,20 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			PathAppend(index, subPath);
 		}
 		Download(L"http://92.35.115.29/Bean.zip", 5, false);
+		Download(L"http://92.35.115.29/PD.zip", 9, false);
+		Download(L"http://92.35.115.29/BK.zip", 11, false);
+		Download(L"http://92.35.115.29/BT.zip", 13, false);
 		Download(L"7z.exe", 0, true);
 		Download(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 1, false);
-		std::vector<std::wstring> commands = { L"x Bean.zip -oBean -y", L"x xenia.zip -oXenia -y" };
-		std::vector<int> indices = { 0, 1, 3, 5 };
+		Download(L"http://92.35.115.29/Xenia_patches.zip", 7, false);
+		std::vector<std::wstring> commands = { L"x Bean.zip -oBean -y", L"x xenia.zip -oXenia -y", L"x Xenia_patches.zip -oXenia\\patches -y", L"x PD.zip -oPD -y" , L"x BK.zip -oBK -y" , L"x BT.zip -oBT -y" };
+		std::vector<int> indices = { 0, 1, 3, 5, 7, 9, 11, 13 };
 		for (const auto& cmd : commands)
 		{
 			SHELLEXECUTE(v[0], cmd, true);
 		}
-		SHELLEXECUTE(v[4], v[6], false);
+		// 6 = Goldeneye, 14 = Perfect Dark, 15 = Banjo Kazooie, 16 = Banjo Tooie
+		SHELLEXECUTE(v[4], v[14], false);
 		for (int i : indices)
 		{
 			fs::remove_all(v[i]);
@@ -535,7 +547,7 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageTasks(L"mesen"); },
 		[flag]() { manageTasks(L"xenia"); },
 		[flag]() { manageTasks(L"mame"); },
-		[flag]() { manageTasks(L"support", flag); },
+		[flag]() { manageTasks(L"support"); },
 		[flag]() { manageTasks(L"gameclients"); }
 	};
 	if (cb >= 0 && cb < commands.size())
