@@ -13,6 +13,7 @@
 
 namespace fs = std::filesystem;
 
+WCHAR szFolderPath[MAX_PATH + 1] = {};
 auto currentPath = fs::current_path();
 constexpr auto MAX_LOADSTRING = 100;
 std::vector<std::wstring> v(58);
@@ -144,9 +145,21 @@ bool IsProcess64Bit()
 	return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
 }
 
+void ini()
+{
+	HRESULT hr = BrowseForFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
+
+	if (SUCCEEDED(hr))
+	{
+		v[0] = szFolderPath;
+	}
+}
+
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
+		ini();
+
 		const wchar_t* processes[] = {
 			L"LeagueClient.exe", L"LeagueClientUx.exe", L"LeagueClientUxRender.exe",
 			L"League of Legends.exe", L"Riot Client.exe", L"RiotClientServices.exe"
@@ -206,6 +219,7 @@ void manageGame(const std::wstring& game, bool restore)
 		exit(0);
 	}
 	else if (game == L"dota2") {
+		ini();
 		pkill(L"dota2.exe");
 		PathAppend(0, L"game\\bin\\win64");
 		PathCombine(1, 0, L"embree3.dll");
@@ -280,6 +294,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		};
 	if (task == L"JDK")
 	{
+		// Clear Old Java Installations
 		std::vector<std::wstring> PreCommands = {
 			L"winget source update",
 			L"winget uninstall Mojang.MinecraftLauncher",
@@ -294,6 +309,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 		};
 		executeCommands(PreCommands);
 
+		// Reinstall Minecraft With Stable Java Versions
 		std::vector<std::wstring> PostCommands = {
 			L"winget install Mojang.MinecraftLauncher",
 			L"winget install Oracle.JavaRuntimeEnvironment"
@@ -370,6 +386,7 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			PathAppend(index, currentPath);
 			PathAppend(index, subPath);
 		}
+		// Install Mesen Dependency
 		_wsystem(L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements");
 		Download(L"7z.exe", 0, true);
 		Download(
@@ -383,10 +400,50 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	}
 	else if (task == L"support")
 	{
+		std::vector<std::wstring> PreCommands = {
+			//Clear Hibernation File
+			L"powercfg /hibernate off",
+			// Prepear Winget Sources
+			L"winget source update",
+			// Utility
+			L"winget uninstall Microsoft.WindowsTerminal --purge -h",
+			L"winget uninstall Microsoft.PowerShell --purge -h",
+			L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
+			// Store Codecs
+			L"winget uninstall 9NQPSL29BFFF --purge -h",
+			L"winget uninstall 9PB0TRCNRHFX --purge -h",
+			L"winget uninstall 9N95Q1ZZPMH4 --purge -h",
+			L"winget uninstall 9NCTDW2W1BH8 --purge -h",
+			L"winget uninstall 9MVZQVXJBQ9V --purge -h",
+			L"winget uninstall 9PMMSR1CGPWG --purge -h",
+			L"winget uninstall 9N4D0MSMP0PT --purge -h",
+			L"winget uninstall 9PG2DK419DRG --purge -h",
+			L"winget uninstall 9PB0TRCNRHFX --purge -h",
+			L"winget uninstall 9N5TDP8VCMHS --purge -h",
+			L"winget uninstall 9PCSD6N03BKV --purge -h",
+			// 32Bit VCRedist (Uninstall)
+			L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
+			// 64Bit VCRedist (Uninstall)
+			L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
+			L"winget uninstall Microsoft.VSTOR --purge -h"
+		};
+
 		std::vector<std::wstring> installCommands = {
+			// Utility
 			L"winget install Microsoft.WindowsTerminal --accept-package-agreements",
 			L"winget install Microsoft.PowerShell --accept-package-agreements",
 			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
+			// Store Codecs
 			L"winget install 9NQPSL29BFFF --accept-package-agreements",
 			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
@@ -398,54 +455,25 @@ void manageTasks(const std::wstring& task, bool restore = false)
 			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N5TDP8VCMHS --accept-package-agreements",
 			L"winget install 9PCSD6N03BKV --accept-package-agreements" ,
-			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements",
+			// 32Bit VCRedist (Install Silent)
 			L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
+			// 64Bit VCRedist (Install Silent)
+			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements",
 			L"winget install Microsoft.VSTOR --accept-package-agreements"
-
-		}
-		;
-		std::vector<std::wstring> PreCommands = {
-				L"powercfg /hibernate off",
-				L"winget source update",
-				L"winget uninstall Microsoft.WindowsTerminal --purge -h",
-				L"winget uninstall Microsoft.PowerShell --purge -h",
-				L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
-				L"winget uninstall 9NQPSL29BFFF --purge -h",
-				L"winget uninstall 9PB0TRCNRHFX --purge -h",
-				L"winget uninstall 9N95Q1ZZPMH4 --purge -h",
-				L"winget uninstall 9NCTDW2W1BH8 --purge -h",
-				L"winget uninstall 9MVZQVXJBQ9V --purge -h",
-				L"winget uninstall 9PMMSR1CGPWG --purge -h",
-				L"winget uninstall 9N4D0MSMP0PT --purge -h",
-				L"winget uninstall 9PG2DK419DRG --purge -h",
-				L"winget uninstall 9PB0TRCNRHFX --purge -h",
-				L"winget uninstall 9N5TDP8VCMHS --purge -h",
-				L"winget uninstall 9PCSD6N03BKV --purge -h" ,
-				L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h",
-				L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
-				L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h",
-				L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
-				L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h",
-				L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h",
-				L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
-				L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h",
-				L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
-				L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h",
-				L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
-				L"winget uninstall Microsoft.VSTOR --purge -h"
 		};
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
+		// DX9 Redist
 		clearAndAppend(0, L"dxwebsetup.exe");
 		Download(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
 		SHELLEXECUTE(v[0], L"/Q", true);
@@ -486,8 +514,10 @@ void manageTasks(const std::wstring& task, bool restore = false)
 	}
 	else if (task == L"gameclients")
 	{
+		// First Clear All Installations/Credentials
 		std::vector<std::wstring> PreCommands = {
 				L"winget source update", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet" };
+		// Reinstall
 		std::vector<std::wstring> installCommands = {
 				L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
 		executeCommands(PreCommands);
@@ -563,20 +593,6 @@ int APIENTRY wWinMain(
 	LoadStringW(hInstance, IDC_BUFFER, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 	if (!InitInstance(hInstance, nShowCmd)) return FALSE;
-
-	HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-	if (FAILED(hr))
-	{
-		MessageBox(nullptr, L"Failed to initialize COM library", L"Error", MB_OK | MB_ICONERROR);
-		return 1;
-	}
-	WCHAR szFolderPath[MAX_PATH] = {};
-	hr = BrowseForFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
-	if (SUCCEEDED(hr))
-	{
-		v[0] = szFolderPath;
-	}
-	CoUninitialize();
 
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
