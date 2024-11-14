@@ -12,7 +12,8 @@
 #include <ShObjIdl_core.h>
 
 namespace fs = std::filesystem;
-
+static int cb = 0;
+static int rareb = 0;
 WCHAR szFolderPath[MAX_PATH + 1] = {};
 auto currentPath = fs::current_path();
 constexpr auto MAX_LOADSTRING = 100;
@@ -23,9 +24,13 @@ WCHAR szWindowClass[MAX_LOADSTRING];
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-const wchar_t* box[8] = {
-	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen", L"XBLA",
+
+const wchar_t* box[7] = {
+	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen",
 	L"MAME, HBMAME & FBNeo", L"VCRedist AIO", L"Game Clients Installer"
+};
+const wchar_t* rarebox[5] = {
+	L"GoldenEye CE", L"Perfect Dark", L"Banjo-Kazooie", L"Banjo-Tooie", L"GoldenEye"
 };
 
 HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -122,7 +127,7 @@ void pkill(const std::wstring& process_name)
 }
 void DeleteZoneIdentifier(const std::wstring& file)
 {
-	std::wstring zoneIdentifierPath = L"\\?\"" + file + L":Zone.Identifier";
+	std::wstring zoneIdentifierPath = file + L":Zone.Identifier";
 	!DeleteFile(zoneIdentifierPath.c_str());
 }
 void Download(const std::wstring& url, int j, bool serv)
@@ -147,19 +152,14 @@ bool IsProcess64Bit()
 
 void ini()
 {
-	HRESULT hr = BrowseForFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
-
-	if (SUCCEEDED(hr))
-	{
-		v[0] = szFolderPath;
-	}
+	BrowseForFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
+	v[0] = szFolderPath;
 }
 
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
 		ini();
-
 		const wchar_t* processes[] = {
 			L"LeagueClient.exe", L"LeagueClientUx.exe", L"LeagueClientUxRender.exe",
 			L"League of Legends.exe", L"Riot Client.exe", L"RiotClientServices.exe"
@@ -251,27 +251,36 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hInst = hInstance;
 	HWND hWnd = CreateWindowExW(
 		0, szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
-		CW_USEDEFAULT, CW_USEDEFAULT, 500, 130,
+		CW_USEDEFAULT, CW_USEDEFAULT, 500, 150,
 		nullptr, nullptr, hInstance, nullptr
 	);
 	if (!hWnd) return FALSE;
 	std::vector<std::tuple<DWORD, LPCWSTR, LPCWSTR, DWORD, int, int, int, int, HMENU>> controls = {
-		{WS_EX_TOOLWINDOW, L"BUTTON", L"Patch", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 20, 20, 100, 50, reinterpret_cast<HMENU>(1)},
-		{0, L"BUTTON", L"Restore", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 140, 20, 100, 50, reinterpret_cast<HMENU>(2)},
-		{0, WC_COMBOBOX, L"", CBS_DROPDOWN | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 260, 20, 200, 200, nullptr}
+		{WS_EX_TOOLWINDOW, L"BUTTON", L"Patch", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 10, 20, 60, 30, reinterpret_cast<HMENU>(1)},
+		{0, L"BUTTON", L"Restore", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 75, 20, 60, 30, reinterpret_cast<HMENU>(2)},
+		{0, L"BUTTON", L"XBLA", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 140, 20, 60, 30, reinterpret_cast<HMENU>(3)}
 	};
-	HWND hComboBox = nullptr;
+
 	for (const auto& [dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hMenu] : controls) {
 		HWND hControl = CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWnd, hMenu, hInstance, nullptr);
 		if (!hControl) return FALSE;
-		if (lpClassName == WC_COMBOBOX) {
-			hComboBox = hControl;
-		}
 	}
+
+	HWND hwndCombo1, hwndCombo2;
+	hwndCombo1 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 20, 200, 200, hWnd, NULL, hInstance, NULL);
+	hwndCombo2 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 50, 200, 200, hWnd, NULL, hInstance, NULL);
+
 	for (const auto& str : box) {
-		SendMessage(hComboBox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
+		SendMessage(hwndCombo1, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
 	}
-	SendMessageW(hComboBox, CB_SETCURSEL, 0, 0);
+	SendMessageW(hwndCombo1, CB_SETCURSEL, 0, 0);
+
+	for (const auto& str : rarebox) {
+		SendMessage(hwndCombo2, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
+	}
+	SendMessageW(hwndCombo2, CB_SETCURSEL, 0, 0);
+
+
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 	return TRUE;
@@ -482,42 +491,65 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"xenia")
 	{
+		// Default is GoldenEye CE
 		for (auto& path : v) path.clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
-			{5, L"Bean.zip"},
-			{0, L"7z.exe"},
-			{1, L"xenia.zip"},
+			{0, L"Bean.zip"},
+			{1, L"7z.exe"},
+			{2, L"xenia.zip"},
 			{3, L"Xenia\\LICENSE"},
 			{4, L"Xenia\\xenia_canary.exe"},
-			{6, L"Bean\\defaultCE.xex"},
-			{7, L"Xenia_patches.zip"},
-			{9, L"PD.zip"},
-			{11, L"BK.zip"},
-			{13, L"BT.zip"},
-			{14, L"PD\\35C1CDD22DD0D4E54B858859C0052124FFFAD17958 --license_mask -1"},
-			{15, L"BK\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
-			{16, L"BT\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
+			{5, L"Bean\\defaultCE.xex"},
+			{6, L"patches.zip"},
+			{7, L"PD.zip"},
+			{8, L"BK.zip"},
+			{9, L"BT.zip"},
+			{10, L"PD\\35C1CDD22DD0D4E54B858859C0052124FFFAD17958 --license_mask -1"},
+			{11, L"BK\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
+			{12, L"BT\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
+			{13, L"BeanOG.zip"},
+			{14, L"BeanOG\\30BA92710985645EF623D4A6BA9E8EFFAEC62617 --license_mask -1"}
 		};
 		for (const auto& [index, subPath] : paths)
 		{
 			PathAppend(index, currentPath);
 			PathAppend(index, subPath);
 		}
-		Download(L"http://92.35.115.29/Bean.zip", 5, false);
-		Download(L"http://92.35.115.29/PD.zip", 9, false);
-		Download(L"http://92.35.115.29/BK.zip", 11, false);
-		Download(L"http://92.35.115.29/BT.zip", 13, false);
-		Download(L"7z.exe", 0, true);
-		Download(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 1, false);
-		Download(L"http://92.35.115.29/Xenia_patches.zip", 7, false);
-		std::vector<std::wstring> commands = { L"x Bean.zip -oBean -y", L"x xenia.zip -oXenia -y", L"x Xenia_patches.zip -oXenia\\patches -y", L"x PD.zip -oPD -y" , L"x BK.zip -oBK -y" , L"x BT.zip -oBT -y" };
-		std::vector<int> indices = { 0, 1, 3, 5, 7, 9, 11, 13 };
+		Download(L"http://92.35.115.29/Bean.zip", 0, false);
+		Download(L"http://92.35.115.29/PD.zip", 7, false);
+		Download(L"http://92.35.115.29/BK.zip", 8, false);
+		Download(L"http://92.35.115.29/BT.zip", 9, false);
+		Download(L"http://92.35.115.29/BeanOG.zip", 13, false);
+		Download(L"7z.exe", 1, true);
+		Download(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
+		Download(L"http://92.35.115.29/patches.zip", 6, false);
+
+		std::vector<std::wstring> commands = { L"x Bean.zip -oBean -y", L"x xenia.zip -oXenia -y", L"x patches.zip -oXenia\\patches -y", L"x PD.zip -oPD -y" , L"x BK.zip -oBK -y" , L"x BT.zip -oBT -y", L"x BeanOG.zip -oBeanOG -y" };
 		for (const auto& cmd : commands)
 		{
-			SHELLEXECUTE(v[0], cmd, true);
+			SHELLEXECUTE(v[1], cmd, true);
 		}
-		// 6 = Goldeneye, 14 = Perfect Dark, 15 = Banjo Kazooie, 16 = Banjo Tooie
-		SHELLEXECUTE(v[4], v[14], false);
+
+		switch (rareb)
+		{
+		case 0:
+			SHELLEXECUTE(v[4], v[5], false);
+			break;
+		case 1:
+			SHELLEXECUTE(v[4], v[10], false);
+			break;
+		case 2:
+			SHELLEXECUTE(v[4], v[11], false);
+			break;
+		case 3:
+			SHELLEXECUTE(v[4], v[12], false);
+			break;
+		case 4:
+			SHELLEXECUTE(v[4], v[14], false);
+			break;
+		}
+
+		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13 };
 		for (int i : indices)
 		{
 			fs::remove_all(v[i]);
@@ -545,7 +577,6 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageGame(L"dota2", flag); },
 		[flag]() { manageTasks(L"JDK"); },
 		[flag]() { manageTasks(L"mesen"); },
-		[flag]() { manageTasks(L"xenia"); },
 		[flag]() { manageTasks(L"mame"); },
 		[flag]() { manageTasks(L"support"); },
 		[flag]() { manageTasks(L"gameclients"); }
@@ -557,24 +588,24 @@ void handleCommand(int cb, bool flag)
 }
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	// Default is League of Legends
-	static int cb = 0;
 	switch (message)
 	{
 	case WM_COMMAND:
 		if (HIWORD(wParam) == CBN_SELCHANGE)
 		{
-
 			cb = SendMessage(reinterpret_cast<HWND>(lParam), CB_GETCURSEL, 0, 0);
+			rareb = SendMessage(reinterpret_cast<HWND>(lParam), CB_GETCURSEL, 0, 0);
 		}
 		switch (LOWORD(wParam))
 		{
-
 		case 1:
 			handleCommand(cb, false);
 			break;
 		case 2:
 			handleCommand(cb, true);
+			break;
+		case 3:
+			manageTasks(L"xenia");
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
