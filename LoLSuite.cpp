@@ -515,16 +515,11 @@ void manageTasks(const std::wstring& task)
 			PathAppend(index, currentPath);
 			PathAppend(index, subPath);
 		}
-		Download(L"http://92.35.115.29/Bean.zip", 0, false);
-		Download(L"http://92.35.115.29/PD.zip", 7, false);
-		Download(L"http://92.35.115.29/BK.zip", 8, false);
-		Download(L"http://92.35.115.29/BT.zip", 9, false);
-		Download(L"http://92.35.115.29/BeanOG.zip", 13, false);
 		Download(L"7z.exe", 1, true);
 		Download(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
 		Download(L"http://92.35.115.29/patches.zip", 6, false);
 
-		std::vector<std::wstring> commands = { L"x Bean.zip -oBean -y", L"x xenia.zip -oXenia -y", L"x patches.zip -oXenia\\patches -y", L"x PD.zip -oPD -y" , L"x BK.zip -oBK -y" , L"x BT.zip -oBT -y", L"x BeanOG.zip -oBeanOG -y" };
+		std::vector<std::wstring> commands = { L"x xenia.zip -oXenia -y", L"x patches.zip -oXenia\\patches -y"};
 		for (const auto& cmd : commands)
 		{
 			SHELLEXECUTE(v[1], cmd, true);
@@ -533,18 +528,28 @@ void manageTasks(const std::wstring& task)
 		switch (rareb)
 		{
 		case 0:
+			Download(L"http://92.35.115.29/Bean.zip", 0, false);
+			SHELLEXECUTE(v[1], L"x Bean.zip -oBean -y", true);
 			SHELLEXECUTE(v[4], v[5], false);
 			break;
 		case 1:
+			Download(L"http://92.35.115.29/PD.zip", 7, false);
+		    SHELLEXECUTE(v[1], L"x PD.zip -oPD -y", true);
 			SHELLEXECUTE(v[4], v[10], false);
 			break;
 		case 2:
+			Download(L"http://92.35.115.29/BK.zip", 8, false);
+			SHELLEXECUTE(v[1], L"x BK.zip -oBK -y", true);
 			SHELLEXECUTE(v[4], v[11], false);
 			break;
 		case 3:
+			Download(L"http://92.35.115.29/BT.zip", 9, false);
+			SHELLEXECUTE(v[1], L"x BT.zip -oBT -y", true);
 			SHELLEXECUTE(v[4], v[12], false);
 			break;
 		case 4:
+			Download(L"http://92.35.115.29/BeanOG.zip", 13, false);
+			SHELLEXECUTE(v[1], L"x BeanOG.zip -oBeanOG -y", true);
 			SHELLEXECUTE(v[4], v[14], false);
 			break;
 		}
