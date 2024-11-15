@@ -404,7 +404,7 @@ void manageTasks(const std::wstring& task)
 		CreateDirectory(L"Mesen2", nullptr);
 		SHELLEXECUTE(v[0], L"x Mesen.zip -oMesen2 -y", true);
 		for (int i : {0, 1})fs::remove_all(v[i]);
-		SHELLEXECUTE(v[2], L"", false);
+		SHELLEXECUTE(v[2], L"--nes.disableGameDatabase=true", false);
 		exit(0);
 	}
 	else if (task == L"support")
