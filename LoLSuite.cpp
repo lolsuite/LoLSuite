@@ -26,8 +26,8 @@ BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 const wchar_t* box[7] = {
-	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen",
-	L"MAME, HBMAME & FBNeo", L"VCRedist AIO", L"Game Clients Installer"
+	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen2",
+	L"MAME, HBMAME & FBNeo", L"VCRedist", L"Game Clients Installer"
 };
 const wchar_t* rarebox[5] = {
 	L"GoldenEye CE", L"Perfect Dark", L"Banjo-Kazooie", L"Banjo-Tooie", L"GoldenEye"
