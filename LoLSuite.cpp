@@ -517,9 +517,9 @@ void manageTasks(const std::wstring& task)
 		}
 		Download(L"7z.exe", 1, true);
 		Download(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
-		Download(L"http://92.35.115.29/patches.zip", 6, false);
+		Download(L"http://92.35.115.29/patches.7z", 6, false);
 
-		std::vector<std::wstring> commands = { L"x xenia.zip -oXenia -y", L"x patches.zip -oXenia\\patches -y" };
+		std::vector<std::wstring> commands = { L"x xenia.zip -oXenia -y", L"x patches.7z -oXenia\\patches -y" };
 		for (const auto& cmd : commands)
 		{
 			SHELLEXECUTE(v[1], cmd, true);
