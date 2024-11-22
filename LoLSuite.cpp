@@ -500,7 +500,7 @@ void manageTasks(const std::wstring& task)
 			{3, L"Xenia\\LICENSE"},
 			{4, L"Xenia\\xenia_canary.exe"},
 			{5, L"Bean\\defaultCE.xex"},
-			{6, L"patches.zip"},
+			{6, L"patches.7z"},
 			{7, L"PD.7z"},
 			{8, L"BK.7z"},
 			{9, L"BT.7z"},
