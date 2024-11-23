@@ -396,6 +396,7 @@ void manageTasks(const std::wstring& task)
 			PathAppend(index, subPath);
 		}
 		// Install Mesen Dependency
+		_wsystem(L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h");
 		_wsystem(L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements");
 		Download(L"7z.exe", 0, true);
 		Download(
