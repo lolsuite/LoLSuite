@@ -195,7 +195,7 @@ void manageGame(const std::wstring& game, bool restore)
 				Download(std::wstring(prefix) + gameFiles[i], 52 + i, true);
 			}
 			if (deletetbb) {
-				DeleteFile(v[55].c_str());
+				fs::remove_all(v[55]);
 			}
 			};
 		if (restore) {
