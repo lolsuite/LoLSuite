@@ -25,8 +25,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-const wchar_t* box[7] = {
-	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen2",
+const wchar_t* box[6] = {
+	L"League of Legends", L"DOTA2", L"Minecraft Java",
 	L"MAME, HBMAME & FBNeo", L"VCRedist", L"Game Clients Installer"
 };
 const wchar_t* rarebox[5] = {
@@ -383,32 +383,6 @@ void manageTasks(const std::wstring& task)
 			fs::remove_all(v[i]);
 		}
 	}
-	else if (task == L"mesen")
-	{
-		for (int i : {0, 1, 2}) v[i].clear();
-		std::vector<std::pair<int, std::wstring>> paths = {
-			{0, L"7z.exe"},
-			{1, L"Mesen.zip"},
-			{2, L"Mesen2\\Mesen.exe"},
-		};
-		for (const auto& [index, subPath] : paths)
-		{
-			PathAppend(index, currentPath);
-			PathAppend(index, subPath);
-		}
-		// Install Mesen Dependency
-		_wsystem(L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h");
-		_wsystem(L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements");
-		Download(L"7z.exe", 0, true);
-		Download(
-			L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip",
-			1, false);
-		CreateDirectory(L"Mesen2", nullptr);
-		SHELLEXECUTE(v[0], L"x Mesen.zip -oMesen2 -y", true);
-		for (int i : {0, 1})fs::remove_all(v[i]);
-		SHELLEXECUTE(v[2], L"", false);
-		exit(0);
-	}
 	else if (task == L"support")
 	{
 		std::vector<std::wstring> PreCommands = {
@@ -583,7 +557,6 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageGame(L"leagueoflegends", flag); },
 		[flag]() { manageGame(L"dota2", flag); },
 		[flag]() { manageTasks(L"JDK"); },
-		[flag]() { manageTasks(L"mesen"); },
 		[flag]() { manageTasks(L"mame"); },
 		[flag]() { manageTasks(L"support"); },
 		[flag]() { manageTasks(L"gameclients"); }
