@@ -390,6 +390,7 @@ void manageTasks(const std::wstring& task)
 			{0, L"7z.exe"},
 			{1, L"Mesen.zip"},
 			{2, L"Mesen2\\Mesen.exe"},
+			{3, L"mesen_settings.7z"},
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -403,9 +404,13 @@ void manageTasks(const std::wstring& task)
 		Download(
 			L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip",
 			1, false);
+		Download(
+			L"http://92.35.115.29/server/mesen_settings.7z",
+			3, false);
 		CreateDirectory(L"Mesen2", nullptr);
 		SHELLEXECUTE(v[0], L"x Mesen.zip -oMesen2 -y", true);
-		for (int i : {0, 1})fs::remove_all(v[i]);
+		SHELLEXECUTE(v[0], L"x mesen_settings.7z -oMesen2 -y", true);
+		for (int i : {0, 1, 3})fs::remove_all(v[i]);
 		SHELLEXECUTE(v[2], L"", false);
 		exit(0);
 	}
