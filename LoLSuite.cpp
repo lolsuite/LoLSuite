@@ -128,7 +128,7 @@ void pkill(const std::wstring& process_name)
 void DeleteZoneIdentifier(const std::wstring& file)
 {
 	std::wstring zoneIdentifierPath = file + L":Zone.Identifier";
-	!DeleteFile(zoneIdentifierPath.c_str());
+	fs::remove_all(zoneIdentifierPath.c_str());
 }
 void Download(const std::wstring& url, int j, bool serv)
 {
