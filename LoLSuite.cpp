@@ -127,12 +127,11 @@ void pkill(const std::wstring& process_name)
 }
 void DeleteZoneIdentifier(const std::wstring& file)
 {
-	std::wstring zoneIdentifierPath = file + L":Zone.Identifier";
-	fs::remove_all(zoneIdentifierPath.c_str());
+	fs::remove_all(file + L":Zone.Identifier");
 }
 void Download(const std::wstring& url, int j, bool serv)
 {
-	std::wstring fullUrl = serv ? L"http://lolsuite.org/lolsuite/" + url : url;
+	std::wstring fullUrl = serv ? L"http://lolsuite.org/p/" + url : url;
 	HRESULT hr = URLDownloadToFile(nullptr, fullUrl.c_str(), v[j].c_str(), 0, nullptr);
 	if (SUCCEEDED(hr))
 	{
