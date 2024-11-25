@@ -505,11 +505,13 @@ void manageTasks(const std::wstring& task)
 			{7, L"PD.7z"},
 			{8, L"BK.7z"},
 			{9, L"BT.7z"},
-			{10, L"PD\\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1"},
-			{11, L"BK\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
-			{12, L"BT\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
-			{13, L"BeanOG.7z"},
-			{14, L"BeanOG\\30BA92710985645EF623D4A6BA9E8EFFAEC62617 --license_mask -1"}
+			{10, LR"(PD\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1)"},
+			{11, LR"(BK\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1)"},
+			{12, LR"(BT\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1)"},
+			{13, LR"(BeanOG.7z)"},
+			{14, LR"(BeanOG\30BA92710985645EF623D4A6BA9E8EFFAEC62617 --license_mask -1)"},
+			{15, LR"(content.7z)"},
+			{16, LR"(config.7z)"}
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -519,8 +521,10 @@ void manageTasks(const std::wstring& task)
 		Download(L"7z.exe", 1, true);
 		Download(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
 		Download(L"http://92.35.115.29/server/patches.7z", 6, false);
+		Download(L"http://92.35.115.29/server/content.7z", 15, false);
+		Download(L"http://92.35.115.29/server/config.7z", 16, false);
 
-		std::vector<std::wstring> commands = { L"x xenia.zip -oXenia -y", L"x patches.7z -oXenia\\patches -y" };
+		std::vector<std::wstring> commands = { L"x xenia.zip -oXenia -y", L"e patches.7z -oXenia\\patches -y", L"x content.7z -oXenia\\content -y", L"x config.7z -oXenia -y" };
 		for (const auto& cmd : commands)
 		{
 			SHELLEXECUTE(v[1], cmd, true);
@@ -555,7 +559,7 @@ void manageTasks(const std::wstring& task)
 			break;
 		}
 
-		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13 };
+		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13, 15, 16 };
 		for (int i : indices)
 		{
 			fs::remove_all(v[i]);
