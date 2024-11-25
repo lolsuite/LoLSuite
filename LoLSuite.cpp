@@ -505,7 +505,7 @@ void manageTasks(const std::wstring& task)
 			{7, L"PD.7z"},
 			{8, L"BK.7z"},
 			{9, L"BT.7z"},
-			{10, L"PD\\35C1CDD22DD0D4E54B858859C0052124FFFAD17958 --license_mask -1"},
+			{10, L"PD\\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1"},
 			{11, L"BK\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
 			{12, L"BT\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
 			{13, L"BeanOG.7z"},
@@ -518,7 +518,7 @@ void manageTasks(const std::wstring& task)
 		}
 		Download(L"7z.exe", 1, true);
 		Download(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
-		Download(L"http://92.35.115.29/patches.7z", 6, false);
+		Download(L"http://92.35.115.29/server/patches.7z", 6, false);
 
 		std::vector<std::wstring> commands = { L"x xenia.zip -oXenia -y", L"x patches.7z -oXenia\\patches -y" };
 		for (const auto& cmd : commands)
@@ -529,27 +529,27 @@ void manageTasks(const std::wstring& task)
 		switch (rareb)
 		{
 		case 0:
-			Download(L"http://92.35.115.29/Bean.7z", 0, false);
+			Download(L"http://92.35.115.29/server/Bean.7z", 0, false);
 			SHELLEXECUTE(v[1], L"x Bean.7z -oBean -y", true);
 			SHELLEXECUTE(v[4], v[5], false);
 			break;
 		case 1:
-			Download(L"http://92.35.115.29/PD.7z", 7, false);
+			Download(L"http://92.35.115.29/server/PD.7z", 7, false);
 			SHELLEXECUTE(v[1], L"x PD.7z -oPD -y", true);
 			SHELLEXECUTE(v[4], v[10], false);
 			break;
 		case 2:
-			Download(L"http://92.35.115.29/BK.7z", 8, false);
+			Download(L"http://92.35.115.29/server/BK.7z", 8, false);
 			SHELLEXECUTE(v[1], L"x BK.7z -oBK -y", true);
 			SHELLEXECUTE(v[4], v[11], false);
 			break;
 		case 3:
-			Download(L"http://92.35.115.29/BT.7z", 9, false);
+			Download(L"http://92.35.115.29/server/BT.7z", 9, false);
 			SHELLEXECUTE(v[1], L"x BT.7z -oBT -y", true);
 			SHELLEXECUTE(v[4], v[12], false);
 			break;
 		case 4:
-			Download(L"http://92.35.115.29/BeanOG.7z", 13, false);
+			Download(L"http://92.35.115.29/server/BeanOG.7z", 13, false);
 			SHELLEXECUTE(v[1], L"x BeanOG.7z -oBeanOG -y", true);
 			SHELLEXECUTE(v[4], v[14], false);
 			break;
