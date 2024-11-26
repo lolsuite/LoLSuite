@@ -1,7 +1,5 @@
-#define WIN32_LEAN_AND_MEAN
 #define UNICODE
-#define _UNICODE
-
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <functional>
 #include <shellapi.h>
@@ -11,13 +9,18 @@
 #include <filesystem>
 #include <ShObjIdl_core.h>
 
+// Begin Source-Code
+
 namespace fs = std::filesystem;
 static int cb = 0;
-static int rareb = 0;
-WCHAR szFolderPath[MAX_PATH + 1] = {};
+static int rarecb = 0;
+WCHAR szFolderPath[MAX_PATH + 1];
 auto currentPath = fs::current_path();
 constexpr auto MAX_LOADSTRING = 100;
+
+// Add Api-ms-win files later
 std::vector<std::wstring> v(58);
+
 HINSTANCE hInst;
 WCHAR szTitle[MAX_LOADSTRING];
 WCHAR szWindowClass[MAX_LOADSTRING];
@@ -27,13 +30,13 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 const wchar_t* box[7] = {
 	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen2",
-	L"MAME, HBMAME & FBNeo", L"VCRedist", L"Game Clients Installer"
+	L"Arcade Installer", L"VCRedist", L"Game Clients Installer"
 };
 const wchar_t* rarebox[5] = {
 	L"GoldenEye CE", L"Perfect Dark", L"Banjo-Kazooie", L"Banjo-Tooie", L"GoldenEye"
 };
 
-HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
+HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
 	IFileDialog* pfd = nullptr;
 	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
@@ -71,22 +74,23 @@ HRESULT BrowseForFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPat
 		psi->Release();
 	}
 	pfd->Release();
+	v[0] = szFolderPath;
 	return hr;
 }
 
-std::wstring PathJoin(const int index, const std::wstring& add)
+std::wstring JoinPath(const int index, const std::wstring& add)
 {
 	return (fs::path(v[index]) / add).wstring();
 }
-void PathAppend(const int index, const std::wstring& add)
+void AppendPath(const int index, const std::wstring& add)
 {
-	v[index] = PathJoin(index, add);
+	v[index] = JoinPath(index, add);
 }
-void PathCombine(const int destIndex, const int srcIndex, const std::wstring& add)
+void CombinePath(const int destIndex, const int srcIndex, const std::wstring& add)
 {
-	v[destIndex] = PathJoin(srcIndex, add);
+	v[destIndex] = JoinPath(srcIndex, add);
 }
-void SHELLEXECUTE(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait)
+void RunProc(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait)
 {
 	SHELLEXECUTEINFO shellExecuteInfo = {};
 	shellExecuteInfo.cbSize = sizeof(SHELLEXECUTEINFO);
@@ -104,7 +108,7 @@ void SHELLEXECUTE(const std::wstring& lpFile, const std::wstring& lpParameters, 
 		CloseHandle(shellExecuteInfo.hProcess);
 	}
 }
-void pkill(const std::wstring& process_name)
+void ProcKill(const std::wstring& process_name)
 {
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if (snapshot == INVALID_HANDLE_VALUE) return;
@@ -138,7 +142,7 @@ void Download(const std::wstring& url, int j, bool serv)
 		DeleteZoneIdentifier(v[j]);
 	}
 }
-bool IsProcess64Bit()
+bool ProccessIs64Bit()
 {
 	USHORT processMachine = 0;
 	USHORT nativeMachine = 0;
@@ -149,43 +153,37 @@ bool IsProcess64Bit()
 	return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
 }
 
-void ini()
-{
-	BrowseForFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
-	v[0] = szFolderPath;
-}
-
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
-		ini();
+		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		const wchar_t* processes[] = {
 			L"LeagueClient.exe", L"LeagueClientUx.exe", L"LeagueClientUxRender.exe",
 			L"League of Legends.exe", L"Riot Client.exe", L"RiotClientServices.exe"
 		};
 		for (const auto& process : processes) {
-			pkill(process);
+			ProcKill(process);
 		}
-		PathCombine(56, 0, L"Riot Client\\RiotClientElectron");
-		PathCombine(57, 56, L"d3dcompiler_47.dll");
+		CombinePath(56, 0, L"Riot Client\\RiotClientElectron");
+		CombinePath(57, 56, L"d3dcompiler_47.dll");
 		const wchar_t* baseFiles[] = {
 			L"concrt140.dll", L"d3dcompiler_47.dll", L"msvcp140.dll", L"msvcp140_1.dll",
 			L"msvcp140_2.dll", L"msvcp140_codecvt_ids.dll", L"ucrtbase.dll",
 			L"vcruntime140.dll", L"vcruntime140_1.dll"
 		};
-		PathAppend(0, L"League of Legends");
+		AppendPath(0, L"League of Legends");
 		for (int i = 0; i < 9; ++i) {
-			PathCombine(42 + i, 0, baseFiles[i]);
+			CombinePath(42 + i, 0, baseFiles[i]);
 		}
-		PathCombine(51, 0, L"Game");
-		DeleteZoneIdentifier(PathJoin(51, L"League of Legends.exe"));
+		CombinePath(51, 0, L"Game");
+		DeleteZoneIdentifier(JoinPath(51, L"League of Legends.exe"));
 		const wchar_t* gameFiles[] = {
 			L"D3DCompiler_47.dll", L"D3dx9_43.dll", L"xinput1_3.dll", L"tbb.dll"
 		};
 		for (int i = 0; i < 3; ++i) {
-			PathCombine(52 + i, 51, gameFiles[i]);
+			CombinePath(52 + i, 51, gameFiles[i]);
 		}
-		PathCombine(55, 51, gameFiles[3]);
+		CombinePath(55, 51, gameFiles[3]);
 		auto downloadFiles = [&](const wchar_t* prefix, bool deletetbb = false) {
 			for (int i = 0; i < 9; ++i) {
 				Download(std::wstring(prefix) + baseFiles[i], 42 + i, true);
@@ -202,7 +200,7 @@ void manageGame(const std::wstring& game, bool restore)
 		}
 		else {
 			downloadFiles(L"", false);
-			if (IsProcess64Bit()) {
+			if (ProccessIs64Bit()) {
 				Download(L"6/D3DCompiler_47.dll", 52, true);
 				Download(L"6/tbb12.dll", 54, true);
 				Download(L"6/D3DCompiler_47.dll", 55, true);
@@ -214,17 +212,17 @@ void manageGame(const std::wstring& game, bool restore)
 			}
 			Download(L"D3DCompiler_47.dll", 57, true);
 		}
-		SHELLEXECUTE(PathJoin(56, L"Riot Client.exe"), L"", false);
+		RunProc(JoinPath(56, L"Riot Client.exe"), L"", false);
 		exit(0);
 	}
 	else if (game == L"dota2") {
-		ini();
-		pkill(L"dota2.exe");
-		PathAppend(0, L"game\\bin\\win64");
-		PathCombine(1, 0, L"embree3.dll");
-		DeleteZoneIdentifier(PathJoin(0, L"dota2.exe"));
+		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
+		ProcKill(L"dota2.exe");
+		AppendPath(0, L"game\\bin\\win64");
+		CombinePath(1, 0, L"embree3.dll");
+		DeleteZoneIdentifier(JoinPath(0, L"dota2.exe"));
 		Download(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
-		SHELLEXECUTE(L"steam://rungameid/570//-high/", L"", false);
+		RunProc(L"steam://rungameid/570//-high/", L"", false);
 		exit(0);
 	}
 }
@@ -290,8 +288,8 @@ void manageTasks(const std::wstring& task)
 	auto clearAndAppend = [](int index, const std::wstring& path)
 		{
 			v[index].clear();
-			PathAppend(index, fs::current_path());
-			PathAppend(index, path);
+			AppendPath(index, fs::current_path());
+			AppendPath(index, path);
 		};
 	auto executeCommands = [](const std::vector<std::wstring>& commands)
 		{
@@ -325,14 +323,14 @@ void manageTasks(const std::wstring& task)
 		executeCommands(PostCommands);
 
 		v[0].clear();
-		PathAppend(0, fs::current_path());
-		PathAppend(0, L"jdk-23_windows-x64_bin.exe");
+		AppendPath(0, fs::current_path());
+		AppendPath(0, L"jdk-23_windows-x64_bin.exe");
 		Download(L"https://download.oracle.com/java/23/latest/jdk-23_windows-x64_bin.exe", 0, false);
-		SHELLEXECUTE(v[0], L"", true);
+		RunProc(v[0], L"", true);
 		fs::remove_all(v[0]);
 		MessageBoxEx(
 			nullptr,
-			L"Minecraft Launcher > Minecraft: Java Edition > Installations > Latest Release > Edit > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
+			L"Minecraft Launcher > Minecraft : Java Edition > Installations > Latest Release > Edit > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
 			L"LoLSuite",
 			MB_OK,
 			0 // Language identifier (0 for default)
@@ -354,14 +352,14 @@ void manageTasks(const std::wstring& task)
 		};
 		for (const auto& [index, subPath] : paths)
 		{
-			PathAppend(index, currentPath);
-			PathAppend(index, subPath);
+			AppendPath(index, currentPath);
+			AppendPath(index, subPath);
 		}
 		std::vector<std::tuple<std::wstring, int, bool>> downloads = {
 			{L"7z.exe", 0, true},
 			{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false},
-			{L"https://github.com/mamedev/mame/releases/download/mame0272/mame0272b_64bit.exe", 3, false},
-		{IsProcess64Bit()
+			{L"https://github.com/mamedev/mame/releases/download/mame0271/mame0271b_64bit.exe", 3, false},
+		{ProccessIs64Bit()
 			? L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip"
 			: L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 5, false},
 			{L"http://92.35.115.29/FBNeo/support.7z", 7, false}
@@ -376,7 +374,7 @@ void manageTasks(const std::wstring& task)
 		}
 		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y", L"x FBNeo.zip -oFBNeo -y", L"x FBNeo_support.7z -oFBNeo\\support -y" })
 		{
-			SHELLEXECUTE(v[0], cmd, true);
+			RunProc(v[0], cmd, true);
 		}
 		for (int i : {0, 1, 3, 5, 7})
 		{
@@ -394,8 +392,8 @@ void manageTasks(const std::wstring& task)
 		};
 		for (const auto& [index, subPath] : paths)
 		{
-			PathAppend(index, currentPath);
-			PathAppend(index, subPath);
+			AppendPath(index, currentPath);
+			AppendPath(index, subPath);
 		}
 		// Install Mesen Dependency
 		_wsystem(L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h");
@@ -408,10 +406,10 @@ void manageTasks(const std::wstring& task)
 			L"http://92.35.115.29/server/mesen_settings.7z",
 			3, false);
 		CreateDirectory(L"Mesen2", nullptr);
-		SHELLEXECUTE(v[0], L"x Mesen.zip -oMesen2 -y", true);
-		SHELLEXECUTE(v[0], L"x mesen_settings.7z -oMesen2 -y", true);
+		RunProc(v[0], L"x Mesen.zip -oMesen2 -y", true);
+		RunProc(v[0], L"x mesen_settings.7z -oMesen2 -y", true);
 		for (int i : {0, 1, 3})fs::remove_all(v[i]);
-		SHELLEXECUTE(v[2], L"", false);
+		RunProc(v[2], L"", false);
 		exit(0);
 	}
 	else if (task == L"support")
@@ -492,22 +490,22 @@ void manageTasks(const std::wstring& task)
 		// DX9 Redist
 		clearAndAppend(0, L"dxwebsetup.exe");
 		Download(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
-		SHELLEXECUTE(v[0], L"/Q", true);
+		RunProc(v[0], L"/Q", true);
 		fs::remove_all(v[0]);
 		exit(0);
 	}
-	else if (task == L"xenia")
+	else if (task == L"XBLA")
 	{
 		// Default is GoldenEye CE
 		for (auto& path : v) path.clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"Bean.7z"},
 			{1, L"7z.exe"},
-			{2, L"xenia.zip"},
-			{3, L"Xenia\\LICENSE"},
-			{4, L"Xenia\\xenia_canary.exe"},
+			{2, L"XBLA.zip"},
+			{3, L"XBLA\\LICENSE"},
+			{4, L"XBLA\\xenia_canary.exe"},
 			{5, L"Bean\\defaultCE.xex"},
-			{6, L"xenia.7z"},
+			{6, L"XBLA.7z"},
 			{7, L"PD.7z"},
 			{8, L"BK.7z"},
 			{9, L"BT.7z"},
@@ -519,45 +517,45 @@ void manageTasks(const std::wstring& task)
 		};
 		for (const auto& [index, subPath] : paths)
 		{
-			PathAppend(index, currentPath);
-			PathAppend(index, subPath);
+			AppendPath(index, currentPath);
+			AppendPath(index, subPath);
 		}
 		Download(L"7z.exe", 1, true);
 		Download(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
-		Download(L"http://92.35.115.29/server/xenia.7z", 6, false);
+		Download(L"http://92.35.115.29/server/XBLA.7z", 6, false);
 
-		std::vector<std::wstring> commands = { L"x xenia.zip -oXenia -y", L"x xenia.7z -oXenia -y" };
+		std::vector<std::wstring> commands = { L"x XBLA.zip -oXBLA -y", L"x XBLA.7z -oXBLA -y" };
 		for (const auto& cmd : commands)
 		{
-			SHELLEXECUTE(v[1], cmd, true);
+			RunProc(v[1], cmd, true);
 		}
 
-		switch (rareb)
+		switch (rarecb)
 		{
 		case 0:
 			Download(L"http://92.35.115.29/server/Bean.7z", 0, false);
-			SHELLEXECUTE(v[1], L"x Bean.7z -oBean -y", true);
-			SHELLEXECUTE(v[4], v[5], false);
+			RunProc(v[1], L"x Bean.7z -oBean -y", true);
+			RunProc(v[4], v[5], false);
 			break;
 		case 1:
 			Download(L"http://92.35.115.29/server/PD.7z", 7, false);
-			SHELLEXECUTE(v[1], L"x PD.7z -oPD -y", true);
-			SHELLEXECUTE(v[4], v[10], false);
+			RunProc(v[1], L"x PD.7z -oPD -y", true);
+			RunProc(v[4], v[10], false);
 			break;
 		case 2:
 			Download(L"http://92.35.115.29/server/BK.7z", 8, false);
-			SHELLEXECUTE(v[1], L"x BK.7z -oBK -y", true);
-			SHELLEXECUTE(v[4], v[11], false);
+			RunProc(v[1], L"x BK.7z -oBK -y", true);
+			RunProc(v[4], v[11], false);
 			break;
 		case 3:
 			Download(L"http://92.35.115.29/server/BT.7z", 9, false);
-			SHELLEXECUTE(v[1], L"x BT.7z -oBT -y", true);
-			SHELLEXECUTE(v[4], v[12], false);
+			RunProc(v[1], L"x BT.7z -oBT -y", true);
+			RunProc(v[4], v[12], false);
 			break;
 		case 4:
 			Download(L"http://92.35.115.29/server/BeanOG.7z", 13, false);
-			SHELLEXECUTE(v[1], L"x BeanOG.7z -oBeanOG -y", true);
-			SHELLEXECUTE(v[4], v[14], false);
+			RunProc(v[1], L"x BeanOG.7z -oBeanOG -y", true);
+			RunProc(v[4], v[14], false);
 			break;
 		}
 
@@ -606,7 +604,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (HIWORD(wParam) == CBN_SELCHANGE)
 		{
 			cb = SendMessage(reinterpret_cast<HWND>(lParam), CB_GETCURSEL, 0, 0);
-			rareb = SendMessage(reinterpret_cast<HWND>(lParam), CB_GETCURSEL, 0, 0);
+			rarecb = SendMessage(reinterpret_cast<HWND>(lParam), CB_GETCURSEL, 0, 0);
 		}
 		switch (LOWORD(wParam))
 		{
@@ -617,7 +615,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			handleCommand(cb, true);
 			break;
 		case 3:
-			manageTasks(L"xenia");
+			manageTasks(L"XBLA");
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
