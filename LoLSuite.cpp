@@ -362,7 +362,7 @@ void manageTasks(const std::wstring& task)
 		{ProccessIs64Bit()
 			? L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip"
 			: L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 5, false},
-			{L"http://92.35.115.29/FBNeo/support.7z", 7, false}
+			{L"http://92.35.115.29/server/support.7z", 7, false}
 		};
 		for (const auto& [url, index, flag] : downloads)
 		{
