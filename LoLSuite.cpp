@@ -5,9 +5,9 @@
 #include <shellapi.h>
 #include <TlHelp32.h>
 #include <vector>
-#include "resource.h"
 #include <filesystem>
 #include <ShObjIdl_core.h>
+#include "resource.h"
 
 // Begin Source-Code
 
@@ -328,6 +328,8 @@ void manageTasks(const std::wstring& task)
 		Download(L"https://download.oracle.com/java/23/latest/jdk-23_windows-x64_bin.exe", 0, false);
 		RunProc(v[0], L"", true);
 		fs::remove_all(v[0]);
+
+		// Tell User to use javaw instead of java because it shows no console window
 		MessageBoxEx(
 			nullptr,
 			L"Minecraft Launcher > Minecraft : Java Edition > Installations > Latest Release > Edit > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
@@ -496,7 +498,7 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"XBLA")
 	{
-		// Default is GoldenEye CE
+		// Default is GoldenEye CE (Community Edition)
 		for (auto& path : v) path.clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"Bean.7z"},
