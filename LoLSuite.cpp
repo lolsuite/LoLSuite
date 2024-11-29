@@ -385,7 +385,7 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"mesen")
 	{
-		for (int i : {0, 1, 2}) v[i].clear();
+		for (int i : {0, 1, 2, 3}) v[i].clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
 			{1, L"Mesen.zip"},
