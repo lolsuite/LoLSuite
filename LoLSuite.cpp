@@ -343,8 +343,7 @@ void manageTasks(const std::wstring& task)
 			{4, L"MAME"},
 			{5, L"FBNeo.zip" },
 			{6, L"FBNeo"},
-			{7, L"FBNeo_support.7z"},
-			{8, L"FBNeo_console.7z" }
+			{7, L"FBNeo_support.7z"}
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -358,8 +357,7 @@ void manageTasks(const std::wstring& task)
 		{ProccessIs64Bit()
 			? L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip"
 			: L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 5, false},
-			{ L"http://92.35.115.29/server/support.7z", 7, false},
-			{ L"http://92.35.115.29/server/FBNeo_0.7z", 8, false }
+			{L"http://92.35.115.29/server/support.7z", 7, false}
 		};
 		for (const auto& [url, index, flag] : downloads)
 		{
@@ -369,11 +367,11 @@ void manageTasks(const std::wstring& task)
 		{
 			CreateDirectory(v[i].c_str(), nullptr);
 		}
-		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y", L"x FBNeo.zip -oFBNeo -y", L"x FBNeo_support.7z -oFBNeo\\support -y", L"x FBNeo_0.7z -oFBNeo\\roms -y" })
+		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y", L"x FBNeo.zip -oFBNeo -y", L"x FBNeo_support.7z -oFBNeo\\support -y" })
 		{
 			RunProc(v[0], cmd, true);
 		}
-		for (int i : {0, 1, 3, 5, 7, 8})
+		for (int i : {0, 1, 3, 5, 7})
 		{
 			fs::remove_all(v[i]);
 		}
