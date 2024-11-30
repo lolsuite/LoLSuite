@@ -378,12 +378,11 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"mesen")
 	{
-		for (int i : {0, 1, 2, 3}) v[i].clear();
+		for (int i : {0, 1, 2}) v[i].clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
 			{1, L"Mesen.zip"},
-			{2, L"Mesen2\\Mesen.exe"},
-			{3, L"Mesen2\\settings.json"},
+			{2, L"Mesen2\\Mesen.exe"}
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -400,9 +399,6 @@ void manageTasks(const std::wstring& task)
 
 		CreateDirectory(L"Mesen2", nullptr);
 		RunProc(v[0], L"x Mesen.zip -oMesen2 -y", true);
-		dl(
-			L"http://92.35.115.29/server/settings.json",
-			3, false);
 		for (int i : {0, 1})fs::remove_all(v[i]);
 		RunProc(v[2], L"", false);
 		exit(0);
