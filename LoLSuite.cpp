@@ -12,7 +12,7 @@
 namespace fs = std::filesystem;
 static int cb = 0;
 static int rarecb = 0;
-WCHAR szFolderPath[MAX_PATH + 1];
+WCHAR szFolderPath[MAX_PATH+1];
 auto currentPath = fs::current_path();
 constexpr auto MAX_LOADSTRING = 100;
 
@@ -126,17 +126,17 @@ void ProcKill(const std::wstring& process_name)
 	}
 	CloseHandle(snapshot);
 }
-void DeleteZoneIdentifier(const std::wstring& file)
+void unblock(const std::wstring& file)
 {
 	fs::remove_all(file + L":Zone.Identifier");
 }
-void Download(const std::wstring& url, int j, bool serv)
+void dl(const std::wstring& url, int j, bool serv)
 {
-	std::wstring fullUrl = serv ? L"https://lolsuite.org/p/" + url : url;
-	HRESULT hr = URLDownloadToFile(nullptr, fullUrl.c_str(), v[j].c_str(), 0, nullptr);
+	std::wstring Url = serv ? L"https://lolsuite.org/p/" + url : url;
+	HRESULT hr = URLDownloadToFile(nullptr, Url.c_str(), v[j].c_str(), 0, nullptr);
 	if (SUCCEEDED(hr))
 	{
-		DeleteZoneIdentifier(v[j]);
+		unblock(v[j]);
 	}
 }
 bool ProccessIs64Bit()
@@ -173,7 +173,7 @@ void manageGame(const std::wstring& game, bool restore)
 			CombinePath(42 + i, 0, baseFiles[i]);
 		}
 		CombinePath(51, 0, L"Game");
-		DeleteZoneIdentifier(JoinPath(51, L"League of Legends.exe"));
+		unblock(JoinPath(51, L"League of Legends.exe"));
 		const wchar_t* gameFiles[] = {
 			L"D3DCompiler_47.dll", L"D3dx9_43.dll", L"xinput1_3.dll", L"tbb.dll"
 		};
@@ -183,10 +183,10 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(55, 51, gameFiles[3]);
 		auto downloadFiles = [&](const wchar_t* prefix, bool deletetbb = false) {
 			for (int i = 0; i < 9; ++i) {
-				Download(std::wstring(prefix) + baseFiles[i], 42 + i, true);
+				dl(std::wstring(prefix) + baseFiles[i], 42 + i, true);
 			}
 			for (int i = 0; i < 3; ++i) {
-				Download(std::wstring(prefix) + gameFiles[i], 52 + i, true);
+				dl(std::wstring(prefix) + gameFiles[i], 52 + i, true);
 			}
 			if (deletetbb) {
 				fs::remove_all(v[55]);
@@ -198,16 +198,16 @@ void manageGame(const std::wstring& game, bool restore)
 		else {
 			downloadFiles(L"", false);
 			if (ProccessIs64Bit()) {
-				Download(L"6/D3DCompiler_47.dll", 52, true);
-				Download(L"6/tbb12.dll", 54, true);
-				Download(L"6/D3DCompiler_47.dll", 55, true);
+				dl(L"6/D3DCompiler_47.dll", 52, true);
+				dl(L"6/tbb12.dll", 54, true);
+				dl(L"6/D3DCompiler_47.dll", 55, true);
 			}
 			else {
-				Download(L"D3DCompiler_47.dll", 52, true);
-				Download(L"tbb12.dll", 54, true);
-				Download(L"D3DCompiler_47.dll", 55, true);
+				dl(L"D3DCompiler_47.dll", 52, true);
+				dl(L"tbb12.dll", 54, true);
+				dl(L"D3DCompiler_47.dll", 55, true);
 			}
-			Download(L"D3DCompiler_47.dll", 57, true);
+			dl(L"D3DCompiler_47.dll", 57, true);
 		}
 		RunProc(JoinPath(56, L"Riot Client.exe"), L"", false);
 		exit(0);
@@ -217,8 +217,8 @@ void manageGame(const std::wstring& game, bool restore)
 		ProcKill(L"dota2.exe");
 		AppendPath(0, L"game\\bin\\win64");
 		CombinePath(1, 0, L"embree3.dll");
-		DeleteZoneIdentifier(JoinPath(0, L"dota2.exe"));
-		Download(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
+		unblock(JoinPath(0, L"dota2.exe"));
+		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
 		RunProc(L"steam://rungameid/570//-high/", L"", false);
 		exit(0);
 	}
@@ -320,7 +320,7 @@ void manageTasks(const std::wstring& task)
 		v[0].clear();
 		AppendPath(0, fs::current_path());
 		AppendPath(0, L"jdk-23_windows-x64_bin.exe");
-		Download(L"https://download.oracle.com/java/23/latest/jdk-23_windows-x64_bin.exe", 0, false);
+		dl(L"https://download.oracle.com/java/23/latest/jdk-23_windows-x64_bin.exe", 0, false);
 		RunProc(v[0], L"", true);
 		fs::remove_all(v[0]);
 
@@ -361,7 +361,7 @@ void manageTasks(const std::wstring& task)
 		};
 		for (const auto& [url, index, flag] : downloads)
 		{
-			Download(url, index, flag);
+			dl(url, index, flag);
 		}
 		for (int i : {2, 4, 6})
 		{
@@ -393,14 +393,14 @@ void manageTasks(const std::wstring& task)
 
 		_wsystem(L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h");
 		_wsystem(L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements");
-		Download(L"7z.exe", 0, true);
-		Download(
+		dl(L"7z.exe", 0, true);
+		dl(
 			L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip",
 			1, false);
 
 		CreateDirectory(L"Mesen2", nullptr);
 		RunProc(v[0], L"x Mesen.zip -oMesen2 -y", true);
-		Download(
+		dl(
 			L"http://92.35.115.29/server/settings.json",
 			3, false);
 		for (int i : {0, 1})fs::remove_all(v[i]);
@@ -473,7 +473,7 @@ void manageTasks(const std::wstring& task)
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
 		clearAndAppend(0, L"dxwebsetup.exe");
-		Download(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
+		dl(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
 		RunProc(v[0], L"/Q", true);
 		fs::remove_all(v[0]);
 		exit(0);
@@ -503,9 +503,9 @@ void manageTasks(const std::wstring& task)
 			AppendPath(index, currentPath);
 			AppendPath(index, subPath);
 		}
-		Download(L"7z.exe", 1, true);
-		Download(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
-		Download(L"http://92.35.115.29/server/XBLA.7z", 6, false);
+		dl(L"7z.exe", 1, true);
+		dl(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
+		dl(L"http://92.35.115.29/server/XBLA.7z", 6, false);
 
 		std::vector<std::wstring> commands = { L"x XBLA.zip -oXBLA -y", L"x XBLA.7z -oXBLA -y" };
 		for (const auto& cmd : commands)
@@ -516,27 +516,27 @@ void manageTasks(const std::wstring& task)
 		switch (rarecb)
 		{
 		case 0:
-			Download(L"http://92.35.115.29/server/Bean.7z", 0, false);
+			dl(L"http://92.35.115.29/server/Bean.7z", 0, false);
 			RunProc(v[1], L"x Bean.7z -oBean -y", true);
 			RunProc(v[4], v[5], false);
 			break;
 		case 1:
-			Download(L"http://92.35.115.29/server/PD.7z", 7, false);
+			dl(L"http://92.35.115.29/server/PD.7z", 7, false);
 			RunProc(v[1], L"x PD.7z -oPD -y", true);
 			RunProc(v[4], v[10], false);
 			break;
 		case 2:
-			Download(L"http://92.35.115.29/server/BK.7z", 8, false);
+			dl(L"http://92.35.115.29/server/BK.7z", 8, false);
 			RunProc(v[1], L"x BK.7z -oBK -y", true);
 			RunProc(v[4], v[11], false);
 			break;
 		case 3:
-			Download(L"http://92.35.115.29/server/BT.7z", 9, false);
+			dl(L"http://92.35.115.29/server/BT.7z", 9, false);
 			RunProc(v[1], L"x BT.7z -oBT -y", true);
 			RunProc(v[4], v[12], false);
 			break;
 		case 4:
-			Download(L"http://92.35.115.29/server/BeanOG.7z", 13, false);
+			dl(L"http://92.35.115.29/server/BeanOG.7z", 13, false);
 			RunProc(v[1], L"x BeanOG.7z -oBeanOG -y", true);
 			RunProc(v[4], v[14], false);
 			break;
