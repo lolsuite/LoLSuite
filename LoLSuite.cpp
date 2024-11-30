@@ -9,8 +9,6 @@
 #include <ShObjIdl_core.h>
 #include "resource.h"
 
-// Begin Source-Code
-
 namespace fs = std::filesystem;
 static int cb = 0;
 static int rarecb = 0;
@@ -18,7 +16,6 @@ WCHAR szFolderPath[MAX_PATH + 1];
 auto currentPath = fs::current_path();
 constexpr auto MAX_LOADSTRING = 100;
 
-// Add Api-ms-win files later
 std::vector<std::wstring> v(58);
 
 HINSTANCE hInst;
@@ -238,7 +235,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
 	wcex.hbrBackground = reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1));
 	wcex.lpszClassName = szWindowClass;
-	wcex.lpszMenuName = nullptr; // Assuming no menu is used
+	wcex.lpszMenuName = nullptr;
 	wcex.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON));
 	return RegisterClassExW(&wcex);
 }
@@ -300,7 +297,6 @@ void manageTasks(const std::wstring& task)
 		};
 	if (task == L"JDK")
 	{
-		// Clear Old Java Installations
 		std::vector<std::wstring> PreCommands = {
 			L"winget source update",
 			L"winget uninstall Mojang.MinecraftLauncher",
@@ -315,7 +311,6 @@ void manageTasks(const std::wstring& task)
 		};
 		executeCommands(PreCommands);
 
-		// Reinstall Minecraft With Stable Java Versions
 		std::vector<std::wstring> PostCommands = {
 			L"winget install Mojang.MinecraftLauncher",
 			L"winget install Oracle.JavaRuntimeEnvironment"
@@ -329,14 +324,12 @@ void manageTasks(const std::wstring& task)
 		RunProc(v[0], L"", true);
 		fs::remove_all(v[0]);
 
-		// Tell User to use javaw instead of java because it shows no console window
 		MessageBoxEx(
 			nullptr,
 			L"Minecraft Launcher > Minecraft : Java Edition > Installations > Latest Release > Edit > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
 			L"LoLSuite",
 			MB_OK,
-			0 // Language identifier (0 for default)
-		);
+			0);
 	}
 	else if (task == L"mame")
 	{
@@ -397,7 +390,7 @@ void manageTasks(const std::wstring& task)
 			AppendPath(index, currentPath);
 			AppendPath(index, subPath);
 		}
-		// Install Mesen Dependency
+
 		_wsystem(L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h");
 		_wsystem(L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements");
 		Download(L"7z.exe", 0, true);
@@ -417,15 +410,11 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 		std::vector<std::wstring> PreCommands = {
-			//Clear Hibernation File
 			L"powercfg /hibernate off",
-			// Prepare Winget Sources
 			L"winget source update",
-			// Utility
 			L"winget uninstall Microsoft.WindowsTerminal --purge -h",
 			L"winget uninstall Microsoft.PowerShell --purge -h",
 			L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
-			// Store Codecs
 			L"winget uninstall 9NQPSL29BFFF --purge -h",
 			L"winget uninstall 9PB0TRCNRHFX --purge -h",
 			L"winget uninstall 9N95Q1ZZPMH4 --purge -h",
@@ -437,14 +426,12 @@ void manageTasks(const std::wstring& task)
 			L"winget uninstall 9PB0TRCNRHFX --purge -h",
 			L"winget uninstall 9N5TDP8VCMHS --purge -h",
 			L"winget uninstall 9PCSD6N03BKV --purge -h",
-			// 32Bit VCRedist (Uninstall)
 			L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
-			// 64Bit VCRedist (Uninstall)
 			L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h",
@@ -455,11 +442,9 @@ void manageTasks(const std::wstring& task)
 		};
 
 		std::vector<std::wstring> installCommands = {
-			// Utility
 			L"winget install Microsoft.WindowsTerminal --accept-package-agreements",
 			L"winget install Microsoft.PowerShell --accept-package-agreements",
 			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
-			// Store Codecs
 			L"winget install 9NQPSL29BFFF --accept-package-agreements",
 			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
@@ -471,14 +456,12 @@ void manageTasks(const std::wstring& task)
 			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N5TDP8VCMHS --accept-package-agreements",
 			L"winget install 9PCSD6N03BKV --accept-package-agreements" ,
-			// 32Bit VCRedist (Install Silent)
 			L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
-			// 64Bit VCRedist (Install Silent)
 			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
@@ -489,7 +472,6 @@ void manageTasks(const std::wstring& task)
 		};
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
-		// DX9 Redist
 		clearAndAppend(0, L"dxwebsetup.exe");
 		Download(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
 		RunProc(v[0], L"/Q", true);
@@ -498,7 +480,6 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"XBLA")
 	{
-		// Default is GoldenEye CE (Community Edition)
 		for (auto& path : v) path.clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"Bean.7z"},
@@ -570,10 +551,8 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"gameclients")
 	{
-		// First Clear All Installations/Credentials
 		std::vector<std::wstring> PreCommands = {
 				L"winget source update", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet" };
-		// Reinstall
 		std::vector<std::wstring> installCommands = {
 				L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
 		executeCommands(PreCommands);
