@@ -27,7 +27,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 const wchar_t* box[7] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen2",
-	L"Arcades", L"VCRedist", L"Game-Clients Installer"
+	L"Arcades (x64)", L"Redist Pack", L"Game-Clients Installer"
 };
 const wchar_t* rarebox[5] = {
 	L"GoldenEye CE", L"Perfect Dark", L"Banjo-Kazooie", L"Banjo-Tooie", L"GoldenEye"
@@ -344,6 +344,9 @@ void manageTasks(const std::wstring& task)
 			AppendPath(index, currentPath);
 			AppendPath(index, subPath);
 		}
+
+		_wsystem(L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h");
+		_wsystem(L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements");
 		std::vector<std::tuple<std::wstring, int, bool>> downloads = {
 			{L"7z.exe", 0, true},
 			{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false},
@@ -373,6 +376,10 @@ void manageTasks(const std::wstring& task)
 		{
 			fs::remove(v[i]);
 		}
+		clearAndAppend(0, L"dxwebsetup.exe");
+		dl(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
+		ProcRun(v[0], L"/Q", true);
+		fs::remove(v[0]);
 	}
 	else if (task == L"mesen")
 	{
@@ -391,12 +398,10 @@ void manageTasks(const std::wstring& task)
 		_wsystem(L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h");
 		_wsystem(L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements");
 		dl(L"7z.exe", 0, true);
-		dl(
-			L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip",
-			1, false);
-		fs::remove_all(L"Mesen2");
-		fs::create_directory(L"Mesen2");
-		ProcRun(v[0], L"x Mesen.zip -oMesen2 -y", true);
+		dl(L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip", 1, false);
+		fs::remove_all(L"Mesen");
+		fs::create_directory(L"Mesen");
+		ProcRun(v[0], L"x Mesen.zip -oMesen -y", true);
 		for (int i : {0, 1})fs::remove_all(v[i]);
 		ProcRun(v[2], L"", false);
 		exit(0);
