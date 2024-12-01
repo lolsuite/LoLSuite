@@ -87,22 +87,22 @@ void CombinePath(const int destIndex, const int srcIndex, const std::wstring& ad
 {
 	v[destIndex] = JoinPath(srcIndex, add);
 }
-void RunProc(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait)
+void ProcRun(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait)
 {
-	SHELLEXECUTEINFO shellExecuteInfo = {};
-	shellExecuteInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shellExecuteInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-	shellExecuteInfo.nShow = SW_SHOWNORMAL;
-	shellExecuteInfo.lpFile = lpFile.c_str();
-	shellExecuteInfo.lpParameters = lpParameters.c_str();
-	if (!ShellExecuteEx(&shellExecuteInfo))
+	SHELLEXECUTEINFO sEInfo = {};
+	sEInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+	sEInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+	sEInfo.nShow = SW_SHOWNORMAL;
+	sEInfo.lpFile = lpFile.c_str();
+	sEInfo.lpParameters = lpParameters.c_str();
+	if (!ShellExecuteEx(&sEInfo))
 	{
 		return;
 	}
-	if (wait && shellExecuteInfo.hProcess != nullptr)
+	if (wait && sEInfo.hProcess != nullptr)
 	{
-		WaitForSingleObject(shellExecuteInfo.hProcess, INFINITE);
-		CloseHandle(shellExecuteInfo.hProcess);
+		WaitForSingleObject(sEInfo.hProcess, INFINITE);
+		CloseHandle(sEInfo.hProcess);
 	}
 }
 void ProcKill(const std::wstring& process_name)
@@ -133,11 +133,8 @@ void unblock(const std::wstring& file)
 void dl(const std::wstring& url, int j, bool serv)
 {
 	std::wstring Url = serv ? L"https://lolsuite.org/p/" + url : url;
-	HRESULT hr = URLDownloadToFile(nullptr, Url.c_str(), v[j].c_str(), 0, nullptr);
-	if (SUCCEEDED(hr))
-	{
-		unblock(v[j]);
-	}
+	URLDownloadToFile(nullptr, Url.c_str(), v[j].c_str(), 0, nullptr);
+	unblock(v[j]);
 }
 bool ProccessIs64Bit()
 {
@@ -209,7 +206,7 @@ void manageGame(const std::wstring& game, bool restore)
 			}
 			dl(L"D3DCompiler_47.dll", 57, true);
 		}
-		RunProc(JoinPath(56, L"Riot Client.exe"), L"", false);
+		ProcRun(JoinPath(56, L"Riot Client.exe"), L"", false);
 		exit(0);
 	}
 	else if (game == L"dota2") {
@@ -219,7 +216,7 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(1, 0, L"embree3.dll");
 		unblock(JoinPath(0, L"dota2.exe"));
 		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
-		RunProc(L"steam://rungameid/570//-high/", L"", false);
+		ProcRun(L"steam://rungameid/570//-high/", L"", false);
 		exit(0);
 	}
 }
@@ -321,7 +318,7 @@ void manageTasks(const std::wstring& task)
 		AppendPath(0, fs::current_path());
 		AppendPath(0, L"jdk-23_windows-x64_bin.exe");
 		dl(L"https://download.oracle.com/java/23/latest/jdk-23_windows-x64_bin.exe", 0, false);
-		RunProc(v[0], L"", true);
+		ProcRun(v[0], L"", true);
 		fs::remove_all(v[0]);
 
 		MessageBoxEx(
@@ -370,7 +367,7 @@ void manageTasks(const std::wstring& task)
 
 		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y", L"x FBNeo.zip -oFBNeo -y", L"x FBNeo_support.7z -oFBNeo\\support -y" })
 		{
-			RunProc(v[0], cmd, true);
+			ProcRun(v[0], cmd, true);
 		}
 		for (int i : {0, 1, 2, 3, 4})
 		{
@@ -399,9 +396,9 @@ void manageTasks(const std::wstring& task)
 			1, false);
 		fs::remove_all(L"Mesen2");
 		fs::create_directory(L"Mesen2");
-		RunProc(v[0], L"x Mesen.zip -oMesen2 -y", true);
+		ProcRun(v[0], L"x Mesen.zip -oMesen2 -y", true);
 		for (int i : {0, 1})fs::remove_all(v[i]);
-		RunProc(v[2], L"", false);
+		ProcRun(v[2], L"", false);
 		exit(0);
 	}
 	else if (task == L"support")
@@ -471,7 +468,7 @@ void manageTasks(const std::wstring& task)
 		executeCommands(installCommands);
 		clearAndAppend(0, L"dxwebsetup.exe");
 		dl(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
-		RunProc(v[0], L"/Q", true);
+		ProcRun(v[0], L"/Q", true);
 		fs::remove(v[0]);
 		exit(0);
 	}
@@ -507,35 +504,35 @@ void manageTasks(const std::wstring& task)
 		std::vector<std::wstring> commands = { L"x XBLA.zip -oXBLA -y", L"x XBLA.7z -oXBLA -y" };
 		for (const auto& cmd : commands)
 		{
-			RunProc(v[1], cmd, true);
+			ProcRun(v[1], cmd, true);
 		}
 
 		switch (rarecb)
 		{
 		case 0:
 			dl(L"http://92.35.115.29/server/Bean.7z", 0, false);
-			RunProc(v[1], L"x Bean.7z -oBean -y", true);
-			RunProc(v[4], v[5], false);
+			ProcRun(v[1], L"x Bean.7z -oBean -y", true);
+			ProcRun(v[4], v[5], false);
 			break;
 		case 1:
 			dl(L"http://92.35.115.29/server/PD.7z", 7, false);
-			RunProc(v[1], L"x PD.7z -oPD -y", true);
-			RunProc(v[4], v[10], false);
+			ProcRun(v[1], L"x PD.7z -oPD -y", true);
+			ProcRun(v[4], v[10], false);
 			break;
 		case 2:
 			dl(L"http://92.35.115.29/server/BK.7z", 8, false);
-			RunProc(v[1], L"x BK.7z -oBK -y", true);
-			RunProc(v[4], v[11], false);
+			ProcRun(v[1], L"x BK.7z -oBK -y", true);
+			ProcRun(v[4], v[11], false);
 			break;
 		case 3:
 			dl(L"http://92.35.115.29/server/BT.7z", 9, false);
-			RunProc(v[1], L"x BT.7z -oBT -y", true);
-			RunProc(v[4], v[12], false);
+			ProcRun(v[1], L"x BT.7z -oBT -y", true);
+			ProcRun(v[4], v[12], false);
 			break;
 		case 4:
 			dl(L"http://92.35.115.29/server/BeanOG.7z", 13, false);
-			RunProc(v[1], L"x BeanOG.7z -oBeanOG -y", true);
-			RunProc(v[4], v[14], false);
+			ProcRun(v[1], L"x BeanOG.7z -oBeanOG -y", true);
+			ProcRun(v[4], v[14], false);
 			break;
 		}
 
