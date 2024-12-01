@@ -12,7 +12,7 @@
 namespace fs = std::filesystem;
 static int cb = 0;
 static int rarecb = 0;
-WCHAR szFolderPath[MAX_PATH+1];
+WCHAR szFolderPath[MAX_PATH + 1];
 auto currentPath = fs::current_path();
 constexpr auto MAX_LOADSTRING = 100;
 
@@ -128,7 +128,7 @@ void ProcKill(const std::wstring& process_name)
 }
 void unblock(const std::wstring& file)
 {
-	fs::remove_all(file + L":Zone.Identifier");
+	fs::remove(file + L":Zone.Identifier");
 }
 void dl(const std::wstring& url, int j, bool serv)
 {
@@ -338,12 +338,9 @@ void manageTasks(const std::wstring& task)
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
 			{1, L"HBMAME.7z"},
-			{2, L"HBMAME"},
-			{3, L"MAME.exe"},
-			{4, L"MAME"},
-			{5, L"FBNeo.zip" },
-			{6, L"FBNeo"},
-			{7, L"FBNeo_support.7z"}
+			{2, L"MAME.exe"},
+			{3, L"FBNeo.zip" },
+			{4, L"FBNeo_support.7z"}
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -353,27 +350,31 @@ void manageTasks(const std::wstring& task)
 		std::vector<std::tuple<std::wstring, int, bool>> downloads = {
 			{L"7z.exe", 0, true},
 			{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false},
-			{L"https://github.com/mamedev/mame/releases/download/mame0272/mame0272b_64bit.exe", 3, false},
+			{L"https://github.com/mamedev/mame/releases/download/mame0272/mame0272b_64bit.exe", 2, false},
 		{ProccessIs64Bit()
 			? L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip"
-			: L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 5, false},
-			{L"http://92.35.115.29/server/support.7z", 7, false}
+			: L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false},
+			{L"http://92.35.115.29/server/support.7z", 4, false}
 		};
 		for (const auto& [url, index, flag] : downloads)
 		{
 			dl(url, index, flag);
 		}
-		for (int i : {2, 4, 6})
-		{
-			CreateDirectory(v[i].c_str(), nullptr);
-		}
+
+		fs::remove_all(L"HBMAME");
+		fs::remove_all(L"MAME");
+		fs::remove_all(L"FBNeo");
+		fs::create_directory(L"HBMAME");
+		fs::create_directory(L"MAME");
+		fs::create_directory(L"FBNeo");
+
 		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y", L"x FBNeo.zip -oFBNeo -y", L"x FBNeo_support.7z -oFBNeo\\support -y" })
 		{
 			RunProc(v[0], cmd, true);
 		}
-		for (int i : {0, 1, 3, 5, 7})
+		for (int i : {0, 1, 2, 3, 4})
 		{
-			fs::remove_all(v[i]);
+			fs::remove(v[i]);
 		}
 	}
 	else if (task == L"mesen")
@@ -396,8 +397,8 @@ void manageTasks(const std::wstring& task)
 		dl(
 			L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip",
 			1, false);
-
-		CreateDirectory(L"Mesen2", nullptr);
+		fs::remove_all(L"Mesen2");
+		fs::create_directory(L"Mesen2");
 		RunProc(v[0], L"x Mesen.zip -oMesen2 -y", true);
 		for (int i : {0, 1})fs::remove_all(v[i]);
 		RunProc(v[2], L"", false);
@@ -471,7 +472,7 @@ void manageTasks(const std::wstring& task)
 		clearAndAppend(0, L"dxwebsetup.exe");
 		dl(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
 		RunProc(v[0], L"/Q", true);
-		fs::remove_all(v[0]);
+		fs::remove(v[0]);
 		exit(0);
 	}
 	else if (task == L"XBLA")
