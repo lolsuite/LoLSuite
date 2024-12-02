@@ -327,6 +327,7 @@ void manageTasks(const std::wstring& task)
 			L"LoLSuite",
 			MB_OK,
 			0);
+
 	}
 	else if (task == L"mame")
 	{
@@ -387,7 +388,7 @@ void manageTasks(const std::wstring& task)
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
 			{1, L"Mesen.zip"},
-			{2, L"Mesen2\\Mesen.exe"}
+			{2, L"Mesen\\Mesen.exe"}
 		};
 		for (const auto& [index, subPath] : paths)
 		{
