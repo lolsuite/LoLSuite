@@ -25,9 +25,9 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-const wchar_t* box[7] = {
+const wchar_t* box[8] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen2",
-	L"Arcades (x64)", L"Redist Pack", L"Game-Clients Installer"
+	L"Arcades (x64)", L"Redist Pack", L"Game-Clients Installer", L"PCManager"
 };
 const wchar_t* rarebox[5] = {
 	L"GoldenEye CE", L"Perfect Dark", L"Banjo-Kazooie", L"Banjo-Tooie", L"GoldenEye"
@@ -329,6 +329,12 @@ void manageTasks(const std::wstring& task)
 			0);
 
 	}
+	else if (task == L"pcmanager")
+	{
+		ProcKill(L"MSPCManager.exe");
+		_wsystem(L"winget uninstall Microsoft.PCManager");
+		_wsystem(L"winget install Microsoft.PCManager");
+	}
 	else if (task == L"mame")
 	{
 		for (auto& path : v) path.clear();
@@ -570,7 +576,8 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageTasks(L"mesen"); },
 		[flag]() { manageTasks(L"mame"); },
 		[flag]() { manageTasks(L"support"); },
-		[flag]() { manageTasks(L"gameclients"); }
+		[flag]() { manageTasks(L"gameclients"); },
+		[flag]() { manageTasks(L"pcmanager"); },
 	};
 	if (cb >= 0 && cb < commands.size())
 	{
