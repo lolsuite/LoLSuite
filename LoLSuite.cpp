@@ -577,7 +577,7 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageTasks(L"mame"); },
 		[flag]() { manageTasks(L"support"); },
 		[flag]() { manageTasks(L"gameclients"); },
-		[flag]() { manageTasks(L"pcmanager"); },
+		[flag]() { manageTasks(L"pcmanager"); }
 	};
 	if (cb >= 0 && cb < commands.size())
 	{
