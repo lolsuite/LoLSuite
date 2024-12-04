@@ -361,7 +361,7 @@ void manageTasks(const std::wstring& task)
 		{ProccessIs64Bit()
 			? L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip"
 			: L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false},
-			{L"http://lolsuite.org/funz/support.7z", 4, false}
+			{L"https://lolsuite.org/funz/support.7z", 4, false}
 		};
 		for (const auto& [url, index, flag] : downloads)
 		{
@@ -511,7 +511,7 @@ void manageTasks(const std::wstring& task)
 		}
 		dl(L"7z.exe", 1, true);
 		dl(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
-		dl(L"http://lolsuite.org/funz/XBLA.7z", 6, false);
+		dl(L"https://lolsuite.org/funz/XBLA.7z", 6, false);
 
 		std::vector<std::wstring> commands = { L"x XBLA.zip -oXBLA -y", L"x XBLA.7z -oXBLA -y" };
 		for (const auto& cmd : commands)
@@ -522,27 +522,27 @@ void manageTasks(const std::wstring& task)
 		switch (rarecb)
 		{
 		case 0:
-			dl(L"http://lolsuite.org/funz/Bean.7z", 0, false);
+			dl(L"https://lolsuite.org/funz/Bean.7z", 0, false);
 			ProcRun(v[1], L"x Bean.7z -oBean -y", true);
 			ProcRun(v[4], v[5], false);
 			break;
 		case 1:
-			dl(L"http://lolsuite.org/funz/PD.7z", 7, false);
+			dl(L"https://lolsuite.org/funz/PD.7z", 7, false);
 			ProcRun(v[1], L"x PD.7z -oPD -y", true);
 			ProcRun(v[4], v[10], false);
 			break;
 		case 2:
-			dl(L"http://lolsuite.org/funz/BK.7z", 8, false);
+			dl(L"https://lolsuite.org/funz/BK.7z", 8, false);
 			ProcRun(v[1], L"x BK.7z -oBK -y", true);
 			ProcRun(v[4], v[11], false);
 			break;
 		case 3:
-			dl(L"http://lolsuite.org/funz/BT.7z", 9, false);
+			dl(L"https://lolsuite.org/funz/BT.7z", 9, false);
 			ProcRun(v[1], L"x BT.7z -oBT -y", true);
 			ProcRun(v[4], v[12], false);
 			break;
 		case 4:
-			dl(L"http://lolsuite.org/funz/BeanOG.7z", 13, false);
+			dl(L"https://lolsuite.org/funz/BeanOG.7z", 13, false);
 			ProcRun(v[1], L"x BeanOG.7z -oBeanOG -y", true);
 			ProcRun(v[4], v[14], false);
 			break;
