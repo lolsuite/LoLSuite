@@ -27,10 +27,10 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 const wchar_t* box[8] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen2",
-	L"Arcades (x64)", L"Redist Pack", L"Game-Clients Installer", L"PCManager"
+	L"Arcades (x64)", L"Redist Pack", L"Game-Clients Installer", L"PC Manager"
 };
 const wchar_t* rarebox[5] = {
-	L"GoldenEye CE", L"Perfect Dark", L"Banjo-Kazooie", L"Banjo-Tooie", L"GoldenEye"
+	L"GoldenEye CE", L"Perfect Dark", L"Banjo Kazooie", L"Banjo Tooie", L"GoldenEye"
 };
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
