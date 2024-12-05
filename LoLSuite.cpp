@@ -25,9 +25,9 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-const wchar_t* box[8] = {
+const wchar_t* box[7] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen2",
-	L"Arcades (x64)", L"Redist Pack", L"Game-Clients Installer", L"PC Manager"
+	L"Arcades", L"Redist Pack", L"Game-Clients Installer"
 };
 const wchar_t* rarebox[5] = {
 	L"GoldenEye CE", L"Perfect Dark", L"Banjo Kazooie", L"Banjo Tooie", L"GoldenEye"
@@ -87,7 +87,7 @@ void CombinePath(const int destIndex, const int srcIndex, const std::wstring& ad
 {
 	v[destIndex] = JoinPath(srcIndex, add);
 }
-void ProcRun(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait)
+void Run(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait)
 {
 	SHELLEXECUTEINFO sEInfo = {};
 	sEInfo.cbSize = sizeof(SHELLEXECUTEINFO);
@@ -105,7 +105,7 @@ void ProcRun(const std::wstring& lpFile, const std::wstring& lpParameters, bool 
 		CloseHandle(sEInfo.hProcess);
 	}
 }
-void ProcKill(const std::wstring& process_name)
+void Term(const std::wstring& process_name)
 {
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if (snapshot == INVALID_HANDLE_VALUE) return;
@@ -156,7 +156,7 @@ void manageGame(const std::wstring& game, bool restore)
 			L"League of Legends.exe", L"Riot Client.exe", L"RiotClientServices.exe"
 		};
 		for (const auto& process : processes) {
-			ProcKill(process);
+			Term(process);
 		}
 		CombinePath(56, 0, L"Riot Client\\RiotClientElectron");
 		CombinePath(57, 56, L"d3dcompiler_47.dll");
@@ -206,17 +206,17 @@ void manageGame(const std::wstring& game, bool restore)
 			}
 			dl(L"D3DCompiler_47.dll", 57, true);
 		}
-		ProcRun(JoinPath(56, L"Riot Client.exe"), L"", false);
+		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
 		exit(0);
 	}
 	else if (game == L"dota2") {
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
-		ProcKill(L"dota2.exe");
+		Term(L"dota2.exe");
 		AppendPath(0, L"game\\bin\\win64");
 		CombinePath(1, 0, L"embree3.dll");
 		unblock(JoinPath(0, L"dota2.exe"));
 		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
-		ProcRun(L"steam://rungameid/570//-high/", L"", false);
+		Run(L"steam://rungameid/570//-high/", L"", false);
 		exit(0);
 	}
 }
@@ -318,7 +318,7 @@ void manageTasks(const std::wstring& task)
 		AppendPath(0, fs::current_path());
 		AppendPath(0, L"jdk-23_windows-x64_bin.exe");
 		dl(L"https://download.oracle.com/java/23/latest/jdk-23_windows-x64_bin.exe", 0, false);
-		ProcRun(v[0], L"", true);
+		Run(v[0], L"", true);
 		fs::remove_all(v[0]);
 
 		MessageBoxEx(
@@ -328,12 +328,6 @@ void manageTasks(const std::wstring& task)
 			MB_OK,
 			0);
 
-	}
-	else if (task == L"pcmanager")
-	{
-		ProcKill(L"MSPCManager.exe");
-		_wsystem(L"winget uninstall Microsoft.PCManager");
-		_wsystem(L"winget install Microsoft.PCManager");
 	}
 	else if (task == L"mame")
 	{
@@ -346,23 +340,38 @@ void manageTasks(const std::wstring& task)
 			{3, L"FBNeo.zip" },
 			{4, L"FBNeo_support.7z"}
 		};
+
+		std::vector<std::tuple<std::wstring, int, bool>> downloads;
+
 		for (const auto& [index, subPath] : paths)
 		{
 			AppendPath(index, currentPath);
 			AppendPath(index, subPath);
 		}
 
-		_wsystem(L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h");
-		_wsystem(L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements");
-		std::vector<std::tuple<std::wstring, int, bool>> downloads = {
+		if (ProccessIs64Bit())
+		{
+			_wsystem(L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h");
+			_wsystem(L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements");
+			downloads = {
 			{L"7z.exe", 0, true},
 			{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false},
 			{L"https://github.com/mamedev/mame/releases/download/mame0272/mame0272b_64bit.exe", 2, false},
-		{ProccessIs64Bit()
-			? L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip"
-			: L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false},
+			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip", 3 , false},
 			{L"https://lolsuite.org/funz/support.7z", 4, false}
-		};
+			};
+		}
+		else
+		{
+			_wsystem(L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h");
+			_wsystem(L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements");
+			downloads = {
+            {L"7z.exe", 0, true},
+            {L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false},
+            {L"https://lolsuite.org/funz/support.7z", 4, false}
+			};
+		}
+
 		for (const auto& [url, index, flag] : downloads)
 		{
 			dl(url, index, flag);
@@ -377,7 +386,7 @@ void manageTasks(const std::wstring& task)
 
 		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y", L"x FBNeo.zip -oFBNeo -y", L"x FBNeo_support.7z -oFBNeo\\support -y" })
 		{
-			ProcRun(v[0], cmd, true);
+			Run(v[0], cmd, true);
 		}
 		for (int i : {0, 1, 2, 3, 4})
 		{
@@ -385,7 +394,7 @@ void manageTasks(const std::wstring& task)
 		}
 		clearAndAppend(0, L"dxwebsetup.exe");
 		dl(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
-		ProcRun(v[0], L"/Q", true);
+		Run(v[0], L"/Q", true);
 		fs::remove(v[0]);
 	}
 	else if (task == L"mesen")
@@ -408,16 +417,21 @@ void manageTasks(const std::wstring& task)
 		dl(L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip", 1, false);
 		fs::remove_all(L"Mesen");
 		fs::create_directory(L"Mesen");
-		ProcRun(v[0], L"x Mesen.zip -oMesen -y", true);
+		Run(v[0], L"x Mesen.zip -oMesen -y", true);
 		for (int i : {0, 1})fs::remove_all(v[i]);
-		ProcRun(v[2], L"", false);
+		Run(v[2], L"", false);
 		exit(0);
 	}
 	else if (task == L"support")
 	{
+		Term(L"MSPCManager.exe");
+		Term(L"Powershell.exe");
+		Term(L"cmd.exe");
+
 		std::vector<std::wstring> PreCommands = {
 			L"powercfg /hibernate off",
 			L"winget source update",
+			L"winget uninstall Microsoft.PCManager",
 			L"winget uninstall Microsoft.WindowsTerminal --purge -h",
 			L"winget uninstall Microsoft.PowerShell --purge -h",
 			L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
@@ -432,25 +446,25 @@ void manageTasks(const std::wstring& task)
 			L"winget uninstall 9PB0TRCNRHFX --purge -h",
 			L"winget uninstall 9N5TDP8VCMHS --purge -h",
 			L"winget uninstall 9PCSD6N03BKV --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
-			L"winget uninstall Microsoft.VSTOR --purge -h"
+			L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h"
 		};
 
 		std::vector<std::wstring> installCommands = {
 			L"winget install Microsoft.WindowsTerminal --accept-package-agreements",
 			L"winget install Microsoft.PowerShell --accept-package-agreements",
 			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
+			L"winget install Microsoft.PCManager",
 			L"winget install 9NQPSL29BFFF --accept-package-agreements",
 			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
@@ -462,25 +476,24 @@ void manageTasks(const std::wstring& task)
 			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N5TDP8VCMHS --accept-package-agreements",
 			L"winget install 9PCSD6N03BKV --accept-package-agreements" ,
-			L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements",
-			L"winget install Microsoft.VSTOR --accept-package-agreements"
+			L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
 		};
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
 		clearAndAppend(0, L"dxwebsetup.exe");
 		dl(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
-		ProcRun(v[0], L"/Q", true);
+		Run(v[0], L"/Q", true);
 		fs::remove(v[0]);
 		exit(0);
 	}
@@ -516,35 +529,35 @@ void manageTasks(const std::wstring& task)
 		std::vector<std::wstring> commands = { L"x XBLA.zip -oXBLA -y", L"x XBLA.7z -oXBLA -y" };
 		for (const auto& cmd : commands)
 		{
-			ProcRun(v[1], cmd, true);
+			Run(v[1], cmd, true);
 		}
 
 		switch (rarecb)
 		{
 		case 0:
 			dl(L"https://lolsuite.org/funz/Bean.7z", 0, false);
-			ProcRun(v[1], L"x Bean.7z -oBean -y", true);
-			ProcRun(v[4], v[5], false);
+			Run(v[1], L"x Bean.7z -oBean -y", true);
+			Run(v[4], v[5], false);
 			break;
 		case 1:
 			dl(L"https://lolsuite.org/funz/PD.7z", 7, false);
-			ProcRun(v[1], L"x PD.7z -oPD -y", true);
-			ProcRun(v[4], v[10], false);
+			Run(v[1], L"x PD.7z -oPD -y", true);
+			Run(v[4], v[10], false);
 			break;
 		case 2:
 			dl(L"https://lolsuite.org/funz/BK.7z", 8, false);
-			ProcRun(v[1], L"x BK.7z -oBK -y", true);
-			ProcRun(v[4], v[11], false);
+			Run(v[1], L"x BK.7z -oBK -y", true);
+			Run(v[4], v[11], false);
 			break;
 		case 3:
 			dl(L"https://lolsuite.org/funz/BT.7z", 9, false);
-			ProcRun(v[1], L"x BT.7z -oBT -y", true);
-			ProcRun(v[4], v[12], false);
+			Run(v[1], L"x BT.7z -oBT -y", true);
+			Run(v[4], v[12], false);
 			break;
 		case 4:
 			dl(L"https://lolsuite.org/funz/BeanOG.7z", 13, false);
-			ProcRun(v[1], L"x BeanOG.7z -oBeanOG -y", true);
-			ProcRun(v[4], v[14], false);
+			Run(v[1], L"x BeanOG.7z -oBeanOG -y", true);
+			Run(v[4], v[14], false);
 			break;
 		}
 
@@ -576,8 +589,7 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageTasks(L"mesen"); },
 		[flag]() { manageTasks(L"mame"); },
 		[flag]() { manageTasks(L"support"); },
-		[flag]() { manageTasks(L"gameclients"); },
-		[flag]() { manageTasks(L"pcmanager"); }
+		[flag]() { manageTasks(L"gameclients"); }
 	};
 	if (cb >= 0 && cb < commands.size())
 	{
