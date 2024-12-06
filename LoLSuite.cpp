@@ -366,9 +366,9 @@ void manageTasks(const std::wstring& task)
 			_wsystem(L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h");
 			_wsystem(L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements");
 			downloads = {
-            {L"7z.exe", 0, true},
-            {L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false},
-            {L"https://lolsuite.org/funz/support.7z", 4, false}
+			{L"7z.exe", 0, true},
+			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false},
+			{L"https://lolsuite.org/funz/support.7z", 4, false}
 			};
 		}
 
