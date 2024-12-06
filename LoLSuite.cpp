@@ -27,7 +27,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 const wchar_t* box[7] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen2",
-	L"Arcades", L"Redist Pack", L"Game-Clients Installer"
+	L"Arcades", L"AIO Pack", L"Game-Clients"
 };
 const wchar_t* rarebox[5] = {
 	L"GoldenEye CE", L"Perfect Dark", L"Banjo Kazooie", L"Banjo Tooie", L"GoldenEye"
