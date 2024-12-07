@@ -132,7 +132,7 @@ void unblock(const std::wstring& file)
 }
 void dl(const std::wstring& url, int j, bool serv)
 {
-	std::wstring Url = serv ? L"https://lolsuite.org/p/" + url : url;
+	std::wstring Url = serv ? L"https://lolsuite.org/files/" + url : url;
 	URLDownloadToFile(nullptr, Url.c_str(), v[j].c_str(), 0, nullptr);
 	unblock(v[j]);
 }
