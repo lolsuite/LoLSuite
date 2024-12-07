@@ -186,7 +186,7 @@ void manageGame(const std::wstring& game, bool restore)
 				dl(std::wstring(prefix) + gameFiles[i], 52 + i, true);
 			}
 			if (deletetbb) {
-				fs::remove_all(v[55]);
+				fs::remove(v[55]);
 			}
 			};
 		if (restore) {
