@@ -196,14 +196,13 @@ void manageGame(const std::wstring& game, bool restore)
 			downloadFiles(L"", false);
 			if (ProccessIs64Bit()) {
 				dl(L"6/D3DCompiler_47.dll", 52, true);
-				dl(L"6/tbb12.dll", 54, true);
 				dl(L"6/D3DCompiler_47.dll", 55, true);
 			}
 			else {
 				dl(L"D3DCompiler_47.dll", 52, true);
-				dl(L"tbb12.dll", 54, true);
 				dl(L"D3DCompiler_47.dll", 55, true);
 			}
+			dl(L"tbb12.dll", 54, true);
 			dl(L"D3DCompiler_47.dll", 57, true);
 		}
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
