@@ -202,7 +202,7 @@ void manageGame(const std::wstring& game, bool restore)
 				dl(L"D3DCompiler_47.dll", 52, true);
 				dl(L"D3DCompiler_47.dll", 55, true);
 			}
-			dl(L"tbb12.dll", 54, true);
+			dl(L"tbb.dll", 54, true);
 			dl(L"D3DCompiler_47.dll", 57, true);
 		}
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
