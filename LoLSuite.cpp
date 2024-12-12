@@ -147,6 +147,28 @@ bool ProccessIs64Bit()
 	return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
 }
 
+auto clearAndAppend = [](int index, const std::wstring& path)
+	{
+		v[index].clear();
+		AppendPath(index, fs::current_path());
+		AppendPath(index, path);
+	};
+auto executeCommands = [](const std::vector<std::wstring>& commands)
+	{
+		for (const auto& cmd : commands)
+		{
+			_wsystem(cmd.c_str());
+		}
+	};
+
+void dx9()
+{
+	clearAndAppend(0, L"dxwebsetup.exe");
+	dl(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
+	Run(v[0], L"/Q", true);
+	fs::remove(v[0]);
+}
+
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
@@ -205,6 +227,7 @@ void manageGame(const std::wstring& game, bool restore)
 			dl(L"tbb.dll", 55, true);
 			dl(L"D3DCompiler_47.dll", 57, true);
 		}
+		dx9();
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
 		exit(0);
 	}
@@ -215,6 +238,7 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(1, 0, L"embree3.dll");
 		unblock(JoinPath(0, L"dota2.exe"));
 		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
+		dx9();
 		Run(L"steam://rungameid/570//-high/", L"", false);
 		exit(0);
 	}
@@ -278,19 +302,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 void manageTasks(const std::wstring& task)
 {
-	auto clearAndAppend = [](int index, const std::wstring& path)
-		{
-			v[index].clear();
-			AppendPath(index, fs::current_path());
-			AppendPath(index, path);
-		};
-	auto executeCommands = [](const std::vector<std::wstring>& commands)
-		{
-			for (const auto& cmd : commands)
-			{
-				_wsystem(cmd.c_str());
-			}
-		};
+
 	if (task == L"JDK")
 	{
 		std::vector<std::wstring> PreCommands = {
@@ -391,9 +403,7 @@ void manageTasks(const std::wstring& task)
 		{
 			fs::remove(v[i]);
 		}
-		clearAndAppend(0, L"dxwebsetup.exe");
-		dl(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
-		Run(v[0], L"/Q", true);
+		dx9();
 		fs::remove(v[0]);
 	}
 	else if (task == L"mesen")
@@ -419,6 +429,7 @@ void manageTasks(const std::wstring& task)
 		Run(v[0], L"x Mesen.zip -oMesen -y", true);
 		for (int i : {0, 1})fs::remove_all(v[i]);
 		Run(v[2], L"", false);
+		dx9();
 		exit(0);
 	}
 	else if (task == L"support")
@@ -490,10 +501,7 @@ void manageTasks(const std::wstring& task)
 		};
 		executeCommands(PreCommands);
 		executeCommands(installCommands);
-		clearAndAppend(0, L"dxwebsetup.exe");
-		dl(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
-		Run(v[0], L"/Q", true);
-		fs::remove(v[0]);
+		dx9();
 		exit(0);
 	}
 	else if (task == L"XBLA")
@@ -530,7 +538,7 @@ void manageTasks(const std::wstring& task)
 		{
 			Run(v[1], cmd, true);
 		}
-
+		dx9();
 		switch (rarecb)
 		{
 		case 0:
