@@ -509,9 +509,10 @@ void manageTasks(const std::wstring& task)
 	{
 		Term(L"xenia.exe");
 		Term(L"xenia_canary.exe");
+		dx9();
 		for (auto& path : v) path.clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
-			{0, L"Bean.7z"},
+			{0, L"GECE.7z"},
 			{1, L"7z.exe"},
 			{2, L"XBLA.zip"},
 			{3, L"XBLA\\LICENSE"},
@@ -525,7 +526,7 @@ void manageTasks(const std::wstring& task)
 			{11, L"BK\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
 			{12, L"BT\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
 			{13, L"BeanOG.7z"},
-			{14, L"BeanOG\\30BA92710985645EF623D4A6BA9E8EFFAEC62617 --license_mask -1"},
+			{14, L"BeanOG\\30BA92710985645EF623D4A6BA9E8EFFAEC62617"},
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -541,12 +542,13 @@ void manageTasks(const std::wstring& task)
 		{
 			Run(v[1], cmd, true);
 		}
-		dx9();
+
+
 		switch (rarecb)
 		{
 		case 0:
-			dl(L"https://lolsuite.org/funz/Bean.7z", 0, false);
-			Run(v[1], L"x Bean.7z -oBean -y", true);
+			dl(L"https://lolsuite.org/funz/GECE.7z", 0, false);
+			Run(v[1], L"x GECE.7z -oBean -y", true);
 			Run(v[4], v[5], false);
 			break;
 		case 1:
