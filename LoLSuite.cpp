@@ -507,6 +507,8 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"XBLA")
 	{
+		Term(L"xenia.exe");
+		Term(L"xenia_canary.exe");
 		for (auto& path : v) path.clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"Bean.7z"},
