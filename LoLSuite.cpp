@@ -528,6 +528,9 @@ void manageTasks(const std::wstring& task)
 			{12, L"XBLA\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
 			{13, L"Bean.7z"},
 			{14, L"XBLA\\30BA92710985645EF623D4A6BA9E8EFFAEC62617"},
+			{15, L"cache0"},
+			{16, L"cache1"},
+			{17, L"cache"}
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -574,7 +577,7 @@ void manageTasks(const std::wstring& task)
 			break;
 		}
 
-		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13 };
+		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13, 15, 16, 17 };
 		for (int i : indices)
 		{
 			fs::remove_all(v[i]);
