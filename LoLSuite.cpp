@@ -509,6 +509,7 @@ void manageTasks(const std::wstring& task)
 	{
 		Term(L"xenia.exe");
 		Term(L"xenia_canary.exe");
+		fs::remove_all(L"XBLA");
 		dx9();
 		for (auto& path : v) path.clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
@@ -517,16 +518,16 @@ void manageTasks(const std::wstring& task)
 			{2, L"XBLA.zip"},
 			{3, L"XBLA\\LICENSE"},
 			{4, L"XBLA\\xenia_canary.exe"},
-			{5, L"Bean\\defaultCE.xex"},
+			{5, L"XBLA\\GECE\\defaultCE.xex"},
 			{6, L"XBLA.7z"},
 			{7, L"PD.7z"},
 			{8, L"BK.7z"},
 			{9, L"BT.7z"},
-			{10, L"PD\\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1"},
-			{11, L"BK\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
-			{12, L"BT\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
-			{13, L"BeanOG.7z"},
-			{14, L"BeanOG\\30BA92710985645EF623D4A6BA9E8EFFAEC62617"},
+			{10, L"XBLA\\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1"},
+			{11, L"XBLA\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
+			{12, L"XBLA\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
+			{13, L"Bean.7z"},
+			{14, L"XBLA\\30BA92710985645EF623D4A6BA9E8EFFAEC62617"},
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -548,27 +549,27 @@ void manageTasks(const std::wstring& task)
 		{
 		case 0:
 			dl(L"https://lolsuite.org/funz/GECE.7z", 0, false);
-			Run(v[1], L"x GECE.7z -oBean -y", true);
+			Run(v[1], L"x GECE.7z -oXBLA\\GECE -y", true);
 			Run(v[4], v[5], false);
 			break;
 		case 1:
 			dl(L"https://lolsuite.org/funz/PD.7z", 7, false);
-			Run(v[1], L"x PD.7z -oPD -y", true);
+			Run(v[1], L"x PD.7z -oXBLA -y", true);
 			Run(v[4], v[10], false);
 			break;
 		case 2:
 			dl(L"https://lolsuite.org/funz/BK.7z", 8, false);
-			Run(v[1], L"x BK.7z -oBK -y", true);
+			Run(v[1], L"x BK.7z -oXBLA -y", true);
 			Run(v[4], v[11], false);
 			break;
 		case 3:
 			dl(L"https://lolsuite.org/funz/BT.7z", 9, false);
-			Run(v[1], L"x BT.7z -oBT -y", true);
+			Run(v[1], L"x BT.7z -oXBLA -y", true);
 			Run(v[4], v[12], false);
 			break;
 		case 4:
 			dl(L"https://lolsuite.org/funz/BeanOG.7z", 13, false);
-			Run(v[1], L"x BeanOG.7z -oBeanOG -y", true);
+			Run(v[1], L"x Bean.7z -oXBLA -y", true);
 			Run(v[4], v[14], false);
 			break;
 		}
