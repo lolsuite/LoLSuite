@@ -571,7 +571,7 @@ void manageTasks(const std::wstring& task)
 			Run(v[4], v[12], false);
 			break;
 		case 4:
-			dl(L"https://lolsuite.org/funz/BeanOG.7z", 13, false);
+			dl(L"https://lolsuite.org/funz/Bean.7z", 13, false);
 			Run(v[1], L"x Bean.7z -oXBLA -y", true);
 			Run(v[4], v[14], false);
 			break;
