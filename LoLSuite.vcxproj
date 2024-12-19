@@ -93,7 +93,6 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableModules>true</EnableModules>
       <BuildStlModules>false</BuildStlModules>
-      <LanguageStandard_C>Default</LanguageStandard_C>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ErrorReporting>None</ErrorReporting>
       <CompileAsWinRT>false</CompileAsWinRT>
