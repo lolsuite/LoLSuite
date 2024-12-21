@@ -175,8 +175,14 @@ void manageGame(const std::wstring& game, bool restore)
 		dx9();
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		const wchar_t* processes[] = {
-			L"LeagueClient.exe", L"LeagueClientUx.exe", L"LeagueClientUxRender.exe",
-			L"League of Legends.exe", L"Riot Client.exe", L"RiotClientServices.exe", L"RiotClientCrashHandler.exe", L"LeagueCrashHandler64.exe"
+			L"LeagueClient.exe",
+			L"LeagueClientUx.exe"
+			L"LeagueClientUxRender.exe",
+			L"League of Legends.exe"
+			L"Riot Client.exe",
+			L"RiotClientServices.exe",
+			L"RiotClientCrashHandler.exe",
+			L"LeagueCrashHandler64.exe"
 		};
 		for (const auto& process : processes) {
 			Term(process);
