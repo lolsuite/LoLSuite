@@ -305,7 +305,7 @@ void manageTasks(const std::wstring& task)
 
 	if (task == L"JDK")
 	{
-		std::vector<std::wstring> PreCommands = {
+		std::vector<std::wstring> Commands = {
 			L"winget source update",
 			L"winget uninstall Mojang.MinecraftLauncher",
 			L"winget uninstall Oracle.JavaRuntimeEnvironment",
@@ -315,22 +315,11 @@ void manageTasks(const std::wstring& task)
 			L"winget uninstall Oracle.JDK.20",
 			L"winget uninstall Oracle.JDK.19",
 			L"winget uninstall Oracle.JDK.18",
-			L"winget uninstall Oracle.JDK.17"
-		};
-		executeCommands(PreCommands);
-
-		std::vector<std::wstring> PostCommands = {
+			L"winget uninstall Oracle.JDK.17",
 			L"winget install Mojang.MinecraftLauncher",
-			L"winget install Oracle.JavaRuntimeEnvironment"
+			L"winget install Oracle.JDK.23",
 		};
-		executeCommands(PostCommands);
-
-		v[0].clear();
-		AppendPath(0, fs::current_path());
-		AppendPath(0, L"jdk-23_windows-x64_bin.exe");
-		dl(L"https://download.oracle.com/java/23/latest/jdk-23_windows-x64_bin.exe", 0, false);
-		Run(v[0], L"", true);
-		fs::remove_all(v[0]);
+		executeCommands(Commands);
 
 		MessageBoxEx(
 			nullptr,
@@ -360,10 +349,22 @@ void manageTasks(const std::wstring& task)
 			AppendPath(index, subPath);
 		}
 
+		std::vector<std::wstring> Commands = {
+	L"winget source update",
+	L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
+	L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
+		};
+
+		std::vector<std::wstring> x86Commands = {
+	L"winget source update",
+	L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
+	L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
+		};
+		executeCommands(Commands);
+
+
 		if (ProccessIs64Bit())
 		{
-			_wsystem(L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h");
-			_wsystem(L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements");
 			downloads = {
 			{L"7z.exe", 0, true},
 			{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false},
@@ -374,8 +375,6 @@ void manageTasks(const std::wstring& task)
 		}
 		else
 		{
-			_wsystem(L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h");
-			_wsystem(L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements");
 			downloads = {
 			{L"7z.exe", 0, true},
 			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false},
@@ -419,9 +418,12 @@ void manageTasks(const std::wstring& task)
 			AppendPath(index, currentPath);
 			AppendPath(index, subPath);
 		}
-
-		_wsystem(L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h");
-		_wsystem(L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements");
+		std::vector<std::wstring> Commands = {
+          L"winget source update",
+          L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h",
+          L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements"
+		};
+		executeCommands(Commands);
 		dl(L"7z.exe", 0, true);
 		dl(L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip", 1, false);
 		fs::remove_all(L"Mesen");
@@ -436,9 +438,10 @@ void manageTasks(const std::wstring& task)
 	{
 		Term(L"MSPCManager.exe");
 		Term(L"Powershell.exe");
+		Term(L"OpenConsole.exe");
 		Term(L"cmd.exe");
 
-		std::vector<std::wstring> PreCommands = {
+		std::vector<std::wstring> Commands = {
 			L"powercfg /hibernate off",
 			L"winget source update",
 			L"winget uninstall Microsoft.PCManager",
@@ -467,10 +470,7 @@ void manageTasks(const std::wstring& task)
 			L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h"
-		};
-
-		std::vector<std::wstring> installCommands = {
+			L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
 			L"winget install Microsoft.WindowsTerminal --accept-package-agreements",
 			L"winget install Microsoft.PowerShell --accept-package-agreements",
 			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
@@ -500,8 +500,7 @@ void manageTasks(const std::wstring& task)
 			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
 			L"dir 'C:\' -Recurse | Unblock-File"
 		};
-		executeCommands(PreCommands);
-		executeCommands(installCommands);
+		executeCommands(Commands);
 		dx9();
 		exit(0);
 	}
@@ -586,12 +585,9 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"gameclients")
 	{
-		std::vector<std::wstring> PreCommands = {
-				L"winget source update", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet" };
-		std::vector<std::wstring> installCommands = {
-				L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
-		executeCommands(PreCommands);
-		executeCommands(installCommands);
+		std::vector<std::wstring> Commands = {
+				L"winget source update", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet", L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
+		executeCommands(Commands);
 		exit(0);
 	}
 }
