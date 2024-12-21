@@ -190,9 +190,14 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(56, 0, L"Riot Client\\RiotClientElectron");
 		CombinePath(57, 56, L"d3dcompiler_47.dll");
 		const wchar_t* baseFiles[] = {
-			L"concrt140.dll", L"d3dcompiler_47.dll", L"msvcp140.dll", L"msvcp140_1.dll",
-			L"msvcp140_2.dll", L"msvcp140_codecvt_ids.dll", L"ucrtbase.dll",
-			L"vcruntime140.dll", L"vcruntime140_1.dll"
+			L"concrt140.dll",
+			L"d3dcompiler_47.dll",
+			L"msvcp140.dll", L"msvcp140_1.dll",
+			L"msvcp140_2.dll",
+			L"msvcp140_codecvt_ids.dll",
+			L"ucrtbase.dll",
+			L"vcruntime140.dll",
+			L"vcruntime140_1.dll"
 		};
 		AppendPath(0, L"League of Legends");
 		for (int i = 0; i < 9; ++i) {
@@ -201,7 +206,8 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(51, 0, L"Game");
 		unblock(JoinPath(51, L"League of Legends.exe"));
 		const wchar_t* gameFiles[] = {
-			L"D3DCompiler_47.dll", L"tbb.dll"
+			L"D3DCompiler_47.dll",
+			L"tbb.dll"
 		};
 		for (int i = 0; i < 2; ++i) {
 			CombinePath(52 + i, 51, gameFiles[i]);
