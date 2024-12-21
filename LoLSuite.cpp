@@ -172,6 +172,7 @@ void dx9()
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
+		dx9();
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		const wchar_t* processes[] = {
 			L"LeagueClient.exe", L"LeagueClientUx.exe", L"LeagueClientUxRender.exe",
@@ -227,18 +228,18 @@ void manageGame(const std::wstring& game, bool restore)
 			dl(L"tbb.dll", 55, true);
 			dl(L"D3DCompiler_47.dll", 57, true);
 		}
-		dx9();
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
 		exit(0);
 	}
 	else if (game == L"dota2") {
+		dx9();
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"dota2.exe");
 		AppendPath(0, L"game\\bin\\win64");
 		CombinePath(1, 0, L"embree3.dll");
 		unblock(JoinPath(0, L"dota2.exe"));
 		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
-		dx9();
+
 		Run(L"steam://rungameid/570//-high/", L"", false);
 		exit(0);
 	}
@@ -331,6 +332,7 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"mame")
 	{
+		dx9();
 		for (auto& path : v) path.clear();
 
 		std::vector<std::pair<int, std::wstring>> paths = {
@@ -394,9 +396,6 @@ void manageTasks(const std::wstring& task)
 		fs::remove_all(L"HBMAME");
 		fs::remove_all(L"MAME");
 		fs::remove_all(L"FBNeo");
-		fs::create_directory(L"HBMAME");
-		fs::create_directory(L"MAME");
-		fs::create_directory(L"FBNeo");
 
 		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y", L"x FBNeo.zip -oFBNeo -y", L"x FBNeo_support.7z -oFBNeo\\support -y" })
 		{
@@ -406,11 +405,12 @@ void manageTasks(const std::wstring& task)
 		{
 			fs::remove(v[i]);
 		}
-		dx9();
+
 		fs::remove(v[0]);
 	}
 	else if (task == L"mesen")
 	{
+		dx9();
 		for (int i : {0, 1, 2}) v[i].clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
@@ -431,11 +431,9 @@ void manageTasks(const std::wstring& task)
 		dl(L"7z.exe", 0, true);
 		dl(L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip", 1, false);
 		fs::remove_all(L"Mesen");
-		fs::create_directory(L"Mesen");
 		Run(v[0], L"x Mesen.zip -oMesen -y", true);
 		for (int i : {0, 1})fs::remove_all(v[i]);
 		Run(v[2], L"", false);
-		dx9();
 		exit(0);
 	}
 	else if (task == L"support")
@@ -530,10 +528,7 @@ void manageTasks(const std::wstring& task)
 			{11, L"XBLA\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
 			{12, L"XBLA\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
 			{13, L"Bean.7z"},
-			{14, L"XBLA\\30BA92710985645EF623D4A6BA9E8EFFAEC62617"},
-			{15, L"cache0"},
-			{16, L"cache1"},
-			{17, L"cache"}
+			{14, L"XBLA\\30BA92710985645EF623D4A6BA9E8EFFAEC62617"}
 		};
 		for (const auto& [index, subPath] : paths)
 		{
@@ -549,7 +544,6 @@ void manageTasks(const std::wstring& task)
 		{
 			Run(v[1], cmd, true);
 		}
-
 
 		switch (rarecb)
 		{
@@ -580,7 +574,7 @@ void manageTasks(const std::wstring& task)
 			break;
 		}
 
-		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13, 15, 16, 17 };
+		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13};
 		for (int i : indices)
 		{
 			fs::remove_all(v[i]);
