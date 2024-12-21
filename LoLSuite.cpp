@@ -176,7 +176,7 @@ void manageGame(const std::wstring& game, bool restore)
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		const wchar_t* processes[] = {
 			L"LeagueClient.exe", L"LeagueClientUx.exe", L"LeagueClientUxRender.exe",
-			L"League of Legends.exe", L"Riot Client.exe", L"RiotClientServices.exe"
+			L"League of Legends.exe", L"Riot Client.exe", L"RiotClientServices.exe", L"RiotClientCrashHandler.exe", L"LeagueCrashHandler64.exe"
 		};
 		for (const auto& process : processes) {
 			Term(process);
@@ -225,7 +225,7 @@ void manageGame(const std::wstring& game, bool restore)
 				dl(L"D3DCompiler_47.dll", 52, true);
 				dl(L"D3DCompiler_47.dll", 53, true);
 			}
-			dl(L"tbb.dll", 55, true);
+			dl(L"tbb.dll", 55, true); // Multi-Threaded
 			dl(L"D3DCompiler_47.dll", 57, true);
 		}
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
@@ -239,7 +239,6 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(1, 0, L"embree3.dll");
 		unblock(JoinPath(0, L"dota2.exe"));
 		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
-
 		Run(L"steam://rungameid/570//-high/", L"", false);
 		exit(0);
 	}
