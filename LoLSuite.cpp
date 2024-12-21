@@ -478,7 +478,7 @@ void manageTasks(const std::wstring& task)
 			L"winget install Microsoft.WindowsTerminal --accept-package-agreements",
 			L"winget install Microsoft.PowerShell --accept-package-agreements",
 			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
-			L"winget install Microsoft.PCManager",
+			L"winget install Microsoft.PCManager --accept-package-agreement",
 			L"winget install 9NQPSL29BFFF --accept-package-agreements",
 			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
