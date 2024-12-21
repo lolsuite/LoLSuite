@@ -211,6 +211,10 @@ void manageGame(const std::wstring& game, bool restore)
 			if (deletetbb) {
 				fs::remove(v[55]);
 			}
+			else
+			{
+				dl(L"tbb.dll", 55, true); // Multi-Threaded
+			}
 			};
 		if (restore) {
 			downloadFiles(L"r/lol/", true);
@@ -225,7 +229,7 @@ void manageGame(const std::wstring& game, bool restore)
 				dl(L"D3DCompiler_47.dll", 52, true);
 				dl(L"D3DCompiler_47.dll", 53, true);
 			}
-			dl(L"tbb.dll", 55, true); // Multi-Threaded
+
 			dl(L"D3DCompiler_47.dll", 57, true);
 		}
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
