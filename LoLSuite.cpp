@@ -590,7 +590,16 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"gameclients")
 	{
 		std::vector<std::wstring> Commands = {
-				L"winget source update", L"winget uninstall Valve.Steam --purge -h", L"winget uninstall ElectronicArts.EADesktop --purge -h", L"winget uninstall ElectronicArts.Origin --purge -h", L"winget uninstall EpicGames.EpicGamesLauncher --purge -h", L"winget uninstall Blizzard.BattleNet --purge -h", L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
+				L"winget source update",
+				L"winget uninstall Valve.Steam --purge -h",
+				L"winget uninstall ElectronicArts.EADesktop --purge -h",
+				L"winget uninstall ElectronicArts.Origin --purge -h",
+				L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
+				L"winget uninstall Blizzard.BattleNet --purge -h",
+				L"winget install Valve.Steam",
+				L"winget install ElectronicArts.EADesktop",
+				L"winget install EpicGames.EpicGamesLauncher",
+				L"winget install Blizzard.BattleNet" };
 		executeCommands(Commands);
 		exit(0);
 	}
