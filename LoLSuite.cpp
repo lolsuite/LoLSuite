@@ -349,25 +349,22 @@ void manageTasks(const std::wstring& task)
 			AppendPath(index, subPath);
 		}
 
-		std::vector<std::wstring> Commands = {
-	L"winget source update",
-	L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
-	L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
-		};
 
-		std::vector<std::wstring> x86Commands = {
-	L"winget source update",
-	L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
-	L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
-		};
-		executeCommands(Commands);
+		std::vector<std::wstring> Commands;
+
 
 
 		if (ProccessIs64Bit())
 		{
+			Commands = {
+			L"winget source update",
+            L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
+            L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
+			};
+
 			downloads = {
 			{L"7z.exe", 0, true},
-			{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false},
+			{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false },
 			{L"https://github.com/mamedev/mame/releases/download/mame0272/mame0272b_64bit.exe", 2, false},
 			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip", 3 , false},
 			{L"https://lolsuite.org/funz/support.7z", 4, false}
@@ -375,6 +372,13 @@ void manageTasks(const std::wstring& task)
 		}
 		else
 		{
+
+			Commands = {
+	        L"winget source update",
+	        L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
+	        L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
+			};
+
 			downloads = {
 			{L"7z.exe", 0, true},
 			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false},
@@ -386,7 +390,7 @@ void manageTasks(const std::wstring& task)
 		{
 			dl(url, index, flag);
 		}
-
+		executeCommands(Commands);
 		fs::remove_all(L"HBMAME");
 		fs::remove_all(L"MAME");
 		fs::remove_all(L"FBNeo");
@@ -419,9 +423,9 @@ void manageTasks(const std::wstring& task)
 			AppendPath(index, subPath);
 		}
 		std::vector<std::wstring> Commands = {
-          L"winget source update",
-          L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h",
-          L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements"
+		  L"winget source update",
+		  L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h",
+		  L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements"
 		};
 		executeCommands(Commands);
 		dl(L"7z.exe", 0, true);
