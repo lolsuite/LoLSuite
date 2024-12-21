@@ -307,15 +307,15 @@ void manageTasks(const std::wstring& task)
 	{
 		std::vector<std::wstring> Commands = {
 			L"winget source update",
-			L"winget uninstall Mojang.MinecraftLauncher",
-			L"winget uninstall Oracle.JavaRuntimeEnvironment",
-			L"winget uninstall Oracle.JDK.23",
-			L"winget uninstall Oracle.JDK.22",
-			L"winget uninstall Oracle.JDK.21",
-			L"winget uninstall Oracle.JDK.20",
-			L"winget uninstall Oracle.JDK.19",
-			L"winget uninstall Oracle.JDK.18",
-			L"winget uninstall Oracle.JDK.17",
+			L"winget uninstall Mojang.MinecraftLauncher --purge -h",
+			L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
+			L"winget uninstall Oracle.JDK.23 --purge -h",
+			L"winget uninstall Oracle.JDK.22 --purge -h",
+			L"winget uninstall Oracle.JDK.21 --purge -h",
+			L"winget uninstall Oracle.JDK.20 --purge -h",
+			L"winget uninstall Oracle.JDK.19 --purge -h",
+			L"winget uninstall Oracle.JDK.18 --purge -h",
+			L"winget uninstall Oracle.JDK.17 --purge -h",
 			L"winget install Mojang.MinecraftLauncher",
 			L"winget install Oracle.JDK.23",
 		};
@@ -448,7 +448,7 @@ void manageTasks(const std::wstring& task)
 		std::vector<std::wstring> Commands = {
 			L"powercfg /hibernate off",
 			L"winget source update",
-			L"winget uninstall Microsoft.PCManager",
+			L"winget uninstall Microsoft.PCManager --purge -h",
 			L"winget uninstall Microsoft.WindowsTerminal --purge -h",
 			L"winget uninstall Microsoft.PowerShell --purge -h",
 			L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
@@ -590,7 +590,7 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"gameclients")
 	{
 		std::vector<std::wstring> Commands = {
-				L"winget source update", L"winget uninstall Valve.Steam", L"winget uninstall ElectronicArts.EADesktop", L"winget uninstall ElectronicArts.Origin", L"winget uninstall EpicGames.EpicGamesLauncher", L"winget uninstall Blizzard.BattleNet", L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
+				L"winget source update", L"winget uninstall Valve.Steam --purge -h", L"winget uninstall ElectronicArts.EADesktop --purge -h", L"winget uninstall ElectronicArts.Origin --purge -h", L"winget uninstall EpicGames.EpicGamesLauncher --purge -h", L"winget uninstall Blizzard.BattleNet --purge -h", L"winget install Valve.Steam", L"winget install ElectronicArts.EADesktop", L"winget install EpicGames.EpicGamesLauncher", L"winget install Blizzard.BattleNet" };
 		executeCommands(Commands);
 		exit(0);
 	}
