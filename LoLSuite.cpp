@@ -591,10 +591,10 @@ void manageTasks(const std::wstring& task)
 				L"winget uninstall ElectronicArts.Origin --purge -h",
 				L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
 				L"winget uninstall Blizzard.BattleNet --purge -h",
-				L"winget install Valve.Steam",
-				L"winget install ElectronicArts.EADesktop",
-				L"winget install EpicGames.EpicGamesLauncher",
-				L"winget install Blizzard.BattleNet" };
+				L"winget install Valve.Steam --accept-package-agreements",
+				L"winget install ElectronicArts.EADesktop --accept-package-agreements",
+				L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
+				L"winget install Blizzard.BattleNet --accept-package-agreements" };
 		executeCommands(Commands);
 		exit(0);
 	}
