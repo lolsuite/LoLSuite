@@ -207,7 +207,7 @@ void manageGame(const std::wstring& game, bool restore)
 		unblock(JoinPath(51, L"League of Legends.exe"));
 		const wchar_t* gameFiles[] = {
 			L"D3DCompiler_47.dll",
-			L"tbb.dll"
+			L"tbb_mt.dll"
 		};
 		for (int i = 0; i < 2; ++i) {
 			CombinePath(52 + i, 51, gameFiles[i]);
