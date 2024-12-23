@@ -187,7 +187,7 @@ void manageGame(const std::wstring& game, bool restore)
 		for (const auto& process : processes) {
 			Term(process);
 		}
-		CombinePath(56, 0, L"Riot Client\\RiotClientElectron");
+		CombinePath(56, 0, L"Riot Client\\RiotClientElectron\\Riot Client.exe");
 		CombinePath(57, 56, L"d3dcompiler_47.dll");
 		const wchar_t* baseFiles[] = {
 			L"concrt140.dll",
@@ -207,32 +207,26 @@ void manageGame(const std::wstring& game, bool restore)
 		unblock(JoinPath(51, L"League of Legends.exe"));
 		const wchar_t* gameFiles[] = {
 			L"D3DCompiler_47.dll",
-			L"tbb_mt.dll"
+			L"tbb.dll"
 		};
-		for (int i = 0; i < 2; ++i) {
-			CombinePath(52 + i, 51, gameFiles[i]);
-		}
 		CombinePath(55, 51, gameFiles[1]);
-		auto downloadFiles = [&](const wchar_t* prefix, bool deletetbb = false) {
+		CombinePath(53, 51, gameFiles[0]);
+
+		auto downloadFiles = [&](const wchar_t* prefix) {
 			for (int i = 0; i < 9; ++i) {
 				dl(std::wstring(prefix) + baseFiles[i], 42 + i, true);
 			}
 			for (int i = 0; i < 2; ++i) {
 				dl(std::wstring(prefix) + gameFiles[i], 52 + i, true);
 			}
-			if (deletetbb) {
-				fs::remove(v[55]);
-			}
-			else
-			{
-				dl(L"tbb.dll", 55, true); // Multi-Threaded
-			}
 			};
 		if (restore) {
-			downloadFiles(L"r/lol/", true);
+			downloadFiles(L"r/lol/");
+			fs::remove(v[55]);
 		}
 		else {
-			downloadFiles(L"", false);
+			downloadFiles(L"");
+			dl(L"tbb_mt.dll", 55, true); // Multi-Threaded
 			if (ProccessIs64Bit()) {
 				dl(L"6/D3DCompiler_47.dll", 52, true);
 				dl(L"6/D3DCompiler_47.dll", 53, true);
@@ -244,7 +238,7 @@ void manageGame(const std::wstring& game, bool restore)
 
 			dl(L"D3DCompiler_47.dll", 57, true);
 		}
-		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
+		Run(v[56], L"", false);
 		exit(0);
 	}
 	else if (game == L"dota2") {
