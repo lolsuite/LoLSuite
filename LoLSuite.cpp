@@ -150,7 +150,7 @@ bool ProccessIs64Bit()
 auto clearAndAppend = [](int index, const std::wstring& path)
 	{
 		v[index].clear();
-		AppendPath(index, fs::current_path());
+		AppendPath(index, currentPath);
 		AppendPath(index, path);
 	};
 auto executeCommands = [](const std::vector<std::wstring>& commands)
@@ -161,18 +161,10 @@ auto executeCommands = [](const std::vector<std::wstring>& commands)
 		}
 	};
 
-void dx9()
-{
-	clearAndAppend(0, L"dxwebsetup.exe");
-	dl(L"https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe", 0, false);
-	Run(v[0], L"/Q", true);
-	fs::remove(v[0]);
-}
-
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
-		dx9();
+		
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		const wchar_t* processes[] = {
 			L"LeagueClient.exe",
@@ -242,7 +234,7 @@ void manageGame(const std::wstring& game, bool restore)
 		exit(0);
 	}
 	else if (game == L"dota2") {
-		dx9();
+		
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"dota2.exe");
 		AppendPath(0, L"game\\bin\\win64");
@@ -341,7 +333,7 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"mame")
 	{
-		dx9();
+		
 		for (auto& path : v) path.clear();
 
 		std::vector<std::pair<int, std::wstring>> paths = {
@@ -419,7 +411,7 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"mesen")
 	{
-		dx9();
+		
 		for (int i : {0, 1, 2}) v[i].clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
@@ -512,7 +504,7 @@ void manageTasks(const std::wstring& task)
 			L"dir 'C:\' -Recurse | Unblock-File"
 		};
 		executeCommands(Commands);
-		dx9();
+		
 		exit(0);
 	}
 	else if (task == L"XBLA")
@@ -520,7 +512,7 @@ void manageTasks(const std::wstring& task)
 		Term(L"xenia.exe");
 		Term(L"xenia_canary.exe");
 		fs::remove_all(L"XBLA");
-		dx9();
+		
 		for (auto& path : v) path.clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"GECE.7z"},
