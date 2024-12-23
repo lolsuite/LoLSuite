@@ -333,7 +333,7 @@ void manageTasks(const std::wstring& task)
 			L"winget uninstall Oracle.JDK.18 --purge -h",
 			L"winget uninstall Oracle.JDK.17 --purge -h",
 			L"winget install Mojang.MinecraftLauncher",
-			L"winget install Oracle.JDK.23",
+			L"winget install Oracle.JDK.23 --accept-package-agreements",
 		};
 		executeCommands(Commands);
 
