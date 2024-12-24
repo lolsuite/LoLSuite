@@ -369,8 +369,7 @@ void manageTasks(const std::wstring& task)
 			{L"7z.exe", 0, true},
 			{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false },
 			{L"https://github.com/mamedev/mame/releases/download/mame0272/mame0272b_64bit.exe", 2, false},
-			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip", 3 , false},
-			{L"https://lolsuite.org/funz/support.7z", 4, false}
+			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip", 3 , false}
 			};
 		}
 		else
@@ -384,8 +383,7 @@ void manageTasks(const std::wstring& task)
 
 			downloads = {
 			{L"7z.exe", 0, true},
-			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false},
-			{L"https://lolsuite.org/funz/support.7z", 4, false}
+			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false}
 			};
 		}
 
@@ -397,7 +395,7 @@ void manageTasks(const std::wstring& task)
 		fs::remove_all(L"HBMAME");
 		fs::remove_all(L"MAME");
 		fs::remove_all(L"FBNeo");
-
+		dl(L"support.7z", 4, true);
 		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y", L"x FBNeo.zip -oFBNeo -y", L"x FBNeo_support.7z -oFBNeo\\support -y" })
 		{
 			Run(v[0], cmd, true);
@@ -549,27 +547,27 @@ void manageTasks(const std::wstring& task)
 		switch (rarecb)
 		{
 		case 0:
-			dl(L"https://lolsuite.org/funz/GECE.7z", 0, false);
+			dl(L"GECE.7z", 0, true);
 			Run(v[1], L"x GECE.7z -oXBLA\\GECE -y", true);
 			Run(v[4], v[5], false);
 			break;
 		case 1:
-			dl(L"https://lolsuite.org/funz/PD.7z", 7, false);
+			dl(L"PD.7z", 7, true);
 			Run(v[1], L"x PD.7z -oXBLA -y", true);
 			Run(v[4], v[10], false);
 			break;
 		case 2:
-			dl(L"https://lolsuite.org/funz/BK.7z", 8, false);
+			dl(L"BK.7z", 8, true);
 			Run(v[1], L"x BK.7z -oXBLA -y", true);
 			Run(v[4], v[11], false);
 			break;
 		case 3:
-			dl(L"https://lolsuite.org/funz/BT.7z", 9, false);
+			dl(L"BT.7z", 9, true);
 			Run(v[1], L"x BT.7z -oXBLA -y", true);
 			Run(v[4], v[12], false);
 			break;
 		case 4:
-			dl(L"https://lolsuite.org/funz/Bean.7z", 13, false);
+			dl(L"Bean.7z", 13, true);
 			Run(v[1], L"x Bean.7z -oXBLA -y", true);
 			Run(v[4], v[14], false);
 			break;
