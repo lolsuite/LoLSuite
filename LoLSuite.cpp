@@ -392,6 +392,7 @@ void manageTasks(const std::wstring& task)
 			dl(url, index, flag);
 		}
 		executeCommands(Commands);
+
 		fs::remove_all(L"HBMAME");
 		fs::remove_all(L"MAME");
 		fs::remove_all(L"FBNeo");
