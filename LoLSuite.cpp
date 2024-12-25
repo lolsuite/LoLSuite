@@ -572,7 +572,7 @@ void manageTasks(const std::wstring& task)
 		}
 		dl(L"7z.exe", 1, true);
 		dl(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
-		dl(L"https://lolsuite.org/funz/XBLA.7z", 6, false);
+		dl(L"XBLA.7z", 6, true);
 
 		std::vector<std::wstring> commands = { L"x XBLA.zip -oXBLA -y", L"x XBLA.7z -oXBLA -y" };
 		for (const auto& cmd : commands)
