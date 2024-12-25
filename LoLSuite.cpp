@@ -199,19 +199,14 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(51, 0, L"Game");
 		unblock(JoinPath(51, L"League of Legends.exe"));
 		unblock(JoinPath(56, L"Riot Client.exe"));
-		const wchar_t* gameFiles[] = {
-			L"D3DCompiler_47.dll",
-			L"tbb.dll"
-		};
-		CombinePath(53, 51, gameFiles[0]);
-		CombinePath(55, 51, gameFiles[1]);
+
+		CombinePath(53, 51, L"D3DCompiler_47.dll");
+		CombinePath(55, 51, L"tbb.dll");
+		CombinePath(54, 0, L"d3dcompiler_47.dll");
 
 		auto downloadFiles = [&](const wchar_t* prefix) {
 			for (int i = 0; i < 9; ++i) {
 				dl(std::wstring(prefix) + baseFiles[i], 42 + i, true);
-			}
-			for (int i = 0; i < 2; ++i) {
-				dl(std::wstring(prefix) + gameFiles[i], 52 + i, true);
 			}
 			};
 		if (restore) {
@@ -220,6 +215,17 @@ void manageGame(const std::wstring& game, bool restore)
 		}
 		else {
 			downloadFiles(L"");
+			if (ProccessIs64Bit())
+			{
+				dl(L"6/D3DCompiler_47.dll", 53, true); // Multi-Threaded
+				dl(L"6/D3DCompiler_47.dll", 54, true); // Multi-Threaded
+			}
+			else
+			{
+				dl(L"D3DCompiler_47.dll", 53, true); // Multi-Threaded
+				dl(L"D3DCompiler_47.dll", 54, true); // Multi-Threaded
+			}
+
 			dl(L"tbb_mt.dll", 55, true); // Multi-Threaded
 		}
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
