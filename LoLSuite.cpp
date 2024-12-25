@@ -210,6 +210,7 @@ void manageGame(const std::wstring& game, bool restore)
 
 		// BaseDir Files
 		AppendPath(0, L"League of Legends");
+
 		CombinePath(42, 0, L"concrt140.dll");
 		CombinePath(43, 0, L"d3dcompiler_47.dll");
 		CombinePath(44, 0, L"msvcp140.dll");
@@ -233,7 +234,6 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(51, 0, L"Game");
 		unblock(JoinPath(51, L"League of Legends.exe"));
 		unblock(JoinPath(56, L"Riot Client.exe"));
-
 		CombinePath(53, 51, L"D3DCompiler_47.dll");
 		CombinePath(55, 51, L"tbb.dll");
 		CombinePath(54, 0, L"d3dcompiler_47.dll");
@@ -252,20 +252,17 @@ void manageGame(const std::wstring& game, bool restore)
 		{
 			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"6/D3DCompiler_47.dll", 53, true);
 			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"6/D3DCompiler_47.dll", 54, true);
-			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"6/D3DCompiler_47.dll", 57, true);
 		}
 		else
 		{
 			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"D3DCompiler_47.dll", 53, true);
 			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"D3DCompiler_47.dll", 54, true);
-			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"D3DCompiler_47.dll", 57, true);
 
 		}
 
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
-		exit(0);
 	}
-	else if (game == L"dota2") {
+	if (game == L"dota2") {
 		MessageBoxEx(
 			nullptr,
 			L"Select Folder : C:\\Program Files (x86)\\Steam\\steamapps",
@@ -279,7 +276,6 @@ void manageGame(const std::wstring& game, bool restore)
 		unblock(JoinPath(0, L"dota2.exe"));
 		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
 		Run(L"steam://rungameid/570//-high/", L"", false);
-		exit(0);
 	}
 }
 
@@ -370,7 +366,7 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"mame")
 	{
-		
+
 		for (auto& path : v) path.clear();
 
 		std::vector<std::pair<int, std::wstring>> paths = {
@@ -398,8 +394,8 @@ void manageTasks(const std::wstring& task)
 		{
 			Commands = {
 			L"winget source update",
-            L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
-            L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
+			L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
+			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
 			};
 
 			downloads = {
@@ -413,9 +409,9 @@ void manageTasks(const std::wstring& task)
 		{
 
 			Commands = {
-	        L"winget source update",
-	        L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
-	        L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
+			L"winget source update",
+			L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
+			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
 			};
 
 			downloads = {
@@ -447,7 +443,7 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"mesen")
 	{
-		
+
 		for (int i : {0, 1, 2}) v[i].clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
@@ -471,7 +467,6 @@ void manageTasks(const std::wstring& task)
 		Run(v[0], L"x Mesen.zip -oMesen -y", true);
 		for (int i : {0, 1})fs::remove(v[i]);
 		Run(v[2], L"", false);
-		exit(0);
 	}
 	else if (task == L"support")
 	{
@@ -538,14 +533,13 @@ void manageTasks(const std::wstring& task)
 			L"dir 'C:\' -Recurse | Unblock-File"
 		};
 		executeCommands(Commands);
-		exit(0);
 	}
 	else if (task == L"XBLA")
 	{
 		Term(L"xenia.exe");
 		Term(L"xenia_canary.exe");
 		fs::remove_all(L"XBLA");
-		
+
 		for (auto& path : v) path.clear();
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"GECE.7z"},
@@ -608,12 +602,11 @@ void manageTasks(const std::wstring& task)
 			break;
 		}
 
-		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13};
+		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13 };
 		for (int i : indices)
 		{
 			fs::remove(v[i]);
 		}
-		exit(0);
 	}
 	else if (task == L"gameclients")
 	{
@@ -629,7 +622,6 @@ void manageTasks(const std::wstring& task)
 				L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
 				L"winget install Blizzard.BattleNet --accept-package-agreements" };
 		executeCommands(Commands);
-		exit(0);
 	}
 }
 
@@ -638,11 +630,11 @@ void handleCommand(int cb, bool flag)
 	std::vector<std::function<void()>> commands = {
 		[flag]() { manageGame(L"leagueoflegends", flag); },
 		[flag]() { manageGame(L"dota2", flag); },
-		[flag]() { manageTasks(L"JDK"); },
-		[flag]() { manageTasks(L"mesen"); },
-		[flag]() { manageTasks(L"mame"); },
-		[flag]() { manageTasks(L"support"); },
-		[flag]() { manageTasks(L"gameclients"); }
+		[]() { manageTasks(L"JDK"); },
+		[]() { manageTasks(L"mesen"); },
+		[]() { manageTasks(L"mame"); },
+		[]() { manageTasks(L"support"); },
+		[]() { manageTasks(L"gameclients"); }
 	};
 	if (cb >= 0 && cb < commands.size())
 	{
@@ -694,7 +686,7 @@ int APIENTRY wWinMain(
 )
 {
 	LimitSingleInstance GUID(L"Global\\{L0LSU1T3-BYL0LSU1T3@G17HUB-V3RYR4ND0M4NDR4R3MUCHW0W}");
-	if (GUID.AnotherInstanceRunning())
+	if (LimitSingleInstance::AnotherInstanceRunning())
 		return 0;
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
