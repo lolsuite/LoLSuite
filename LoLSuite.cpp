@@ -25,6 +25,32 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
+class LimitSingleInstance
+{
+protected:
+	HANDLE Mutex;
+
+public:
+	explicit LimitSingleInstance(std::wstring const& strMutexName)
+	{
+		Mutex = CreateMutex(nullptr, 0, strMutexName.c_str());
+	}
+
+	~LimitSingleInstance()
+	{
+		if (Mutex)
+		{
+			CloseHandle(Mutex);
+			Mutex = nullptr;
+		}
+	}
+
+	static BOOL AnotherInstanceRunning()
+	{
+		return ERROR_ALREADY_EXISTS == GetLastError();
+	}
+};
+
 const wchar_t* box[7] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen Multi-Emulator",
 	L"Arcade Pack", L"AIO Pack", L"Game-Client Pack"
@@ -668,6 +694,9 @@ int APIENTRY wWinMain(
 	_In_ int nShowCmd
 )
 {
+	LimitSingleInstance GUID(L"Global\\{101UPD473R-BYL0LSU1T3@G17HUB-V3RYR4ND0M4NDR4R3MUCHW0W}");
+	if (GUID.AnotherInstanceRunning())
+		return 0;
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
