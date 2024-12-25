@@ -53,7 +53,7 @@ public:
 
 const wchar_t* box[7] = {
 	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen Multi-Emulator",
-	L"Arcade Pack", L"AIO Pack", L"Game-Client Pack"
+	L"Arcade Pack", L"AIO Support Pack", L"Game-Client Pack"
 };
 const wchar_t* rarebox[5] = {
 	L"[XBLA] GoldenEye CE", L"[XBLA] Perfect Dark", L"[XBLA] Banjo Kazooie", L"[XBLA] Banjo Tooie", L"[XBLA] GoldenEye"
