@@ -35,6 +35,7 @@ const wchar_t* rarebox[5] = {
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
+	for (auto& path : v) path.clear();
 	IFileDialog* pfd = nullptr;
 	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
 	if (FAILED(hr)) return hr;
@@ -159,7 +160,12 @@ auto executeCommands = [](const std::vector<std::wstring>& commands)
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
-
+		MessageBoxEx(
+			nullptr,
+			L"Select Folder : C:\\Riot Games",
+			L"LoLSuite",
+			MB_OK,
+			0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		const wchar_t* processes[] = {
 			L"LeagueClient.exe",
@@ -220,7 +226,12 @@ void manageGame(const std::wstring& game, bool restore)
 		exit(0);
 	}
 	else if (game == L"dota2") {
-
+		MessageBoxEx(
+			nullptr,
+			L"Select Folder : C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta",
+			L"LoLSuite",
+			MB_OK,
+			0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"dota2.exe");
 		AppendPath(0, L"game\\bin\\win64");
