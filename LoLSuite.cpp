@@ -147,12 +147,7 @@ bool ProccessIs64Bit()
 	return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
 }
 
-auto clearAndAppend = [](int index, const std::wstring& path)
-	{
-		v[index].clear();
-		AppendPath(index, currentPath);
-		AppendPath(index, path);
-	};
+
 auto executeCommands = [](const std::vector<std::wstring>& commands)
 	{
 		for (const auto& cmd : commands)
@@ -164,7 +159,7 @@ auto executeCommands = [](const std::vector<std::wstring>& commands)
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
-		
+
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		const wchar_t* processes[] = {
 			L"LeagueClient.exe",
@@ -179,7 +174,7 @@ void manageGame(const std::wstring& game, bool restore)
 		for (const auto& process : processes) {
 			Term(process);
 		}
-		CombinePath(56, 0, L"Riot Client\\RiotClientElectron\\Riot Client.exe");
+		CombinePath(56, 0, L"Riot Client\\RiotClientElectron");
 		CombinePath(57, 56, L"d3dcompiler_47.dll");
 		const wchar_t* baseFiles[] = {
 			L"concrt140.dll",
@@ -197,12 +192,13 @@ void manageGame(const std::wstring& game, bool restore)
 		}
 		CombinePath(51, 0, L"Game");
 		unblock(JoinPath(51, L"League of Legends.exe"));
+		unblock(JoinPath(56, L"Riot Client.exe"));
 		const wchar_t* gameFiles[] = {
 			L"D3DCompiler_47.dll",
 			L"tbb.dll"
 		};
-		CombinePath(55, 51, gameFiles[1]);
 		CombinePath(53, 51, gameFiles[0]);
+		CombinePath(55, 51, gameFiles[1]);
 
 		auto downloadFiles = [&](const wchar_t* prefix) {
 			for (int i = 0; i < 9; ++i) {
@@ -219,18 +215,8 @@ void manageGame(const std::wstring& game, bool restore)
 		else {
 			downloadFiles(L"");
 			dl(L"tbb_mt.dll", 55, true); // Multi-Threaded
-			if (ProccessIs64Bit()) {
-				dl(L"6/D3DCompiler_47.dll", 52, true);
-				dl(L"6/D3DCompiler_47.dll", 53, true);
-			}
-			else {
-				dl(L"D3DCompiler_47.dll", 52, true);
-				dl(L"D3DCompiler_47.dll", 53, true);
-			}
-
-			dl(L"D3DCompiler_47.dll", 57, true);
 		}
-		Run(v[56], L"", false);
+		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
 		exit(0);
 	}
 	else if (game == L"dota2") {
