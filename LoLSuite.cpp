@@ -15,9 +15,7 @@ static int rarecb = 0;
 WCHAR szFolderPath[MAX_PATH + 1];
 auto currentPath = fs::current_path();
 constexpr auto MAX_LOADSTRING = 100;
-
 std::vector<std::wstring> v(58);
-
 HINSTANCE hInst;
 WCHAR szTitle[MAX_LOADSTRING];
 WCHAR szWindowClass[MAX_LOADSTRING];
@@ -52,8 +50,8 @@ public:
 };
 
 const wchar_t* box[7] = {
-	L"League of Legends", L"DOTA2", L"Minecraft", L"Mesen Multi-Emulator",
-	L"Arcade Pack", L"AIO Support Pack", L"Game-Client Pack"
+	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen2",
+	L"Arcades", L"PC Booster", L"Game Clients"
 };
 const wchar_t* rarebox[5] = {
 	L"[XBLA] GoldenEye CE", L"[XBLA] Perfect Dark", L"[XBLA] Banjo Kazooie", L"[XBLA] Banjo Tooie", L"[XBLA] GoldenEye"
@@ -106,14 +104,17 @@ std::wstring JoinPath(const int index, const std::wstring& add)
 {
 	return (fs::path(v[index]) / add).wstring();
 }
+
 void AppendPath(const int index, const std::wstring& add)
 {
 	v[index] = JoinPath(index, add);
 }
+
 void CombinePath(const int destIndex, const int srcIndex, const std::wstring& add)
 {
 	v[destIndex] = JoinPath(srcIndex, add);
 }
+
 void Run(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait)
 {
 	SHELLEXECUTEINFO sEInfo = {};
@@ -173,7 +174,6 @@ bool ProccessIs64Bit()
 	if (!fnIsWow64Process2(GetCurrentProcess(), &processMachine, &nativeMachine)) return false;
 	return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
 }
-
 
 auto executeCommands = [](const std::vector<std::wstring>& commands)
 	{
@@ -245,7 +245,7 @@ void manageGame(const std::wstring& game, bool restore)
 		}
 		else
 		{
-			dl(L"tbb_mt.dll", 55, true); // Multi-Threaded
+			dl(L"tbb.dll", 55, true); // Multi-Threaded
 		}
 
 		if (ProccessIs64Bit())
@@ -268,13 +268,13 @@ void manageGame(const std::wstring& game, bool restore)
 	else if (game == L"dota2") {
 		MessageBoxEx(
 			nullptr,
-			L"Select Folder : C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta",
+			L"Select Folder : C:\\Program Files (x86)\\Steam\\steamapps",
 			L"LoLSuite",
 			MB_OK,
 			0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"dota2.exe");
-		AppendPath(0, L"game\\bin\\win64");
+		AppendPath(0, L"common\\dota 2 beta\\game\\bin\\win64");
 		CombinePath(1, 0, L"embree3.dll");
 		unblock(JoinPath(0, L"dota2.exe"));
 		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
@@ -469,7 +469,7 @@ void manageTasks(const std::wstring& task)
 		dl(L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip", 1, false);
 		fs::remove_all(L"Mesen");
 		Run(v[0], L"x Mesen.zip -oMesen -y", true);
-		for (int i : {0, 1})fs::remove_all(v[i]);
+		for (int i : {0, 1})fs::remove(v[i]);
 		Run(v[2], L"", false);
 		exit(0);
 	}
@@ -538,7 +538,6 @@ void manageTasks(const std::wstring& task)
 			L"dir 'C:\' -Recurse | Unblock-File"
 		};
 		executeCommands(Commands);
-		
 		exit(0);
 	}
 	else if (task == L"XBLA")
@@ -612,7 +611,7 @@ void manageTasks(const std::wstring& task)
 		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13};
 		for (int i : indices)
 		{
-			fs::remove_all(v[i]);
+			fs::remove(v[i]);
 		}
 		exit(0);
 	}
@@ -694,7 +693,7 @@ int APIENTRY wWinMain(
 	_In_ int nShowCmd
 )
 {
-	LimitSingleInstance GUID(L"Global\\{101UPD473R-BYL0LSU1T3@G17HUB-V3RYR4ND0M4NDR4R3MUCHW0W}");
+	LimitSingleInstance GUID(L"Global\\{L0LSU1T3-BYL0LSU1T3@G17HUB-V3RYR4ND0M4NDR4R3MUCHW0W}");
 	if (GUID.AnotherInstanceRunning())
 		return 0;
 	UNREFERENCED_PARAMETER(hPrevInstance);
