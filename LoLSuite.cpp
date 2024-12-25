@@ -181,21 +181,29 @@ void manageGame(const std::wstring& game, bool restore)
 			Term(process);
 		}
 		CombinePath(56, 0, L"Riot Client\\RiotClientElectron");
-		CombinePath(57, 56, L"d3dcompiler_47.dll");
-		const wchar_t* baseFiles[] = {
-			L"concrt140.dll",
-			L"d3dcompiler_47.dll",
-			L"msvcp140.dll", L"msvcp140_1.dll",
-			L"msvcp140_2.dll",
-			L"msvcp140_codecvt_ids.dll",
-			L"ucrtbase.dll",
-			L"vcruntime140.dll",
-			L"vcruntime140_1.dll"
-		};
+
+		// BaseDir Files
 		AppendPath(0, L"League of Legends");
-		for (int i = 0; i < 9; ++i) {
-			CombinePath(42 + i, 0, baseFiles[i]);
-		}
+		CombinePath(42, 0, L"concrt140.dll");
+		CombinePath(43, 0, L"d3dcompiler_47.dll");
+		CombinePath(44, 0, L"msvcp140.dll");
+		CombinePath(45, 0, L"msvcp140_1.dll");
+		CombinePath(46, 0, L"msvcp140_2.dll");
+		CombinePath(47, 0, L"msvcp140_codecvt_ids.dll");
+		CombinePath(48, 0, L"ucrtbase.dll");
+		CombinePath(49, 0, L"vcruntime140.dll");
+		CombinePath(50, 0, L"vcruntime140_1.dll");
+
+		dl(restore ? L"r/lol/concrt140.dll" : L"concrt140.dll", 42, true);
+		dl(restore ? L"r/lol/d3dcompiler_47.dll" : L"d3dcompiler_47.dll", 43, true);
+		dl(restore ? L"r/lol/msvcp140.dll" : L"msvcp140.dll", 44, true);
+		dl(restore ? L"r/lol/msvcp140_1.dll" : L"msvcp140_1.dll", 45, true);
+		dl(restore ? L"r/lol/msvcp140_2.dll" : L"msvcp140_2.dll", 46, true);
+		dl(restore ? L"r/lol/msvcp140_codecvt_ids.dll" : L"msvcp140_codecvt_ids.dll", 47, true);
+		dl(restore ? L"r/lol/ucrtbase.dl" : L"ucrtbase.dll", 48, true);
+		dl(restore ? L"r/lol/vcruntime140.dll" : L"vcruntime140.dll", 49, true);
+		dl(restore ? L"r/lol/vcruntime140_1.dll" : L"vcruntime140_1.dll", 50, true);
+
 		CombinePath(51, 0, L"Game");
 		unblock(JoinPath(51, L"League of Legends.exe"));
 		unblock(JoinPath(56, L"Riot Client.exe"));
@@ -204,30 +212,30 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(55, 51, L"tbb.dll");
 		CombinePath(54, 0, L"d3dcompiler_47.dll");
 
-		auto downloadFiles = [&](const wchar_t* prefix) {
-			for (int i = 0; i < 9; ++i) {
-				dl(std::wstring(prefix) + baseFiles[i], 42 + i, true);
-			}
-			};
+
 		if (restore) {
-			downloadFiles(L"r/lol/");
+
 			fs::remove(v[55]);
 		}
-		else {
-			downloadFiles(L"");
-			if (ProccessIs64Bit())
-			{
-				dl(L"6/D3DCompiler_47.dll", 53, true); // Multi-Threaded
-				dl(L"6/D3DCompiler_47.dll", 54, true); // Multi-Threaded
-			}
-			else
-			{
-				dl(L"D3DCompiler_47.dll", 53, true); // Multi-Threaded
-				dl(L"D3DCompiler_47.dll", 54, true); // Multi-Threaded
-			}
-
+		else
+		{
 			dl(L"tbb_mt.dll", 55, true); // Multi-Threaded
 		}
+
+		if (ProccessIs64Bit())
+		{
+			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"6/D3DCompiler_47.dll", 53, true);
+			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"6/D3DCompiler_47.dll", 54, true);
+			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"6/D3DCompiler_47.dll", 57, true);
+		}
+		else
+		{
+			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"D3DCompiler_47.dll", 53, true);
+			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"D3DCompiler_47.dll", 54, true);
+			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"D3DCompiler_47.dll", 57, true);
+
+		}
+
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
 		exit(0);
 	}
