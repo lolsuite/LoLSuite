@@ -220,7 +220,7 @@ void manageGame(const std::wstring& game, bool restore)
 		exit(0);
 	}
 	else if (game == L"dota2") {
-		
+
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"dota2.exe");
 		AppendPath(0, L"game\\bin\\win64");
