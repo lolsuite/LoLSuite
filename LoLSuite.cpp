@@ -601,7 +601,7 @@ void manageTasks(const std::wstring& task)
 			downloads = {
 			{L"7z.exe", 0, true},
 			{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false },
-			{L"https://github.com/mamedev/mame/releases/download/mame0272/mame0272b_64bit.exe", 2, false},
+			{L"https://github.com/mamedev/mame/releases/download/mame0273/mame0273b_64bit.exe", 2, false},
 			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip", 3 , false}
 			};
 		}
