@@ -26,26 +26,31 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 class LimitSingleInstance
 {
 protected:
-	HANDLE Mutex;
+	volatile HANDLE Mutex;
 
 public:
-	explicit LimitSingleInstance(std::wstring const& strMutexName)
+	explicit LimitSingleInstance(const std::wstring& strMutexName)
+		: Mutex(nullptr)
 	{
-		Mutex = CreateMutex(nullptr, 0, strMutexName.c_str());
+		Mutex = CreateMutex(nullptr, FALSE, strMutexName.c_str());
 	}
 
 	~LimitSingleInstance()
 	{
 		if (Mutex)
 		{
+			ReleaseMutex(Mutex);
 			CloseHandle(Mutex);
 			Mutex = nullptr;
 		}
 	}
 
+	LimitSingleInstance(const LimitSingleInstance&) = delete;
+	LimitSingleInstance& operator=(const LimitSingleInstance&) = delete;
+
 	static BOOL AnotherInstanceRunning()
 	{
-		return ERROR_ALREADY_EXISTS == GetLastError();
+		return (GetLastError() == ERROR_ALREADY_EXISTS);
 	}
 };
 
