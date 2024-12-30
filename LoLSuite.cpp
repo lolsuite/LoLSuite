@@ -193,51 +193,37 @@ auto executeCommands = [](const std::vector<std::wstring>& commands)
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
-		MessageBoxEx(
-			nullptr,
-			L"Select Folder : C:\\Riot Games",
-			L"LoLSuite",
-			MB_OK,
-			0);
+		MessageBoxEx(nullptr, L"Select Folder: C:\\Riot Games", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
-		const wchar_t* processes[] = {
+
+		const std::vector<std::wstring> processes = {
 			L"LeagueClient.exe",
-			L"LeagueClientUx.exe"
+			L"LeagueClientUx.exe",
 			L"LeagueClientUxRender.exe",
-			L"League of Legends.exe"
+			L"League of Legends.exe",
 			L"Riot Client.exe",
 			L"RiotClientServices.exe",
 			L"RiotClientCrashHandler.exe",
 			L"LeagueCrashHandler64.exe"
 		};
+
 		for (const auto& process : processes) {
 			Term(process);
 		}
-		CombinePath(56, 0, L"Riot Client\\RiotClientElectron");
 
-		// BaseDir Files
+		CombinePath(56, 0, L"Riot Client\\RiotClientElectron");
 		AppendPath(0, L"League of Legends");
 
-		CombinePath(42, 0, L"concrt140.dll");
-		CombinePath(43, 0, L"d3dcompiler_47.dll");
-		CombinePath(44, 0, L"msvcp140.dll");
-		CombinePath(45, 0, L"msvcp140_1.dll");
-		CombinePath(46, 0, L"msvcp140_2.dll");
-		CombinePath(47, 0, L"msvcp140_codecvt_ids.dll");
-		CombinePath(48, 0, L"ucrtbase.dll");
-		CombinePath(49, 0, L"vcruntime140.dll");
-		CombinePath(50, 0, L"vcruntime140_1.dll");
+		const std::vector<std::pair<int, std::wstring>> baseFiles = {
+			{42, L"concrt140.dll"}, {43, L"d3dcompiler_47.dll"}, {44, L"msvcp140.dll"},
+			{45, L"msvcp140_1.dll"}, {46, L"msvcp140_2.dll"}, {47, L"msvcp140_codecvt_ids.dll"},
+			{48, L"ucrtbase.dll"}, {49, L"vcruntime140.dll"}, {50, L"vcruntime140_1.dll"}
+		};
 
-		dl(restore ? L"r/lol/concrt140.dll" : L"concrt140.dll", 42, true);
-		dl(restore ? L"r/lol/d3dcompiler_47.dll" : L"d3dcompiler_47.dll", 43, true);
-		dl(restore ? L"r/lol/msvcp140.dll" : L"msvcp140.dll", 44, true);
-		dl(restore ? L"r/lol/msvcp140_1.dll" : L"msvcp140_1.dll", 45, true);
-		dl(restore ? L"r/lol/msvcp140_2.dll" : L"msvcp140_2.dll", 46, true);
-		dl(restore ? L"r/lol/msvcp140_codecvt_ids.dll" : L"msvcp140_codecvt_ids.dll", 47, true);
-		dl(restore ? L"r/lol/ucrtbase.dl" : L"ucrtbase.dll", 48, true);
-		dl(restore ? L"r/lol/vcruntime140.dll" : L"vcruntime140.dll", 49, true);
-		dl(restore ? L"r/lol/vcruntime140_1.dll" : L"vcruntime140_1.dll", 50, true);
-
+		for (const auto& [index, file] : baseFiles) {
+			CombinePath(index, 0, file);
+			dl(restore ? (L"r/lol/" + file).c_str() : file.c_str(), index, true);
+		}
 
 		CombinePath(51, 0, L"Game");
 		unblock(JoinPath(51, L"League of Legends.exe"));
@@ -246,43 +232,30 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(55, 51, L"tbb.dll");
 		CombinePath(54, 0, L"d3dcompiler_47.dll");
 
-
 		if (restore) {
-
 			fs::remove(v[55]);
 		}
-		else
-		{
+		else {
 			dl(L"tbb.dll", 55, true); // Multi-Threaded
 		}
 
-		if (ProccessIs64Bit())
-		{
-			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"6/D3DCompiler_47.dll", 53, true);
-			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"6/D3DCompiler_47.dll", 54, true);
-		}
-		else
-		{
-			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"D3DCompiler_47.dll", 53, true);
-			dl(restore ? L"r/lol/D3DCompiler_47.dll" : L"D3DCompiler_47.dll", 54, true);
-
-		}
+		const std::wstring d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" : (ProccessIs64Bit() ? L"6/D3DCompiler_47.dll" : L"D3DCompiler_47.dll");
+		dl(d3dcompilerPath.c_str(), 53, true);
+		dl(d3dcompilerPath.c_str(), 54, true);
 
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
 	}
 	if (game == L"dota2") {
-		MessageBoxEx(
-			nullptr,
-			L"Select Folder : C:\\Program Files (x86)\\Steam\\steamapps",
-			L"LoLSuite",
-			MB_OK,
-			0);
+		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"dota2.exe");
+
 		AppendPath(0, L"common\\dota 2 beta\\game\\bin\\win64");
 		CombinePath(1, 0, L"embree3.dll");
+
 		unblock(JoinPath(0, L"dota2.exe"));
 		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
+
 		Run(L"steam://rungameid/570//-high/", L"", false);
 	}
 }
@@ -346,194 +319,88 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 void unblockdx9()
 {
 	Term(L"DXSETUP.exe");
-	const wchar_t* dxx86_cab[] = {
-	L"Apr2005_d3dx9_25_x86.cab",
-	L"Apr2006_d3dx9_30_x86.cab",
-	L"Apr2006_MDX1_x86.cab",
-	L"Apr2006_MDX1_x86_Archive.cab",
-	L"Apr2006_XACT_x86.cab",
-	L"Apr2006_xinput_x86.cab",
-	L"APR2007_d3dx9_33_x86.cab",
-	L"APR2007_d3dx10_33_x86.cab",
-	L"APR2007_XACT_x86.cab",
-	L"APR2007_xinput_x86.cab",
-	L"Aug2005_d3dx9_27_x86.cab",
-	L"AUG2006_XACT_x86.cab",
-	L"AUG2006_xinput_x86.cab",
-	L"AUG2007_d3dx9_35_x86.cab",
-	L"AUG2007_d3dx10_35_x86.cab",
-	L"AUG2007_XACT_x86.cab",
-	L"Aug2008_d3dx9_39_x86.cab",
-	L"Aug2008_d3dx10_39_x86.cab",
-	L"Aug2008_XACT_x86.cab",
-	L"Aug2008_XAudio_x86.cab",
-	L"Aug2009_D3DCompiler_42_x86.cab",
-	L"Aug2009_d3dcsx_42_x86.cab",
-	L"Aug2009_d3dx9_42_x86.cab",
-	L"Aug2009_d3dx10_42_x86.cab",
-	L"Aug2009_d3dx11_42_x86.cab",
-	L"Aug2009_XACT_x86.cab",
-	L"Aug2009_XAudio_x86.cab",
-	L"Dec2005_d3dx9_28_x86.cab",
-	L"DEC2006_d3dx9_32_x86.cab",
-	L"DEC2006_d3dx10_00_x86.cab",
-	L"DEC2006_XACT_x86.cab",
-	L"Feb2005_d3dx9_24_x86.cab",
-	L"Feb2006_d3dx9_29_x86.cab",
-	L"Feb2006_XACT_x86.cab",
-	L"FEB2007_XACT_x86.cab",
-	L"Feb2010_X3DAudio_x86.cab",
-	L"Feb2010_XACT_x86.cab",
-	L"Feb2010_XAudio_x86.cab",
-	L"Jun2005_d3dx9_26_x86.cab",
-	L"JUN2006_XACT_x86.cab",
-	L"JUN2007_d3dx9_34_x86.cab",
-	L"JUN2007_d3dx10_34_x86.cab",
-	L"JUN2007_XACT_x86.cab",
-	L"JUN2008_d3dx9_38_x86.cab",
-	L"JUN2008_d3dx10_38_x86.cab",
-	L"JUN2008_X3DAudio_x86.cab",
-	L"JUN2008_XACT_x86.cab",
-	L"JUN2008_XAudio_x86.cab",
-	L"Jun2010_D3DCompiler_43_x86.cab",
-	L"Jun2010_d3dcsx_43_x86.cab",
-	L"Jun2010_d3dx9_43_x86.cab",
-	L"Jun2010_d3dx10_43_x86.cab",
-	L"Jun2010_d3dx11_43_x86.cab",
-	L"Jun2010_XACT_x86.cab",
-	L"Jun2010_XAudio_x86.cab",
-	L"Mar2008_d3dx9_37_x86.cab",
-	L"Mar2008_d3dx10_37_x86.cab",
-	L"Mar2008_X3DAudio_x86.cab",
-	L"Mar2008_XACT_x86.cab",
-	L"Mar2008_XAudio_x86.cab",
-	L"Mar2009_d3dx9_41_x86.cab",
-	L"Mar2009_d3dx10_41_x86.cab",
-	L"Mar2009_X3DAudio_x86.cab",
-	L"Mar2009_XACT_x86.cab",
-	L"Mar2009_XAudio_x86.cab",
-	L"Nov2007_d3dx9_36_x86.cab",
-	L"Nov2007_d3dx10_36_x86.cab",
-	L"NOV2007_X3DAudio_x86.cab",
-	L"NOV2007_XACT_x86.cab",
-	L"Nov2008_d3dx9_40_x86.cab",
-	L"Nov2008_d3dx10_40_x86.cab",
-	L"Nov2008_X3DAudio_x86.cab",
-	L"Nov2008_XACT_x86.cab",
-	L"Nov2008_XAudio_x86.cab",
-	L"Oct2005_xinput_x86.cab",
-	L"OCT2006_d3dx9_31_x86.cab",
-	L"OCT2006_XACT_x86.cab"
+
+	const std::vector<std::wstring> dxx86_cab = {
+		L"Apr2005_d3dx9_25_x86.cab", L"Apr2006_d3dx9_30_x86.cab", L"Apr2006_MDX1_x86.cab",
+		L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_XACT_x86.cab", L"Apr2006_xinput_x86.cab",
+		L"APR2007_d3dx9_33_x86.cab", L"APR2007_d3dx10_33_x86.cab", L"APR2007_XACT_x86.cab",
+		L"APR2007_xinput_x86.cab", L"Aug2005_d3dx9_27_x86.cab", L"AUG2006_XACT_x86.cab",
+		L"AUG2006_xinput_x86.cab", L"AUG2007_d3dx9_35_x86.cab", L"AUG2007_d3dx10_35_x86.cab",
+		L"AUG2007_XACT_x86.cab", L"Aug2008_d3dx9_39_x86.cab", L"Aug2008_d3dx10_39_x86.cab",
+		L"Aug2008_XACT_x86.cab", L"Aug2008_XAudio_x86.cab", L"Aug2009_D3DCompiler_42_x86.cab",
+		L"Aug2009_d3dcsx_42_x86.cab", L"Aug2009_d3dx9_42_x86.cab", L"Aug2009_d3dx10_42_x86.cab",
+		L"Aug2009_d3dx11_42_x86.cab", L"Aug2009_XACT_x86.cab", L"Aug2009_XAudio_x86.cab",
+		L"Dec2005_d3dx9_28_x86.cab", L"DEC2006_d3dx9_32_x86.cab", L"DEC2006_d3dx10_00_x86.cab",
+		L"DEC2006_XACT_x86.cab", L"Feb2005_d3dx9_24_x86.cab", L"Feb2006_d3dx9_29_x86.cab",
+		L"Feb2006_XACT_x86.cab", L"FEB2007_XACT_x86.cab", L"Feb2010_X3DAudio_x86.cab",
+		L"Feb2010_XACT_x86.cab", L"Feb2010_XAudio_x86.cab", L"Jun2005_d3dx9_26_x86.cab",
+		L"JUN2006_XACT_x86.cab", L"JUN2007_d3dx9_34_x86.cab", L"JUN2007_d3dx10_34_x86.cab",
+		L"JUN2007_XACT_x86.cab", L"JUN2008_d3dx9_38_x86.cab", L"JUN2008_d3dx10_38_x86.cab",
+		L"JUN2008_X3DAudio_x86.cab", L"JUN2008_XACT_x86.cab", L"JUN2008_XAudio_x86.cab",
+		L"Jun2010_D3DCompiler_43_x86.cab", L"Jun2010_d3dcsx_43_x86.cab", L"Jun2010_d3dx9_43_x86.cab",
+		L"Jun2010_d3dx10_43_x86.cab", L"Jun2010_d3dx11_43_x86.cab", L"Jun2010_XACT_x86.cab",
+		L"Jun2010_XAudio_x86.cab", L"Mar2008_d3dx9_37_x86.cab", L"Mar2008_d3dx10_37_x86.cab",
+		L"Mar2008_X3DAudio_x86.cab", L"Mar2008_XACT_x86.cab", L"Mar2008_XAudio_x86.cab",
+		L"Mar2009_d3dx9_41_x86.cab", L"Mar2009_d3dx10_41_x86.cab", L"Mar2009_X3DAudio_x86.cab",
+		L"Mar2009_XACT_x86.cab", L"Mar2009_XAudio_x86.cab", L"Nov2007_d3dx9_36_x86.cab",
+		L"Nov2007_d3dx10_36_x86.cab", L"NOV2007_X3DAudio_x86.cab", L"NOV2007_XACT_x86.cab",
+		L"Nov2008_d3dx9_40_x86.cab", L"Nov2008_d3dx10_40_x86.cab", L"Nov2008_X3DAudio_x86.cab",
+		L"Nov2008_XACT_x86.cab", L"Nov2008_XAudio_x86.cab", L"Oct2005_xinput_x86.cab",
+		L"OCT2006_d3dx9_31_x86.cab", L"OCT2006_XACT_x86.cab"
 	};
 
-	const wchar_t* dxx64_cab[] = {
-		L"Apr2005_d3dx9_25_x64.cab",
-		L"Apr2006_d3dx9_30_x64.cab",
-		L"Apr2006_XACT_x64.cab",
-		L"Apr2006_xinput_x64.cab",
-		L"APR2007_d3dx9_33_x64.cab",
-		L"APR2007_d3dx10_33_x64.cab",
-		L"APR2007_XACT_x64.cab",
-		L"APR2007_xinput_x64.cab",
-		L"Aug2005_d3dx9_27_x64.cab",
-		L"AUG2006_XACT_x64.cab",
-		L"AUG2006_xinput_x64.cab",
-		L"AUG2007_d3dx9_35_x64.cab",
-		L"AUG2007_d3dx10_35_x64.cab",
-		L"AUG2007_XACT_x64.cab",
-		L"Aug2008_d3dx9_39_x64.cab",
-		L"Aug2008_d3dx10_39_x64.cab",
-		L"Aug2008_XACT_x64.cab",
-		L"Aug2008_XAudio_x64.cab",
-		L"Aug2009_D3DCompiler_42_x64.cab",
-		L"Aug2009_d3dcsx_42_x64.cab",
-		L"Aug2009_d3dx9_42_x64.cab",
-		L"Aug2009_d3dx10_42_x64.cab",
-		L"Aug2009_d3dx11_42_x64.cab",
-		L"Aug2009_XACT_x64.cab",
-		L"Aug2009_XAudio_x64.cab",
-		L"Dec2005_d3dx9_28_x64.cab",
-		L"DEC2006_d3dx9_32_x64.cab",
-		L"DEC2006_d3dx10_00_x64.cab",
-		L"DEC2006_XACT_x64.cab",
-		L"Feb2005_d3dx9_24_x64.cab",
-		L"Feb2006_d3dx9_29_x64.cab",
-		L"Feb2006_XACT_x64.cab",
-		L"FEB2007_XACT_x64.cab",
-		L"Feb2010_X3DAudio_x64.cab",
-		L"Feb2010_XACT_x64.cab",
-		L"Feb2010_XAudio_x64.cab",
-		L"Jun2005_d3dx9_26_x64.cab",
-		L"JUN2006_XACT_x64.cab",
-		L"JUN2007_d3dx9_34_x64.cab",
-		L"JUN2007_d3dx10_34_x64.cab",
-		L"JUN2007_XACT_x64.cab",
-		L"JUN2008_d3dx9_38_x64.cab",
-		L"JUN2008_d3dx10_38_x64.cab",
-		L"JUN2008_X3DAudio_x64.cab",
-		L"JUN2008_XACT_x64.cab",
-		L"JUN2008_XAudio_x64.cab",
-		L"Jun2010_D3DCompiler_43_x64.cab",
-		L"Jun2010_d3dcsx_43_x64.cab",
-		L"Jun2010_d3dx9_43_x64.cab",
-		L"Jun2010_d3dx10_43_x64.cab",
-		L"Jun2010_d3dx11_43_x64.cab",
-		L"Jun2010_XACT_x64.cab",
-		L"Jun2010_XAudio_x64.cab",
-		L"Mar2008_d3dx9_37_x64.cab",
-		L"Mar2008_d3dx10_37_x64.cab",
-		L"Mar2008_X3DAudio_x64.cab",
-		L"Mar2008_XACT_x64.cab",
-		L"Mar2008_XAudio_x64.cab",
-		L"Mar2009_d3dx9_41_x64.cab",
-		L"Mar2009_d3dx10_41_x64.cab",
-		L"Mar2009_X3DAudio_x64.cab",
-		L"Mar2009_XACT_x64.cab",
-		L"Mar2009_XAudio_x64.cab",
-		L"Nov2007_d3dx9_36_x64.cab",
-		L"Nov2007_d3dx10_36_x64.cab",
-		L"NOV2007_X3DAudio_x64.cab",
-		L"NOV2007_XACT_x64.cab",
-		L"Nov2008_d3dx9_40_x64.cab",
-		L"Nov2008_d3dx10_40_x64.cab",
-		L"Nov2008_X3DAudio_x64.cab",
-		L"Nov2008_XACT_x64.cab",
-		L"Nov2008_XAudio_x64.cab",
-		L"Oct2005_xinput_x64.cab",
-		L"OCT2006_d3dx9_31_x64.cab",
-		L"OCT2006_XACT_x64.cab"
+	const std::vector<std::wstring> dxx64_cab = {
+		L"Apr2005_d3dx9_25_x64.cab", L"Apr2006_d3dx9_30_x64.cab", L"Apr2006_XACT_x64.cab",
+		L"Apr2006_xinput_x64.cab", L"APR2007_d3dx9_33_x64.cab", L"APR2007_d3dx10_33_x64.cab",
+		L"APR2007_XACT_x64.cab", L"APR2007_xinput_x64.cab", L"Aug2005_d3dx9_27_x64.cab",
+		L"AUG2006_XACT_x64.cab", L"AUG2006_xinput_x64.cab", L"AUG2007_d3dx9_35_x64.cab",
+		L"AUG2007_d3dx10_35_x64.cab", L"AUG2007_XACT_x64.cab", L"Aug2008_d3dx9_39_x64.cab",
+		L"Aug2008_d3dx10_39_x64.cab", L"Aug2008_XACT_x64.cab", L"Aug2008_XAudio_x64.cab",
+		L"Aug2009_D3DCompiler_42_x64.cab", L"Aug2009_d3dcsx_42_x64.cab", L"Aug2009_d3dx9_42_x64.cab",
+		L"Aug2009_d3dx10_42_x64.cab", L"Aug2009_d3dx11_42_x64.cab", L"Aug2009_XACT_x64.cab",
+		L"Aug2009_XAudio_x64.cab", L"Dec2005_d3dx9_28_x64.cab", L"DEC2006_d3dx9_32_x64.cab",
+		L"DEC2006_d3dx10_00_x64.cab", L"DEC2006_XACT_x64.cab", L"Feb2005_d3dx9_24_x64.cab",
+		L"Feb2006_d3dx9_29_x64.cab", L"Feb2006_XACT_x64.cab", L"FEB2007_XACT_x64.cab",
+		L"Feb2010_X3DAudio_x64.cab", L"Feb2010_XACT_x64.cab", L"Feb2010_XAudio_x64.cab",
+		L"Jun2005_d3dx9_26_x64.cab", L"JUN2006_XACT_x64.cab", L"JUN2007_d3dx9_34_x64.cab",
+		L"JUN2007_d3dx10_34_x64.cab", L"JUN2007_XACT_x64.cab", L"JUN2008_d3dx9_38_x64.cab",
+		L"JUN2008_d3dx10_38_x64.cab", L"JUN2008_X3DAudio_x64.cab", L"JUN2008_XACT_x64.cab",
+		L"JUN2008_XAudio_x64.cab", L"Jun2010_D3DCompiler_43_x64.cab", L"Jun2010_d3dcsx_43_x64.cab",
+		L"Jun2010_d3dx9_43_x64.cab", L"Jun2010_d3dx10_43_x64.cab", L"Jun2010_d3dx11_43_x64.cab",
+		L"Jun2010_XACT_x64.cab", L"Jun2010_XAudio_x64.cab", L"Mar2008_d3dx9_37_x64.cab",
+		L"Mar2008_d3dx10_37_x64.cab", L"Mar2008_X3DAudio_x64.cab", L"Mar2008_XACT_x64.cab",
+		L"Mar2008_XAudio_x64.cab", L"Mar2009_d3dx9_41_x64.cab", L"Mar2009_d3dx10_41_x64.cab",
+		L"Mar2009_X3DAudio_x64.cab", L"Mar2009_XACT_x64.cab", L"Mar2009_XAudio_x64.cab",
+		L"Nov2007_d3dx9_36_x64.cab", L"Nov2007_d3dx10_36_x64.cab", L"NOV2007_X3DAudio_x64.cab",
+		L"NOV2007_XACT_x64.cab", L"Nov2008_d3dx9_40_x64.cab", L"Nov2008_d3dx10_40_x64.cab",
+		L"Nov2008_X3DAudio_x64.cab", L"Nov2008_XACT_x64.cab", L"Nov2008_XAudio_x64.cab",
+		L"Oct2005_xinput_x64.cab", L"OCT2006_d3dx9_31_x64.cab", L"OCT2006_XACT_x64.cab"
+	};
+
+	const std::vector<std::wstring> dxsetup_files = {
+		L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab"
 	};
 
 	v[82].clear();
 	AppendPath(82, currentPath);
 	AppendPath(82, L"temp_dx");
 	fs::create_directory(v[82]);
-	for (auto i = 0; i < 77; i++)
-	{
-		v[i].clear();
-		CombinePath(i, 82, dxx86_cab[i]);
-		dl(std::wstring(L"dx9/" + std::wstring(dxx86_cab[i])).data(), i, true);
-	}
-	if (ProccessIs64Bit())
-	{
-		for (auto i = 0; i < 75; i++)
-		{
+
+	auto download_files = [&](const std::vector<std::wstring>& files) {
+		for (size_t i = 0; i < files.size(); ++i) {
 			v[i].clear();
-			CombinePath(i, 82, dxx64_cab[i]);
-			dl(std::wstring(L"dx9/" + std::wstring(dxx64_cab[i])).data(), i, true);
+			CombinePath(i, 82, files[i]);
+			dl(L"dx9/" + files[i], i, true);
 		}
+		};
+
+	download_files(dxx86_cab);
+
+	if (ProccessIs64Bit()) {
+		download_files(dxx64_cab);
 	}
 
-	const wchar_t* dxsetup_files[] = {
-	L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab"
-	};
-
-	for (auto i = 0; i < 5; i++)
-	{
-		v[i].clear();
-		CombinePath(i, 82, dxsetup_files[i]);
-		dl(std::wstring(L"dx9/" + std::wstring(dxsetup_files[i])).data(), i, true);
-	}
+	download_files(dxsetup_files);
 
 	Run(v[3], L"/silent", true);
 
@@ -545,21 +412,20 @@ void manageTasks(const std::wstring& task)
 
 	if (task == L"JDK")
 	{
-		std::vector<std::wstring> Commands = {
-			L"winget source update",
-			L"winget uninstall Mojang.MinecraftLauncher --purge -h",
-			L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
-			L"winget uninstall Oracle.JDK.23 --purge -h",
-			L"winget uninstall Oracle.JDK.22 --purge -h",
-			L"winget uninstall Oracle.JDK.21 --purge -h",
-			L"winget uninstall Oracle.JDK.20 --purge -h",
-			L"winget uninstall Oracle.JDK.19 --purge -h",
-			L"winget uninstall Oracle.JDK.18 --purge -h",
-			L"winget uninstall Oracle.JDK.17 --purge -h",
-			L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
-			L"winget install Oracle.JDK.23 --accept-package-agreements",
-		};
-		executeCommands(Commands);
+		executeCommands({
+	L"winget source update",
+	L"winget uninstall Mojang.MinecraftLauncher --purge -h",
+	L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
+	L"winget uninstall Oracle.JDK.23 --purge -h",
+	L"winget uninstall Oracle.JDK.22 --purge -h",
+	L"winget uninstall Oracle.JDK.21 --purge -h",
+	L"winget uninstall Oracle.JDK.20 --purge -h",
+	L"winget uninstall Oracle.JDK.19 --purge -h",
+	L"winget uninstall Oracle.JDK.18 --purge -h",
+	L"winget uninstall Oracle.JDK.17 --purge -h",
+	L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
+	L"winget install Oracle.JDK.23 --accept-package-agreements"
+			});
 
 		MessageBoxEx(
 			nullptr,
@@ -578,55 +444,46 @@ void manageTasks(const std::wstring& task)
 			{0, L"7z.exe"},
 			{1, L"HBMAME.7z"},
 			{2, L"MAME.exe"},
-			{3, L"FBNeo.zip" },
+			{3, L"FBNeo.zip"},
 			{4, L"FBNeo_support.7z"}
 		};
 
-		std::vector<std::tuple<std::wstring, int, bool>> downloads;
-
-		for (const auto& [index, subPath] : paths)
-		{
+		for (const auto& [index, subPath] : paths) {
 			AppendPath(index, currentPath);
 			AppendPath(index, subPath);
 		}
 
-
+		std::vector<std::tuple<std::wstring, int, bool>> downloads;
 		std::vector<std::wstring> Commands;
 
-
-
-		if (ProccessIs64Bit())
-		{
+		if (ProccessIs64Bit()) {
 			Commands = {
-			L"winget source update",
-			L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
-			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
+				L"winget source update",
+				L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
+				L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
 			};
 
 			downloads = {
-			{L"7z.exe", 0, true},
-			{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false },
-			{L"https://github.com/mamedev/mame/releases/download/mame0273/mame0273b_64bit.exe", 2, false},
-			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip", 3 , false}
+				{L"7z.exe", 0, true},
+				{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false},
+				{L"https://github.com/mamedev/mame/releases/download/mame0273/mame0273b_64bit.exe", 2, false},
+				{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip", 3, false}
 			};
 		}
-		else
-		{
-
+		else {
 			Commands = {
-			L"winget source update",
-			L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
-			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
+				L"winget source update",
+				L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
+				L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
 			};
 
 			downloads = {
-			{L"7z.exe", 0, true},
-			{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false}
+				{L"7z.exe", 0, true},
+				{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false}
 			};
 		}
 
-		for (const auto& [url, index, flag] : downloads)
-		{
+		for (const auto& [url, index, flag] : downloads) {
 			dl(url, index, flag);
 		}
 		executeCommands(Commands);
@@ -635,12 +492,17 @@ void manageTasks(const std::wstring& task)
 		fs::remove_all(L"MAME");
 		fs::remove_all(L"FBNeo");
 		dl(L"support.7z", 4, true);
-		for (const auto& cmd : { L"x HBMAME.7z -oHBMAME -y", L"x MAME.exe -oMAME -y", L"x FBNeo.zip -oFBNeo -y", L"x FBNeo_support.7z -oFBNeo\\support -y" })
-		{
+
+		for (const auto& cmd : {
+			L"x HBMAME.7z -oHBMAME -y",
+			L"x MAME.exe -oMAME -y",
+			L"x FBNeo.zip -oFBNeo -y",
+			L"x FBNeo_support.7z -oFBNeo\\support -y"
+			}) {
 			Run(v[0], cmd, true);
 		}
-		for (int i : {0, 1, 2, 3, 4})
-		{
+
+		for (int i : {0, 1, 2, 3, 4}) {
 			fs::remove(v[i]);
 		}
 
@@ -660,12 +522,11 @@ void manageTasks(const std::wstring& task)
 			AppendPath(index, currentPath);
 			AppendPath(index, subPath);
 		}
-		std::vector<std::wstring> Commands = {
-		  L"winget source update",
-		  L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h",
-		  L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements"
-		};
-		executeCommands(Commands);
+		executeCommands({
+			L"winget source update",
+			L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h",
+			L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements"
+			});
 		dl(L"7z.exe", 0, true);
 		dl(L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip", 1, false);
 		fs::remove_all(L"Mesen");
@@ -682,7 +543,7 @@ void manageTasks(const std::wstring& task)
 
 		unblockdx9();
 
-		std::vector<std::wstring> Commands = {
+		executeCommands({
 			L"powercfg /hibernate off",
 			L"winget source update",
 			L"winget uninstall Microsoft.PCManager --purge -h",
@@ -724,7 +585,7 @@ void manageTasks(const std::wstring& task)
 			L"winget install 9PG2DK419DRG --accept-package-agreements",
 			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N5TDP8VCMHS --accept-package-agreements",
-			L"winget install 9PCSD6N03BKV --accept-package-agreements" ,
+			L"winget install 9PCSD6N03BKV --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
@@ -737,9 +598,8 @@ void manageTasks(const std::wstring& task)
 			L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
-			L"dir 'C:\' -Recurse | Unblock-File"
-		};
-		executeCommands(Commands);
+			L"dir 'C:\\' -Recurse | Unblock-File"
+			});
 	}
 	else if (task == L"XBLA")
 	{
@@ -748,87 +608,67 @@ void manageTasks(const std::wstring& task)
 		fs::remove_all(L"XBLA");
 
 		for (auto& path : v) path.clear();
+
 		std::vector<std::pair<int, std::wstring>> paths = {
-			{0, L"GECE.7z"},
-			{1, L"7z.exe"},
-			{2, L"XBLA.zip"},
-			{3, L"XBLA\\LICENSE"},
-			{4, L"XBLA\\xenia_canary.exe"},
-			{5, L"XBLA\\GECE\\defaultCE.xex"},
-			{6, L"XBLA.7z"},
-			{7, L"PD.7z"},
-			{8, L"BK.7z"},
-			{9, L"BT.7z"},
-			{10, L"XBLA\\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1"},
+			{0, L"GECE.7z"}, {1, L"7z.exe"}, {2, L"XBLA.zip"}, {3, L"XBLA\\LICENSE"},
+			{4, L"XBLA\\xenia_canary.exe"}, {5, L"XBLA\\GECE\\defaultCE.xex"}, {6, L"XBLA.7z"},
+			{7, L"PD.7z"}, {8, L"BK.7z"}, {9, L"BT.7z"}, {10, L"XBLA\\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1"},
 			{11, L"XBLA\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
-			{12, L"XBLA\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
-			{13, L"Bean.7z"},
+			{12, L"XBLA\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"}, {13, L"Bean.7z"},
 			{14, L"XBLA\\30BA92710985645EF623D4A6BA9E8EFFAEC62617"}
 		};
-		for (const auto& [index, subPath] : paths)
-		{
+
+		for (const auto& [index, subPath] : paths) {
 			AppendPath(index, currentPath);
 			AppendPath(index, subPath);
 		}
+
 		dl(L"7z.exe", 1, true);
 		dl(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
 		dl(L"XBLA.7z", 6, true);
 
-		std::vector<std::wstring> commands = { L"x XBLA.zip -oXBLA -y", L"x XBLA.7z -oXBLA -y" };
-		for (const auto& cmd : commands)
-		{
+		// Extract downloaded archives
+		const std::vector<std::wstring> commands = { L"x XBLA.zip -oXBLA -y", L"x XBLA.7z -oXBLA -y" };
+		for (const auto& cmd : commands) {
 			Run(v[1], cmd, true);
 		}
 
-		switch (rarecb)
-		{
-		case 0:
-			dl(L"GECE.7z", 0, true);
-			Run(v[1], L"x GECE.7z -oXBLA\\GECE -y", true);
-			Run(v[4], v[5], false);
-			break;
-		case 1:
-			dl(L"PD.7z", 7, true);
-			Run(v[1], L"x PD.7z -oXBLA -y", true);
-			Run(v[4], v[10], false);
-			break;
-		case 2:
-			dl(L"BK.7z", 8, true);
-			Run(v[1], L"x BK.7z -oXBLA -y", true);
-			Run(v[4], v[11], false);
-			break;
-		case 3:
-			dl(L"BT.7z", 9, true);
-			Run(v[1], L"x BT.7z -oXBLA -y", true);
-			Run(v[4], v[12], false);
-			break;
-		case 4:
-			dl(L"Bean.7z", 13, true);
-			Run(v[1], L"x Bean.7z -oXBLA -y", true);
-			Run(v[4], v[14], false);
-			break;
+		// Helper function to download and extract files
+		auto download_and_extract = [&](const std::wstring& file, int index, const std::wstring& extract_path, int run_index, const std::wstring& run_command) {
+			dl(file, index, true);
+			Run(v[1], L"x " + file + L" -o" + extract_path + L" -y", true);
+			Run(v[4], run_command, false);
+			};
+
+		// Download, extract, and run based on rarecb value
+		switch (rarecb) {
+		case 0: download_and_extract(L"GECE.7z", 0, L"XBLA\\GECE", 5, v[5]); break;
+		case 1: download_and_extract(L"PD.7z", 7, L"XBLA", 10, v[10]); break;
+		case 2: download_and_extract(L"BK.7z", 8, L"XBLA", 11, v[11]); break;
+		case 3: download_and_extract(L"BT.7z", 9, L"XBLA", 12, v[12]); break;
+		case 4: download_and_extract(L"Bean.7z", 13, L"XBLA", 14, v[14]); break;
 		}
 
-		std::vector<int> indices = { 0, 1, 2, 3, 6, 7, 8, 9, 13 };
-		for (int i : indices)
-		{
+		// Remove specified files
+		const std::vector<int> indices_to_remove = { 0, 1, 2, 3, 6, 7, 8, 9, 13 };
+		for (int i : indices_to_remove) {
 			fs::remove(v[i]);
 		}
 	}
 	else if (task == L"gameclients")
 	{
-		std::vector<std::wstring> Commands = {
-				L"winget source update",
-				L"winget uninstall Valve.Steam --purge -h",
-				L"winget uninstall ElectronicArts.EADesktop --purge -h",
-				L"winget uninstall ElectronicArts.Origin --purge -h",
-				L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
-				L"winget uninstall Blizzard.BattleNet --purge -h",
-				L"winget install Valve.Steam --accept-package-agreements",
-				L"winget install ElectronicArts.EADesktop --accept-package-agreements",
-				L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
-				L"winget install Blizzard.BattleNet --accept-package-agreements" };
-		executeCommands(Commands);
+		executeCommands({
+	L"winget source update",
+	L"winget uninstall Valve.Steam --purge -h",
+	L"winget uninstall ElectronicArts.EADesktop --purge -h",
+	L"winget uninstall ElectronicArts.Origin --purge -h",
+	L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
+	L"winget uninstall Blizzard.BattleNet --purge -h",
+	L"winget install Valve.Steam --accept-package-agreements",
+	L"winget install ElectronicArts.EADesktop --accept-package-agreements",
+	L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
+	L"winget install Blizzard.BattleNet --accept-package-agreements"
+			});
 	}
 }
 
@@ -892,19 +732,30 @@ int APIENTRY wWinMain(
 	_In_ int nShowCmd
 )
 {
+	// Ensure only one instance of the application is running
 	LimitSingleInstance GUID(L"Global\\{L0LSU1T3-BYL0LSU1T3@G17HUB-V3RYR4ND0M4NDR4R3MUCHW0W}");
 	if (LimitSingleInstance::AnotherInstanceRunning())
 		return 0;
+
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
+
+	// Load application title and window class name
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadStringW(hInstance, IDC_BUFFER, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
-	if (!InitInstance(hInstance, nShowCmd)) return FALSE;
 
+	// Register the window class
+	MyRegisterClass(hInstance);
+
+	// Initialize the application instance
+	if (!InitInstance(hInstance, nShowCmd))
+		return FALSE;
+
+	// Load the accelerator table
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
 
+	// Main message loop
 	while (GetMessageW(&msg, nullptr, 0, 0))
 	{
 		if (!TranslateAcceleratorW(msg.hwnd, hAccelTable, &msg))
@@ -913,5 +764,6 @@ int APIENTRY wWinMain(
 			DispatchMessageW(&msg);
 		}
 	}
+
 	return static_cast<int>(msg.wParam);
 }
