@@ -352,7 +352,7 @@ void manageTasks(const std::wstring& task)
 			{1, L"HBMAME.7z"},
 			{2, L"MAME.exe"},
 			{3, L"FBNeo.zip"},
-			{4, L"FBNeo_support.7z"}
+			{4, L"support.7z"}
 		};
 
 		for (const auto& [index, subPath] : paths) {
@@ -404,7 +404,7 @@ void manageTasks(const std::wstring& task)
 			L"x HBMAME.7z -oHBMAME -y",
 			L"x MAME.exe -oMAME -y",
 			L"x FBNeo.zip -oFBNeo -y",
-			L"x FBNeo_support.7z -oFBNeo\\support -y"
+			L"x support.7z -oFBNeo\\support -y"
 			}) {
 			Run(v[0], cmd, true);
 		}
