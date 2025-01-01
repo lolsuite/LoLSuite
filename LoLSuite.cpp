@@ -412,6 +412,8 @@ void manageTasks(const std::wstring& task)
 		for (int i : {0, 1, 2, 3, 4}) {
 			fs::remove(v[i]);
 		}
+
+		fs::remove(v[0]);
 	}
 	else if (task == L"mesen")
 	{
