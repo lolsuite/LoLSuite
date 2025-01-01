@@ -10,15 +10,16 @@
 #include "resource.h"
 
 namespace fs = std::filesystem;
-static int cb = 0;
-static int rarecb = 0;
+int cb = 0;
+int rarecb = 0;
 WCHAR szFolderPath[MAX_PATH + 1];
 auto currentPath = fs::current_path();
-constexpr auto MAX_LOADSTRING = 100;
+constexpr int MAX_LOADSTRING = 100;
 std::vector<std::wstring> v(158);
 HINSTANCE hInst;
 WCHAR szTitle[MAX_LOADSTRING];
 WCHAR szWindowClass[MAX_LOADSTRING];
+
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -285,6 +286,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		nullptr, nullptr, hInstance, nullptr
 	);
 	if (!hWnd) return FALSE;
+
 	std::vector<std::tuple<DWORD, LPCWSTR, LPCWSTR, DWORD, int, int, int, int, HMENU>> controls = {
 		{WS_EX_TOOLWINDOW, L"BUTTON", L"Patch", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 20, 60, 30, reinterpret_cast<HMENU>(1)},
 		{0, L"BUTTON", L"Restore", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 75, 20, 60, 30, reinterpret_cast<HMENU>(2)},
@@ -292,119 +294,24 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	};
 
 	for (const auto& [dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hMenu] : controls) {
-		HWND hControl = CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWnd, hMenu, hInstance, nullptr);
-		if (!hControl) return FALSE;
+		if (!CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWnd, hMenu, hInstance, nullptr))
+			return FALSE;
 	}
 
-	HWND hwndCombo1, hwndCombo2;
-	hwndCombo1 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 20, 200, 200, hWnd, NULL, hInstance, NULL);
-	hwndCombo2 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 50, 200, 200, hWnd, NULL, hInstance, NULL);
+	HWND hwndCombo1 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 20, 200, 200, hWnd, NULL, hInstance, NULL);
+	HWND hwndCombo2 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 50, 200, 200, hWnd, NULL, hInstance, NULL);
 
-	for (const auto& str : box) {
+	for (const auto& str : box)
 		SendMessage(hwndCombo1, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
-	}
 	SendMessageW(hwndCombo1, CB_SETCURSEL, 0, 0);
 
-	for (const auto& str : rarebox) {
+	for (const auto& str : rarebox)
 		SendMessage(hwndCombo2, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
-	}
 	SendMessageW(hwndCombo2, CB_SETCURSEL, 0, 0);
-
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 	return TRUE;
-}
-
-void unblockdx9()
-{
-	Term(L"DXSETUP.exe");
-
-	const std::vector<std::wstring> dxx86_cab = {
-		L"Apr2005_d3dx9_25_x86.cab", L"Apr2006_d3dx9_30_x86.cab", L"Apr2006_MDX1_x86.cab",
-		L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_XACT_x86.cab", L"Apr2006_xinput_x86.cab",
-		L"APR2007_d3dx9_33_x86.cab", L"APR2007_d3dx10_33_x86.cab", L"APR2007_XACT_x86.cab",
-		L"APR2007_xinput_x86.cab", L"Aug2005_d3dx9_27_x86.cab", L"AUG2006_XACT_x86.cab",
-		L"AUG2006_xinput_x86.cab", L"AUG2007_d3dx9_35_x86.cab", L"AUG2007_d3dx10_35_x86.cab",
-		L"AUG2007_XACT_x86.cab", L"Aug2008_d3dx9_39_x86.cab", L"Aug2008_d3dx10_39_x86.cab",
-		L"Aug2008_XACT_x86.cab", L"Aug2008_XAudio_x86.cab", L"Aug2009_D3DCompiler_42_x86.cab",
-		L"Aug2009_d3dcsx_42_x86.cab", L"Aug2009_d3dx9_42_x86.cab", L"Aug2009_d3dx10_42_x86.cab",
-		L"Aug2009_d3dx11_42_x86.cab", L"Aug2009_XACT_x86.cab", L"Aug2009_XAudio_x86.cab",
-		L"Dec2005_d3dx9_28_x86.cab", L"DEC2006_d3dx9_32_x86.cab", L"DEC2006_d3dx10_00_x86.cab",
-		L"DEC2006_XACT_x86.cab", L"Feb2005_d3dx9_24_x86.cab", L"Feb2006_d3dx9_29_x86.cab",
-		L"Feb2006_XACT_x86.cab", L"FEB2007_XACT_x86.cab", L"Feb2010_X3DAudio_x86.cab",
-		L"Feb2010_XACT_x86.cab", L"Feb2010_XAudio_x86.cab", L"Jun2005_d3dx9_26_x86.cab",
-		L"JUN2006_XACT_x86.cab", L"JUN2007_d3dx9_34_x86.cab", L"JUN2007_d3dx10_34_x86.cab",
-		L"JUN2007_XACT_x86.cab", L"JUN2008_d3dx9_38_x86.cab", L"JUN2008_d3dx10_38_x86.cab",
-		L"JUN2008_X3DAudio_x86.cab", L"JUN2008_XACT_x86.cab", L"JUN2008_XAudio_x86.cab",
-		L"Jun2010_D3DCompiler_43_x86.cab", L"Jun2010_d3dcsx_43_x86.cab", L"Jun2010_d3dx9_43_x86.cab",
-		L"Jun2010_d3dx10_43_x86.cab", L"Jun2010_d3dx11_43_x86.cab", L"Jun2010_XACT_x86.cab",
-		L"Jun2010_XAudio_x86.cab", L"Mar2008_d3dx9_37_x86.cab", L"Mar2008_d3dx10_37_x86.cab",
-		L"Mar2008_X3DAudio_x86.cab", L"Mar2008_XACT_x86.cab", L"Mar2008_XAudio_x86.cab",
-		L"Mar2009_d3dx9_41_x86.cab", L"Mar2009_d3dx10_41_x86.cab", L"Mar2009_X3DAudio_x86.cab",
-		L"Mar2009_XACT_x86.cab", L"Mar2009_XAudio_x86.cab", L"Nov2007_d3dx9_36_x86.cab",
-		L"Nov2007_d3dx10_36_x86.cab", L"NOV2007_X3DAudio_x86.cab", L"NOV2007_XACT_x86.cab",
-		L"Nov2008_d3dx9_40_x86.cab", L"Nov2008_d3dx10_40_x86.cab", L"Nov2008_X3DAudio_x86.cab",
-		L"Nov2008_XACT_x86.cab", L"Nov2008_XAudio_x86.cab", L"Oct2005_xinput_x86.cab",
-		L"OCT2006_d3dx9_31_x86.cab", L"OCT2006_XACT_x86.cab"
-	};
-
-	const std::vector<std::wstring> dxx64_cab = {
-		L"Apr2005_d3dx9_25_x64.cab", L"Apr2006_d3dx9_30_x64.cab", L"Apr2006_XACT_x64.cab",
-		L"Apr2006_xinput_x64.cab", L"APR2007_d3dx9_33_x64.cab", L"APR2007_d3dx10_33_x64.cab",
-		L"APR2007_XACT_x64.cab", L"APR2007_xinput_x64.cab", L"Aug2005_d3dx9_27_x64.cab",
-		L"AUG2006_XACT_x64.cab", L"AUG2006_xinput_x64.cab", L"AUG2007_d3dx9_35_x64.cab",
-		L"AUG2007_d3dx10_35_x64.cab", L"AUG2007_XACT_x64.cab", L"Aug2008_d3dx9_39_x64.cab",
-		L"Aug2008_d3dx10_39_x64.cab", L"Aug2008_XACT_x64.cab", L"Aug2008_XAudio_x64.cab",
-		L"Aug2009_D3DCompiler_42_x64.cab", L"Aug2009_d3dcsx_42_x64.cab", L"Aug2009_d3dx9_42_x64.cab",
-		L"Aug2009_d3dx10_42_x64.cab", L"Aug2009_d3dx11_42_x64.cab", L"Aug2009_XACT_x64.cab",
-		L"Aug2009_XAudio_x64.cab", L"Dec2005_d3dx9_28_x64.cab", L"DEC2006_d3dx9_32_x64.cab",
-		L"DEC2006_d3dx10_00_x64.cab", L"DEC2006_XACT_x64.cab", L"Feb2005_d3dx9_24_x64.cab",
-		L"Feb2006_d3dx9_29_x64.cab", L"Feb2006_XACT_x64.cab", L"FEB2007_XACT_x64.cab",
-		L"Feb2010_X3DAudio_x64.cab", L"Feb2010_XACT_x64.cab", L"Feb2010_XAudio_x64.cab",
-		L"Jun2005_d3dx9_26_x64.cab", L"JUN2006_XACT_x64.cab", L"JUN2007_d3dx9_34_x64.cab",
-		L"JUN2007_d3dx10_34_x64.cab", L"JUN2007_XACT_x64.cab", L"JUN2008_d3dx9_38_x64.cab",
-		L"JUN2008_d3dx10_38_x64.cab", L"JUN2008_X3DAudio_x64.cab", L"JUN2008_XACT_x64.cab",
-		L"JUN2008_XAudio_x64.cab", L"Jun2010_D3DCompiler_43_x64.cab", L"Jun2010_d3dcsx_43_x64.cab",
-		L"Jun2010_d3dx9_43_x64.cab", L"Jun2010_d3dx10_43_x64.cab", L"Jun2010_d3dx11_43_x64.cab",
-		L"Jun2010_XACT_x64.cab", L"Jun2010_XAudio_x64.cab", L"Mar2008_d3dx9_37_x64.cab",
-		L"Mar2008_d3dx10_37_x64.cab", L"Mar2008_X3DAudio_x64.cab", L"Mar2008_XACT_x64.cab",
-		L"Mar2008_XAudio_x64.cab", L"Mar2009_d3dx9_41_x64.cab", L"Mar2009_d3dx10_41_x64.cab",
-		L"Mar2009_X3DAudio_x64.cab", L"Mar2009_XACT_x64.cab", L"Mar2009_XAudio_x64.cab",
-		L"Nov2007_d3dx9_36_x64.cab", L"Nov2007_d3dx10_36_x64.cab", L"NOV2007_X3DAudio_x64.cab",
-		L"NOV2007_XACT_x64.cab", L"Nov2008_d3dx9_40_x64.cab", L"Nov2008_d3dx10_40_x64.cab",
-		L"Nov2008_X3DAudio_x64.cab", L"Nov2008_XACT_x64.cab", L"Nov2008_XAudio_x64.cab",
-		L"Oct2005_xinput_x64.cab", L"OCT2006_d3dx9_31_x64.cab", L"OCT2006_XACT_x64.cab"
-	};
-
-	const std::vector<std::wstring> dxsetup_files = {
-		L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab"
-	};
-
-	v[82].clear();
-	AppendPath(82, currentPath);
-	AppendPath(82, L"temp_dx");
-	fs::create_directory(v[82]);
-
-	auto download_files = [&](const std::vector<std::wstring>& files) {
-		for (size_t i = 0; i < files.size(); ++i) {
-			v[i].clear();
-			CombinePath(i, 82, files[i]);
-			dl(L"dx9/" + files[i], i, true);
-		}
-		};
-
-	download_files(dxx86_cab);
-
-	if (ProccessIs64Bit()) {
-		download_files(dxx64_cab);
-	}
-
-	download_files(dxsetup_files);
-
-	Run(v[3], L"/silent", true);
-
-	fs::remove_all(v[82]);
 }
 
 void manageTasks(const std::wstring& task)
@@ -536,12 +443,98 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"support")
 	{
-		Term(L"MSPCManager.exe");
-		Term(L"Powershell.exe");
-		Term(L"OpenConsole.exe");
-		Term(L"cmd.exe");
 
-		unblockdx9();
+		const std::vector<std::wstring> processes = {L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"DXSETUP.exe"};
+
+		for (const auto& process : processes) {
+			Term(process);
+		}
+
+		const std::vector<std::wstring> dxx86_cab = {
+			L"Apr2005_d3dx9_25_x86.cab", L"Apr2006_d3dx9_30_x86.cab", L"Apr2006_MDX1_x86.cab",
+			L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_XACT_x86.cab", L"Apr2006_xinput_x86.cab",
+			L"APR2007_d3dx9_33_x86.cab", L"APR2007_d3dx10_33_x86.cab", L"APR2007_XACT_x86.cab",
+			L"APR2007_xinput_x86.cab", L"Aug2005_d3dx9_27_x86.cab", L"AUG2006_XACT_x86.cab",
+			L"AUG2006_xinput_x86.cab", L"AUG2007_d3dx9_35_x86.cab", L"AUG2007_d3dx10_35_x86.cab",
+			L"AUG2007_XACT_x86.cab", L"Aug2008_d3dx9_39_x86.cab", L"Aug2008_d3dx10_39_x86.cab",
+			L"Aug2008_XACT_x86.cab", L"Aug2008_XAudio_x86.cab", L"Aug2009_D3DCompiler_42_x86.cab",
+			L"Aug2009_d3dcsx_42_x86.cab", L"Aug2009_d3dx9_42_x86.cab", L"Aug2009_d3dx10_42_x86.cab",
+			L"Aug2009_d3dx11_42_x86.cab", L"Aug2009_XACT_x86.cab", L"Aug2009_XAudio_x86.cab",
+			L"Dec2005_d3dx9_28_x86.cab", L"DEC2006_d3dx9_32_x86.cab", L"DEC2006_d3dx10_00_x86.cab",
+			L"DEC2006_XACT_x86.cab", L"Feb2005_d3dx9_24_x86.cab", L"Feb2006_d3dx9_29_x86.cab",
+			L"Feb2006_XACT_x86.cab", L"FEB2007_XACT_x86.cab", L"Feb2010_X3DAudio_x86.cab",
+			L"Feb2010_XACT_x86.cab", L"Feb2010_XAudio_x86.cab", L"Jun2005_d3dx9_26_x86.cab",
+			L"JUN2006_XACT_x86.cab", L"JUN2007_d3dx9_34_x86.cab", L"JUN2007_d3dx10_34_x86.cab",
+			L"JUN2007_XACT_x86.cab", L"JUN2008_d3dx9_38_x86.cab", L"JUN2008_d3dx10_38_x86.cab",
+			L"JUN2008_X3DAudio_x86.cab", L"JUN2008_XACT_x86.cab", L"JUN2008_XAudio_x86.cab",
+			L"Jun2010_D3DCompiler_43_x86.cab", L"Jun2010_d3dcsx_43_x86.cab", L"Jun2010_d3dx9_43_x86.cab",
+			L"Jun2010_d3dx10_43_x86.cab", L"Jun2010_d3dx11_43_x86.cab", L"Jun2010_XACT_x86.cab",
+			L"Jun2010_XAudio_x86.cab", L"Mar2008_d3dx9_37_x86.cab", L"Mar2008_d3dx10_37_x86.cab",
+			L"Mar2008_X3DAudio_x86.cab", L"Mar2008_XACT_x86.cab", L"Mar2008_XAudio_x86.cab",
+			L"Mar2009_d3dx9_41_x86.cab", L"Mar2009_d3dx10_41_x86.cab", L"Mar2009_X3DAudio_x86.cab",
+			L"Mar2009_XACT_x86.cab", L"Mar2009_XAudio_x86.cab", L"Nov2007_d3dx9_36_x86.cab",
+			L"Nov2007_d3dx10_36_x86.cab", L"NOV2007_X3DAudio_x86.cab", L"NOV2007_XACT_x86.cab",
+			L"Nov2008_d3dx9_40_x86.cab", L"Nov2008_d3dx10_40_x86.cab", L"Nov2008_X3DAudio_x86.cab",
+			L"Nov2008_XACT_x86.cab", L"Nov2008_XAudio_x86.cab", L"Oct2005_xinput_x86.cab",
+			L"OCT2006_d3dx9_31_x86.cab", L"OCT2006_XACT_x86.cab"
+		};
+
+		const std::vector<std::wstring> dxx64_cab = {
+			L"Apr2005_d3dx9_25_x64.cab", L"Apr2006_d3dx9_30_x64.cab", L"Apr2006_XACT_x64.cab",
+			L"Apr2006_xinput_x64.cab", L"APR2007_d3dx9_33_x64.cab", L"APR2007_d3dx10_33_x64.cab",
+			L"APR2007_XACT_x64.cab", L"APR2007_xinput_x64.cab", L"Aug2005_d3dx9_27_x64.cab",
+			L"AUG2006_XACT_x64.cab", L"AUG2006_xinput_x64.cab", L"AUG2007_d3dx9_35_x64.cab",
+			L"AUG2007_d3dx10_35_x64.cab", L"AUG2007_XACT_x64.cab", L"Aug2008_d3dx9_39_x64.cab",
+			L"Aug2008_d3dx10_39_x64.cab", L"Aug2008_XACT_x64.cab", L"Aug2008_XAudio_x64.cab",
+			L"Aug2009_D3DCompiler_42_x64.cab", L"Aug2009_d3dcsx_42_x64.cab", L"Aug2009_d3dx9_42_x64.cab",
+			L"Aug2009_d3dx10_42_x64.cab", L"Aug2009_d3dx11_42_x64.cab", L"Aug2009_XACT_x64.cab",
+			L"Aug2009_XAudio_x64.cab", L"Dec2005_d3dx9_28_x64.cab", L"DEC2006_d3dx9_32_x64.cab",
+			L"DEC2006_d3dx10_00_x64.cab", L"DEC2006_XACT_x64.cab", L"Feb2005_d3dx9_24_x64.cab",
+			L"Feb2006_d3dx9_29_x64.cab", L"Feb2006_XACT_x64.cab", L"FEB2007_XACT_x64.cab",
+			L"Feb2010_X3DAudio_x64.cab", L"Feb2010_XACT_x64.cab", L"Feb2010_XAudio_x64.cab",
+			L"Jun2005_d3dx9_26_x64.cab", L"JUN2006_XACT_x64.cab", L"JUN2007_d3dx9_34_x64.cab",
+			L"JUN2007_d3dx10_34_x64.cab", L"JUN2007_XACT_x64.cab", L"JUN2008_d3dx9_38_x64.cab",
+			L"JUN2008_d3dx10_38_x64.cab", L"JUN2008_X3DAudio_x64.cab", L"JUN2008_XACT_x64.cab",
+			L"JUN2008_XAudio_x64.cab", L"Jun2010_D3DCompiler_43_x64.cab", L"Jun2010_d3dcsx_43_x64.cab",
+			L"Jun2010_d3dx9_43_x64.cab", L"Jun2010_d3dx10_43_x64.cab", L"Jun2010_d3dx11_43_x64.cab",
+			L"Jun2010_XACT_x64.cab", L"Jun2010_XAudio_x64.cab", L"Mar2008_d3dx9_37_x64.cab",
+			L"Mar2008_d3dx10_37_x64.cab", L"Mar2008_X3DAudio_x64.cab", L"Mar2008_XACT_x64.cab",
+			L"Mar2008_XAudio_x64.cab", L"Mar2009_d3dx9_41_x64.cab", L"Mar2009_d3dx10_41_x64.cab",
+			L"Mar2009_X3DAudio_x64.cab", L"Mar2009_XACT_x64.cab", L"Mar2009_XAudio_x64.cab",
+			L"Nov2007_d3dx9_36_x64.cab", L"Nov2007_d3dx10_36_x64.cab", L"NOV2007_X3DAudio_x64.cab",
+			L"NOV2007_XACT_x64.cab", L"Nov2008_d3dx9_40_x64.cab", L"Nov2008_d3dx10_40_x64.cab",
+			L"Nov2008_X3DAudio_x64.cab", L"Nov2008_XACT_x64.cab", L"Nov2008_XAudio_x64.cab",
+			L"Oct2005_xinput_x64.cab", L"OCT2006_d3dx9_31_x64.cab", L"OCT2006_XACT_x64.cab"
+		};
+
+		const std::vector<std::wstring> dxsetup_files = {
+			L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab"
+		};
+
+		v[82].clear();
+		AppendPath(82, currentPath);
+		AppendPath(82, L"temp_dx");
+		fs::create_directory(v[82]);
+
+		auto download_files = [&](const std::vector<std::wstring>& files) {
+			for (size_t i = 0; i < files.size(); ++i) {
+				v[i].clear();
+				CombinePath(i, 82, files[i]);
+				dl(L"dx9/" + files[i], i, true);
+			}
+			};
+
+		download_files(dxx86_cab);
+
+		if (ProccessIs64Bit()) {
+			download_files(dxx64_cab);
+		}
+
+		download_files(dxsetup_files);
+
+		Run(v[3], L"/silent", true);
+
+		fs::remove_all(v[82]);
 
 		executeCommands({
 			L"powercfg /hibernate off",
