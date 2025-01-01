@@ -347,9 +347,6 @@ void manageTasks(const std::wstring& task)
 
 		for (auto& path : v) path.clear();
 
-		fs::remove_all(L"HBMAME");
-		fs::remove_all(L"MAME");
-		fs::remove_all(L"FBNeo");
 		std::vector<std::pair<int, std::wstring>> paths = {
 			{0, L"7z.exe"},
 			{1, L"HBMAME.7z"},
@@ -398,6 +395,9 @@ void manageTasks(const std::wstring& task)
 		}
 		executeCommands(Commands);
 
+		fs::remove_all(L"HBMAME");
+		fs::remove_all(L"MAME");
+		fs::remove_all(L"FBNeo");
 		dl(L"support.7z", 4, true);
 
 		for (const auto& cmd : {
