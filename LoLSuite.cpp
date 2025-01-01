@@ -429,7 +429,7 @@ void manageTasks(const std::wstring& task)
 
 		MessageBoxEx(
 			nullptr,
-			L"Minecraft Launcher > Minecraft : Java Edition > Installations > Latest Release > Edit > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
+			L"Minecraft Launcher > Java Edition > Latest Release > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
 			L"LoLSuite",
 			MB_OK,
 			0);
