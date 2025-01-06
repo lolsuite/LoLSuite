@@ -590,8 +590,7 @@ void manageTasks(const std::wstring& task)
 			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
-			L"dir 'C:\\' -Recurse | Unblock-File"
+			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
 			});
 	}
 	else if (task == L"XBLA")
