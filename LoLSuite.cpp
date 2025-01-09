@@ -9,6 +9,8 @@
 #include <ShObjIdl_core.h>
 #include "resource.h"
 
+typedef BOOL(WINAPI* LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+
 namespace fs = std::filesystem;
 int cb = 0;
 int rarecb = 0;
@@ -174,13 +176,53 @@ void dl(const std::wstring& url, int j, bool serv)
 }
 bool ProccessIs64Bit()
 {
+	BOOL bIsWow64 = FALSE;
+
+	// Get a handle to the DLL that contains the IsWow64Process and IsWow64Process2 functions
+	HMODULE hModule = GetModuleHandle(TEXT("kernel32"));
+	if (hModule == NULL) {
+		// Handle error if the module handle is not retrieved
+		return false;
+	}
+
+	// Variable to store the machine type of the process
 	USHORT processMachine = 0;
+	// Variable to store the native machine type
 	USHORT nativeMachine = 0;
+
+	// Get a pointer to the IsWow64Process2 function
 	auto fnIsWow64Process2 = reinterpret_cast<decltype(&IsWow64Process2)>(
-		GetProcAddress(GetModuleHandleW(L"kernel32"), "IsWow64Process2"));
-	if (!fnIsWow64Process2) return false;
-	if (!fnIsWow64Process2(GetCurrentProcess(), &processMachine, &nativeMachine)) return false;
-	return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
+		GetProcAddress(hModule, "IsWow64Process2"));
+
+	// If the function is not available, use the old definition
+	if (!fnIsWow64Process2) {
+		// Get a pointer to the IsWow64Process function
+		LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(hModule, "IsWow64Process");
+
+		// If the function is available, call it
+		if (fnIsWow64Process != NULL) {
+			// Call IsWow64Process to check if the process is running under WOW64
+			if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64)) {
+				// Handle error if the function call fails
+				return false; // Return false in case of error
+			}
+			// Return the result of IsWow64Process
+			return bIsWow64;
+		}
+		else {
+			// Handle error if both functions are not available
+			return false;
+		}
+	}
+	else {
+		// Call IsWow64Process2 if available
+		if (!fnIsWow64Process2(GetCurrentProcess(), &processMachine, &nativeMachine)) {
+			// Handle error if the function call fails
+			return false;
+		}
+		// Return true if the process is running under WOW64
+		return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
+	}
 }
 
 auto executeCommands = [](const std::vector<std::wstring>& commands)
