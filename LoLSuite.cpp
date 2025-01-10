@@ -22,7 +22,6 @@ HINSTANCE hInst;
 WCHAR szTitle[MAX_LOADSTRING];
 WCHAR szWindowClass[MAX_LOADSTRING];
 
-ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -303,21 +302,6 @@ void manageGame(const std::wstring& game, bool restore)
 	}
 }
 
-ATOM MyRegisterClass(HINSTANCE hInstance)
-{
-	WNDCLASSEXW wcex = {};
-	wcex.cbSize = sizeof(WNDCLASSEXW);
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON));
-	wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
-	wcex.hbrBackground = reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1));
-	wcex.lpszClassName = szWindowClass;
-	wcex.lpszMenuName = nullptr;
-	wcex.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON));
-	return RegisterClassExW(&wcex);
-}
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
@@ -340,15 +324,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 			return FALSE;
 	}
 
+	// Create the first combo box
 	HWND hwndCombo1 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 20, 200, 200, hWnd, NULL, hInstance, NULL);
+
+	// Create the second combo box
 	HWND hwndCombo2 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 50, 200, 200, hWnd, NULL, hInstance, NULL);
 
-	for (const auto& str : box)
+	// Populate the first combo box
+	for (const auto& str : box) {
 		SendMessage(hwndCombo1, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
+	}
 	SendMessageW(hwndCombo1, CB_SETCURSEL, 0, 0);
 
-	for (const auto& str : rarebox)
+	// Populate the second combo box
+	for (const auto& str : rarebox) {
 		SendMessage(hwndCombo2, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
+	}
 	SendMessageW(hwndCombo2, CB_SETCURSEL, 0, 0);
 
 	ShowWindow(hWnd, nCmdShow);
@@ -779,7 +770,18 @@ int APIENTRY wWinMain(
 	LoadStringW(hInstance, IDC_BUFFER, szWindowClass, MAX_LOADSTRING);
 
 	// Register the window class
-	MyRegisterClass(hInstance);
+	WNDCLASSEXW wcex = {};
+	wcex.cbSize = sizeof(WNDCLASSEXW);
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON));
+	wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+	wcex.hbrBackground = reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1));
+	wcex.lpszClassName = szWindowClass;
+	wcex.lpszMenuName = nullptr;
+	wcex.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON));
+	RegisterClassExW(&wcex);
 
 	// Initialize the application instance
 	if (!InitInstance(hInstance, nShowCmd))
