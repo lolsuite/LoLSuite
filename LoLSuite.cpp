@@ -352,6 +352,13 @@ void manageTasks(const std::wstring& task)
 
 	if (task == L"JDK")
 	{
+		const std::vector<std::wstring> processes = { L"Minecraft.exe", L"javaw.exe", L"Minecraft.Windows.exe"};
+
+		for (const auto& process : processes) {
+			Term(process);
+		}
+
+
 		executeCommands({
 	L"winget source update",
 	L"winget uninstall Mojang.MinecraftLauncher --purge -h",
@@ -477,7 +484,7 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 
-		const std::vector<std::wstring> processes = {L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"DXSETUP.exe"};
+		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"DXSETUP.exe" };
 
 		for (const auto& process : processes) {
 			Term(process);
