@@ -56,9 +56,9 @@ public:
 	}
 };
 
-const wchar_t* box[7] = {
-	L"League of Legends", L"DOTA2", L"Minecraft Java", L"Mesen2",
-	L"Arcades", L"PC Booster + DirectX", L"Game Clients"
+const wchar_t* box[8] = {
+	L"League of Legends", L"DOTA2", L"SMITE2", L"Minecraft", L"Mesen",
+	L"Arcade", L"Tidy PC", L"Game Clients"
 };
 const wchar_t* rarebox[5] = {
 	L"[XBLA] GoldenEye CE", L"[XBLA] Perfect Dark", L"[XBLA] Banjo Kazooie", L"[XBLA] Banjo Tooie", L"[XBLA] GoldenEye"
@@ -287,7 +287,7 @@ void manageGame(const std::wstring& game, bool restore)
 
 		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
 	}
-	if (game == L"dota2") {
+	else if (game == L"dota2") {
 		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"dota2.exe");
@@ -299,6 +299,36 @@ void manageGame(const std::wstring& game, bool restore)
 		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
 
 		Run(L"steam://rungameid/570//-high/", L"", false);
+	}
+	else if (game == L"smite2") {
+		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps", L"LoLSuite", MB_OK, 0);
+		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
+		Term(L"Hemingway.exe");
+		Term(L"Hemingway-Win64-Shipping.exe");
+		CombinePath(7, 0, L"common\\SMITE 2\\Windows\\Hemingway\\Binaries\\Win64");
+		AppendPath(0, L"common\\SMITE 2\\Windows\\Engine\\Binaries\\Win64");
+
+
+
+		CombinePath(1, 0, L"tbb.dll");
+		dl(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 1, true);
+
+		CombinePath(2, 0, L"tbbmalloc.dll");
+		dl(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 2, true);
+
+
+		CombinePath(4, 7, L"tbb.dll");
+		CombinePath(5, 7, L"tbb12.dll");
+		CombinePath(6, 7, L"tbbmalloc.dll");
+		dl(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 4, true);
+		dl(restore ? L"r/smite2/tbb12.dll" : L"tbb.dll", 5, true);
+		dl(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 6, true);
+
+
+
+
+		Run(L"steam://rungameid/2437170", L"", false);
+		exit(0);
 	}
 }
 
@@ -709,6 +739,7 @@ void handleCommand(int cb, bool flag)
 	std::vector<std::function<void()>> commands = {
 		[flag]() { manageGame(L"leagueoflegends", flag); },
 		[flag]() { manageGame(L"dota2", flag); },
+		[flag]() { manageGame(L"smite2", flag); },
 		[]() { manageTasks(L"JDK"); },
 		[]() { manageTasks(L"mesen"); },
 		[]() { manageTasks(L"mame"); },
