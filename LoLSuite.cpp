@@ -57,7 +57,7 @@ public:
 };
 
 const wchar_t* box[8] = {
-	L"League of Legends", L"DOTA2", L"SMITE2", L"Minecraft", L"Mesen",
+	L"League of Legends", L"Dota 2", L"SMITE 2", L"Minecraft", L"Mesen",
 	L"Arcade", L"Tidy PC", L"Game Clients"
 };
 const wchar_t* rarebox[5] = {
