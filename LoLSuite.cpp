@@ -57,13 +57,11 @@ public:
 };
 
 const wchar_t* box[8] = {
-	L"League of Legends", L"Dota 2", L"SMITE 2", L"Minecraft", L"Mesen",
-	L"Arcade", L"Tidy PC", L"Game Clients"
+	L"League of Legends", L"Dota 2", L"SMITE 2", L"Minecraft", L"Mesen", L"Arcade", L"Tidy PC", L"Game Clients"
 };
 const wchar_t* rarebox[5] = {
 	L"[XBLA] GoldenEye CE", L"[XBLA] Perfect Dark", L"[XBLA] Banjo Kazooie", L"[XBLA] Banjo Tooie", L"[XBLA] GoldenEye"
 };
-
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
