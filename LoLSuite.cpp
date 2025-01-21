@@ -59,11 +59,11 @@ const wchar_t* box[9] = {
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
-	L"Minecraft",
-	L"Mesen",
+	L"Minecraft : Java",
+	L"Mesen2",
 	L"Arcade",
-	L"Tidy PC",
-	L"Game Clients",
+	L"PC Optimizer",
+	L"Game Desktop Clients",
 	L"Perfect Dark [TU3]"};
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
