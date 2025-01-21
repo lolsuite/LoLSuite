@@ -56,7 +56,7 @@ public:
 };
 
 const wchar_t* box[9] = {
-	L"League of Legends", L"Dota 2", L"SMITE 2", L"Minecraft", L"Mesen", L"Arcade", L"Tidy PC", L"Game Clients", L"Perfect Dark"};
+	L"League of Legends", L"Dota 2", L"SMITE 2", L"Minecraft", L"Mesen", L"Arcade", L"Tidy PC", L"Game Clients", L"Perfect Dark [TU3]"};
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
