@@ -13,7 +13,6 @@ typedef BOOL(WINAPI* LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 
 namespace fs = std::filesystem;
 int cb = 0;
-int rarecb = 0;
 WCHAR szFolderPath[MAX_PATH + 1];
 auto currentPath = fs::current_path();
 constexpr int MAX_LOADSTRING = 100;
@@ -56,12 +55,8 @@ public:
 	}
 };
 
-const wchar_t* box[8] = {
-	L"League of Legends", L"Dota 2", L"SMITE 2", L"Minecraft", L"Mesen", L"Arcade", L"Tidy PC", L"Game Clients"
-};
-const wchar_t* rarebox[5] = {
-	L"[XBLA] GoldenEye CE", L"[XBLA] Perfect Dark", L"[XBLA] Banjo Kazooie", L"[XBLA] Banjo Tooie", L"[XBLA] GoldenEye"
-};
+const wchar_t* box[9] = {
+	L"League of Legends", L"Dota 2", L"SMITE 2", L"Minecraft", L"Mesen", L"Arcade", L"Tidy PC", L"Game Clients", L"Perfect Dark"};
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
@@ -343,8 +338,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	std::vector<std::tuple<DWORD, LPCWSTR, LPCWSTR, DWORD, int, int, int, int, HMENU>> controls = {
 		{WS_EX_TOOLWINDOW, L"BUTTON", L"Patch", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 20, 60, 30, reinterpret_cast<HMENU>(1)},
-		{0, L"BUTTON", L"Restore", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 75, 20, 60, 30, reinterpret_cast<HMENU>(2)},
-		{0, L"BUTTON", L"XBLA", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 140, 20, 60, 30, reinterpret_cast<HMENU>(3)}
+		{0, L"BUTTON", L"Restore", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 75, 20, 60, 30, reinterpret_cast<HMENU>(2)}
 	};
 
 	for (const auto& [dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hMenu] : controls) {
@@ -353,22 +347,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// Create the first combo box
-	HWND hwndCombo1 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 20, 200, 200, hWnd, NULL, hInstance, NULL);
-
-	// Create the second combo box
-	HWND hwndCombo2 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 50, 200, 200, hWnd, NULL, hInstance, NULL);
+	HWND cmb_1 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 20, 200, 300, hWnd, NULL, hInstance, NULL);
 
 	// Populate the first combo box
 	for (const auto& str : box) {
-		SendMessage(hwndCombo1, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
+		SendMessage(cmb_1, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
 	}
-	SendMessageW(hwndCombo1, CB_SETCURSEL, 0, 0);
-
-	// Populate the second combo box
-	for (const auto& str : rarebox) {
-		SendMessage(hwndCombo2, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
-	}
-	SendMessageW(hwndCombo2, CB_SETCURSEL, 0, 0);
+	SendMessageW(cmb_1, CB_SETCURSEL, 0, 0);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -616,13 +601,9 @@ void manageTasks(const std::wstring& task)
 
 		for (auto& path : v) path.clear();
 
-		std::vector<std::pair<int, std::wstring>> paths = {
-			{0, L"GECE.7z"}, {1, L"7z.exe"}, {2, L"XBLA.zip"}, {3, L"XBLA\\LICENSE"},
-			{4, L"XBLA\\xenia_canary.exe"}, {5, L"XBLA\\GECE\\defaultCE.xex"}, {6, L"XBLA.7z"},
-			{7, L"PD.7z"}, {8, L"BK.7z"}, {9, L"BT.7z"}, {10, L"XBLA\\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1"},
-			{11, L"XBLA\\DA78E477AA5E31A7D01AE8F84109FD4BF89E49E858 --license_mask -1"},
-			{12, L"XBLA\\ABB9CAB336175357D09F2D922735D23C62F90DDD58 --license_mask -1"},
-			{13, L"Bean.7z"}, {14, L"XBLA\\30BA92710985645EF623D4A6BA9E8EFFAEC62617"}
+		std::vector<std::pair<int, std::wstring>> paths = { {1, L"7z.exe"}, {2, L"XBLA.zip"}, {3, L"XBLA\\LICENSE"},
+			{4, L"XBLA\\xenia_canary.exe"}, {6, L"XBLA.7z"},
+			{7, L"PD.7z"}, {10, L"XBLA\\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1"}
 		};
 
 		for (const auto& [index, subPath] : paths) {
@@ -647,17 +628,10 @@ void manageTasks(const std::wstring& task)
 			Run(v[4], run_command, false);
 			};
 
-		// Download, extract, and run based on rarecb value
-		switch (rarecb) {
-		case 0: download_and_extract(L"GECE.7z", 0, L"XBLA\\GECE", 5, v[5]); break;
-		case 1: download_and_extract(L"PD.7z", 7, L"XBLA", 10, v[10]); break;
-		case 2: download_and_extract(L"BK.7z", 8, L"XBLA", 11, v[11]); break;
-		case 3: download_and_extract(L"BT.7z", 9, L"XBLA", 12, v[12]); break;
-		case 4: download_and_extract(L"Bean.7z", 13, L"XBLA", 14, v[14]); break;
-		}
+		download_and_extract(L"PD.7z", 7, L"XBLA", 10, v[10]);
 
 		// Remove specified files
-		const std::vector<int> indices_to_remove = { 0, 1, 2, 3, 6, 7, 8, 9, 13 };
+		const std::vector<int> indices_to_remove = { 1, 2, 3, 6, 7};
 		for (int i : indices_to_remove) {
 			fs::remove(v[i]);
 		}
@@ -689,7 +663,8 @@ void handleCommand(int cb, bool flag)
 		[]() { manageTasks(L"mesen"); },
 		[]() { manageTasks(L"mame"); },
 		[]() { manageTasks(L"support"); },
-		[]() { manageTasks(L"gameclients"); }
+		[]() { manageTasks(L"gameclients"); },
+		[]() { manageTasks(L"XBLA"); }
 	};
 	if (cb >= 0 && cb < commands.size())
 	{
@@ -704,7 +679,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (HIWORD(wParam) == CBN_SELCHANGE)
 		{
 			cb = SendMessage(reinterpret_cast<HWND>(lParam), CB_GETCURSEL, 0, 0);
-			rarecb = SendMessage(reinterpret_cast<HWND>(lParam), CB_GETCURSEL, 0, 0);
 		}
 		switch (LOWORD(wParam))
 		{
@@ -713,9 +687,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case 2:
 			handleCommand(cb, true);
-			break;
-		case 3:
-			manageTasks(L"XBLA");
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
