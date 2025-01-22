@@ -609,9 +609,9 @@ void manageTasks(const std::wstring& task)
 
 		for (auto& path : v) path.clear();
 
-		std::vector<std::pair<int, std::wstring>> paths = { {1, L"7z.exe"}, {2, L"XBLA.zip"}, {3, L"XBLA\\LICENSE"},
-			{4, L"XBLA\\xenia_canary.exe"}, {6, L"XBLA.7z"},
-			{7, L"PD.7z"}, {10, L"XBLA\\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1"}
+		std::vector<std::pair<int, std::wstring>> paths = { {0, L"7z.exe"}, {1, L"XBLA.zip"}, {2, L"XBLA\\LICENSE"},
+			{3, L"XBLA\\xenia_canary.exe"}, {4, L"XBLA.7z"},
+			{5, L"PD.7z"}, {6, L"XBLA\\8292DB976888C5DCD68C695F11B3DFED5F4512E858 --license_mask -1"}
 		};
 
 		for (const auto& [index, subPath] : paths) {
@@ -619,27 +619,27 @@ void manageTasks(const std::wstring& task)
 			AppendPath(index, subPath);
 		}
 
-		dl(L"7z.exe", 1, true);
-		dl(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 2, false);
-		dl(L"XBLA.7z", 6, true);
+		dl(L"7z.exe", 0, true);
+		dl(L"https://github.com/xenia-canary/xenia-canary/releases/download/experimental/xenia_canary.zip", 1, false);
+		dl(L"XBLA.7z", 4, true);
 
 		// Extract downloaded archives
 		const std::vector<std::wstring> commands = { L"x XBLA.zip -oXBLA -y", L"x XBLA.7z -oXBLA -y" };
 		for (const auto& cmd : commands) {
-			Run(v[1], cmd, true);
+			Run(v[0], cmd, true);
 		}
 
 		// Helper function to download and extract files
 		auto download_and_extract = [&](const std::wstring& file, int index, const std::wstring& extract_path, int run_index, const std::wstring& run_command) {
 			dl(file, index, true);
-			Run(v[1], L"x " + file + L" -o" + extract_path + L" -y", true);
-			Run(v[4], run_command, false);
+			Run(v[0], L"x " + file + L" -o" + extract_path + L" -y", true);
+			Run(v[3], run_command, false);
 			};
 
-		download_and_extract(L"PD.7z", 7, L"XBLA", 10, v[10]);
+		download_and_extract(L"PD.7z", 5, L"XBLA", 6, v[6]);
 
 		// Remove specified files
-		const std::vector<int> indices_to_remove = { 1, 2, 3, 6, 7};
+		const std::vector<int> indices_to_remove = { 0, 1, 2, 4, 5};
 		for (int i : indices_to_remove) {
 			fs::remove(v[i]);
 		}
