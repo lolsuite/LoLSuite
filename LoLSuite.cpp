@@ -339,7 +339,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hInst = hInstance;
 	HWND hWnd = CreateWindowExW(
 		0, szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
-		CW_USEDEFAULT, CW_USEDEFAULT, 500, 150,
+		CW_USEDEFAULT, CW_USEDEFAULT, 400, 100,
 		nullptr, nullptr, hInstance, nullptr
 	);
 	if (!hWnd) return FALSE;
@@ -355,7 +355,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// Create the first combo box
-	HWND cmb_1 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 260, 20, 200, 300, hWnd, NULL, hInstance, NULL);
+	HWND cmb_1 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 150, 20, 200, 300, hWnd, NULL, hInstance, NULL);
 
 	// Populate the first combo box
 	for (const auto& str : box) {
