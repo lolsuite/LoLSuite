@@ -55,12 +55,11 @@ public:
 	}
 };
 
-const wchar_t* box[9] = {
+const wchar_t* box[8] = {
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
 	L"Minecraft : Java",
-	L"Mesen2",
 	L"Arcade",
 	L"PC Optimizer",
 	L"Game Desktop Clients",
@@ -479,33 +478,6 @@ void manageTasks(const std::wstring& task)
 
 		fs::remove(v[0]);
 	}
-	else if (task == L"mesen")
-	{
-
-		for (int i : {0, 1, 2}) v[i].clear();
-		std::vector<std::pair<int, std::wstring>> paths = {
-			{0, L"7z.exe"},
-			{1, L"Mesen.zip"},
-			{2, L"Mesen\\Mesen.exe"}
-		};
-		for (const auto& [index, subPath] : paths)
-		{
-			AppendPath(index, currentPath);
-			AppendPath(index, subPath);
-		}
-		executeCommands({
-			L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
-			L"winget source update",
-			L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h",
-			L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements"
-			});
-		dl(L"7z.exe", 0, true);
-		dl(L"https://nightly.link/SourMesen/Mesen2/workflows/build/master/Mesen%20%28Windows%20-%20net8.0%29.zip", 1, false);
-		fs::remove_all(L"Mesen");
-		Run(v[0], L"x Mesen.zip -oMesen -y", true);
-		for (int i : {0, 1})fs::remove(v[i]);
-		Run(v[2], L"", false);
-	}
 	else if (task == L"support")
 	{
 
@@ -675,7 +647,6 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageGame(L"dota2", flag); },
 		[flag]() { manageGame(L"smite2", flag); },
 		[]() { manageTasks(L"JDK"); },
-		[]() { manageTasks(L"mesen"); },
 		[]() { manageTasks(L"mame"); },
 		[]() { manageTasks(L"support"); },
 		[]() { manageTasks(L"gameclients"); },
