@@ -381,6 +381,7 @@ void manageTasks(const std::wstring& task)
 
 
 		executeCommands({
+	L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
 	L"winget source update",
 	L"winget uninstall Mojang.MinecraftLauncher --purge -h",
 	L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
@@ -426,6 +427,7 @@ void manageTasks(const std::wstring& task)
 
 		if (ProccessIs64Bit()) {
 			Commands = {
+				L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
 				L"winget source update",
 				L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
 				L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
@@ -440,6 +442,7 @@ void manageTasks(const std::wstring& task)
 		}
 		else {
 			Commands = {
+				L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
 				L"winget source update",
 				L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
 				L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
@@ -491,6 +494,7 @@ void manageTasks(const std::wstring& task)
 			AppendPath(index, subPath);
 		}
 		executeCommands({
+			L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
 			L"winget source update",
 			L"winget uninstall Microsoft.DotNet.DesktopRuntime.8 --purge -h",
 			L"winget install Microsoft.DotNet.DesktopRuntime.8 --accept-package-agreements"
@@ -572,7 +576,9 @@ void manageTasks(const std::wstring& task)
 		fs::remove_all(v[82]);
 
 		executeCommands({
-			L"powercfg /hibernate off", L"winget source update",
+			L"powercfg /hibernate off",
+			L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+			L"winget source update",
 			L"winget uninstall Microsoft.PCManager --purge -h", L"winget uninstall Microsoft.WindowsTerminal --purge -h",
 			L"winget uninstall Microsoft.PowerShell --purge -h", L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
 			L"winget uninstall 9NQPSL29BFFF --purge -h", L"winget uninstall 9PB0TRCNRHFX --purge -h",
@@ -647,6 +653,7 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"gameclients")
 	{
 		executeCommands({
+	L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
 	L"winget source update",
 	L"winget uninstall Valve.Steam --purge -h",
 	L"winget uninstall ElectronicArts.EADesktop --purge -h",
