@@ -55,15 +55,14 @@ public:
 	}
 };
 
-const wchar_t* box[8] = {
+const wchar_t* box[6] = {
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
 	L"Minecraft : Java",
-	L"Arcade",
 	L"PC Optimizer",
-	L"Game Desktop Clients",
-	L"Perfect Dark [TU3]"};
+	L"Game Desktop Clients"
+};
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
@@ -403,81 +402,6 @@ void manageTasks(const std::wstring& task)
 			0);
 
 	}
-	else if (task == L"mame")
-	{
-
-		for (auto& path : v) path.clear();
-
-		std::vector<std::pair<int, std::wstring>> paths = {
-			{0, L"7z.exe"},
-			{1, L"HBMAME.7z"},
-			{2, L"MAME.exe"},
-			{3, L"FBNeo.zip"},
-			{4, L"FBNeo_support.7z"}
-		};
-
-		for (const auto& [index, subPath] : paths) {
-			AppendPath(index, currentPath);
-			AppendPath(index, subPath);
-		}
-
-		std::vector<std::tuple<std::wstring, int, bool>> downloads;
-		std::vector<std::wstring> Commands;
-
-		if (ProccessIs64Bit()) {
-			Commands = {
-				L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
-				L"winget source update",
-				L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
-				L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
-			};
-
-			downloads = {
-				{L"7z.exe", 0, true},
-				{L"https://hbmame.1emulation.com/hbmameui21.7z", 1, false},
-				{L"https://github.com/mamedev/mame/releases/download/mame0273/mame0273b_64bit.exe", 2, false},
-				{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x64.zip", 3, false}
-			};
-		}
-		else {
-			Commands = {
-				L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
-				L"winget source update",
-				L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
-				L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
-			};
-
-			downloads = {
-				{L"7z.exe", 0, true},
-				{L"https://github.com/finalburnneo/FBNeo/releases/download/latest/Windows.x32.zip", 3, false}
-			};
-		}
-
-		for (const auto& [url, index, flag] : downloads) {
-			dl(url, index, flag);
-		}
-		executeCommands(Commands);
-
-		fs::remove_all(L"HBMAME");
-		fs::remove_all(L"MAME");
-		fs::remove_all(L"FBNeo");
-		dl(L"support.7z", 4, true);
-
-		for (const auto& cmd : {
-			L"x HBMAME.7z -oHBMAME -y",
-			L"x MAME.exe -oMAME -y",
-			L"x FBNeo.zip -oFBNeo -y",
-			L"x FBNeo_support.7z -oFBNeo\\support -y"
-			}) {
-			Run(v[0], cmd, true);
-		}
-
-		for (int i : {0, 1, 2, 3, 4}) {
-			fs::remove(v[i]);
-		}
-
-		fs::remove(v[0]);
-	}
 	else if (task == L"support")
 	{
 
@@ -647,10 +571,8 @@ void handleCommand(int cb, bool flag)
 		[flag]() { manageGame(L"dota2", flag); },
 		[flag]() { manageGame(L"smite2", flag); },
 		[]() { manageTasks(L"JDK"); },
-		[]() { manageTasks(L"mame"); },
 		[]() { manageTasks(L"support"); },
-		[]() { manageTasks(L"gameclients"); },
-		[]() { manageTasks(L"XBLA"); }
+		[]() { manageTasks(L"gameclients"); }
 	};
 	if (cb >= 0 && cb < commands.size())
 	{
