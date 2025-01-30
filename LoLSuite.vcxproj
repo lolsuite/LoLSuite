@@ -25,7 +25,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <VCToolsVersion>14.43.34618</VCToolsVersion>
+    <VCToolsVersion>14.43.34808</VCToolsVersion>
     <EnableUnitySupport>false</EnableUnitySupport>
     <PreferredToolArchitecture>x86</PreferredToolArchitecture>
     <SpectreMitigation>Spectre</SpectreMitigation>
