@@ -9,8 +9,6 @@
 #include <ShObjIdl_core.h>
 #include "resource.h"
 
-typedef BOOL(WINAPI* LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
-
 namespace fs = std::filesystem;
 int cb = 0;
 WCHAR szFolderPath[MAX_PATH + 1];
