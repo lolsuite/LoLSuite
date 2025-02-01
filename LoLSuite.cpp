@@ -162,6 +162,36 @@ void Term(const std::wstring& process_name)
 	}
 	CloseHandle(snapshot);
 }
+static bool ProccessIs64Bit() {
+	BOOL isWow64 = FALSE;
+	HMODULE hModule = GetModuleHandle(TEXT("kernel32"));
+	if (!hModule) {
+		return false;
+	}
+
+	USHORT processMachine = 0;
+	USHORT nativeMachine = 0;
+
+	auto fnIsWow64Process2 = reinterpret_cast<decltype(&IsWow64Process2)>(
+		GetProcAddress(hModule, "IsWow64Process2"));
+
+	if (fnIsWow64Process2) {
+		if (!fnIsWow64Process2(GetCurrentProcess(), &processMachine, &nativeMachine)) {
+			return false;
+		}
+		return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
+	}
+	else {
+		using LPFN_ISWOW64PROCESS = BOOL(WINAPI*)(HANDLE, PBOOL);
+		LPFN_ISWOW64PROCESS fnIsWow64Process = reinterpret_cast<LPFN_ISWOW64PROCESS>(
+			GetProcAddress(hModule, "IsWow64Process"));
+
+		if (fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(), &isWow64)) {
+			return isWow64;
+		}
+		return false;
+	}
+}
 void unblock(const std::wstring& file)
 {
 	fs::remove(file + L":Zone.Identifier");
@@ -171,56 +201,6 @@ void dl(const std::wstring& url, int j, bool serv)
 	std::wstring Url = serv ? L"https://lolsuite.org/files/" + url : url;
 	URLDownloadToFile(nullptr, Url.c_str(), v[j].c_str(), 0, nullptr);
 	unblock(v[j]);
-}
-bool ProccessIs64Bit()
-{
-	BOOL bIsWow64 = FALSE;
-
-	// Get a handle to the DLL that contains the IsWow64Process and IsWow64Process2 functions
-	HMODULE hModule = GetModuleHandle(TEXT("kernel32"));
-	if (hModule == NULL) {
-		// Handle error if the module handle is not retrieved
-		return false;
-	}
-
-	// Variable to store the machine type of the process
-	USHORT processMachine = 0;
-	// Variable to store the native machine type
-	USHORT nativeMachine = 0;
-
-	// Get a pointer to the IsWow64Process2 function
-	auto fnIsWow64Process2 = reinterpret_cast<decltype(&IsWow64Process2)>(
-		GetProcAddress(hModule, "IsWow64Process2"));
-
-	// If the function is not available, use the old definition
-	if (!fnIsWow64Process2) {
-		// Get a pointer to the IsWow64Process function
-		LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(hModule, "IsWow64Process");
-
-		// If the function is available, call it
-		if (fnIsWow64Process != NULL) {
-			// Call IsWow64Process to check if the process is running under WOW64
-			if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64)) {
-				// Handle error if the function call fails
-				return false; // Return false in case of error
-			}
-			// Return the result of IsWow64Process
-			return bIsWow64;
-		}
-		else {
-			// Handle error if both functions are not available
-			return false;
-		}
-	}
-	else {
-		// Call IsWow64Process2 if available
-		if (!fnIsWow64Process2(GetCurrentProcess(), &processMachine, &nativeMachine)) {
-			// Handle error if the function call fails
-			return false;
-		}
-		// Return true if the process is running under WOW64
-		return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
-	}
 }
 
 auto executeCommands = [](const std::vector<std::wstring>& commands)
