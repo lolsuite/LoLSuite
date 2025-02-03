@@ -258,7 +258,7 @@ void manageGame(const std::wstring& game, bool restore)
 			dl(L"tbb.dll", 55, true); // Multi-Threaded
 		}
 
-		const std::wstring d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" : (ProccessIs64Bit() ? L"6/D3DCompiler_47.dll" : L"D3DCompiler_47.dll");
+		const std::wstring d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" : (ProccessIs64Bit() ? L"D3DCompiler_47.dll_x64" : L"D3DCompiler_47.dll");
 		dl(d3dcompilerPath.c_str(), 53, true);
 		dl(d3dcompilerPath.c_str(), 54, true);
 
@@ -273,7 +273,7 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(1, 0, L"embree3.dll");
 
 		unblock(JoinPath(0, L"dota2.exe"));
-		dl(restore ? L"r/dota2/embree3.dll" : L"6/embree4.dll", 1, true);
+		dl(restore ? L"r/dota2/embree3.dll" : L"embree4.dll", 1, true);
 
 		Run(L"steam://rungameid/570//-high/", L"", false);
 	}
