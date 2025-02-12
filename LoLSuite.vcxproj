@@ -25,7 +25,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <VCToolsVersion>14.43.34808</VCToolsVersion>
+    <VCToolsVersion>14.44.34823</VCToolsVersion>
     <EnableUnitySupport>false</EnableUnitySupport>
     <PreferredToolArchitecture>x86</PreferredToolArchitecture>
     <SpectreMitigation>Spectre</SpectreMitigation>
@@ -59,7 +59,6 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <UseStructuredOutput>false</UseStructuredOutput>
-    <OutDir>C:\Users\mobas\OneDrive\Documents\GitHub\LoLSuite\Release\</OutDir>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

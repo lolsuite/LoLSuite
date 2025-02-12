@@ -1,14 +1,14 @@
 #define UNICODE
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "resource.h"
 #include <functional>
-#include <shellapi.h>
-#include <TlHelp32.h>
-#include <vector>
 #include <filesystem>
 #include <ShObjIdl_core.h>
-#include "resource.h"
+#include <TlHelp32.h>
+#include <vector>
 
+#include <shellapi.h>
+#include <windows.h>
 namespace fs = std::filesystem;
 int cb = 0;
 WCHAR szFolderPath[MAX_PATH + 1];
@@ -120,25 +120,25 @@ void CombinePath(const int destIndex, const int srcIndex, const std::wstring& ad
 	v[destIndex] = JoinPath(srcIndex, add);
 }
 
-
-void Run(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait)
+void Start(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait)
 {
-	SHELLEXECUTEINFO sEInfo = {};
-	sEInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	sEInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-	sEInfo.nShow = SW_SHOWNORMAL;
-	sEInfo.lpFile = lpFile.c_str();
-	sEInfo.lpParameters = lpParameters.c_str();
-	if (!ShellExecuteEx(&sEInfo))
+	SHELLEXECUTEINFO info = {};
+	info.cbSize = sizeof(SHELLEXECUTEINFO);
+	info.fMask = SEE_MASK_NOCLOSEPROCESS;
+	info.nShow = SW_SHOWNORMAL;
+	info.lpFile = lpFile.c_str();
+	info.lpParameters = lpParameters.c_str();
+	if (!ShellExecuteEx(&info))
 	{
 		return;
 	}
-	if (wait && sEInfo.hProcess != nullptr)
+	if (wait && info.hProcess != nullptr)
 	{
-		WaitForSingleObject(sEInfo.hProcess, INFINITE);
-		CloseHandle(sEInfo.hProcess);
+		WaitForSingleObject(info.hProcess, INFINITE);
+		CloseHandle(info.hProcess);
 	}
 }
+
 void Term(const std::wstring& process_name)
 {
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -262,7 +262,7 @@ void manageGame(const std::wstring& game, bool restore)
 		dl(d3dcompilerPath.c_str(), 53, true);
 		dl(d3dcompilerPath.c_str(), 54, true);
 
-		Run(JoinPath(56, L"Riot Client.exe"), L"", false);
+		Start(JoinPath(56, L"Riot Client.exe"), L"", false);
 	}
 	else if (game == L"dota2") {
 		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps", L"LoLSuite", MB_OK, 0);
@@ -275,7 +275,7 @@ void manageGame(const std::wstring& game, bool restore)
 		unblock(JoinPath(0, L"dota2.exe"));
 		dl(restore ? L"r/dota2/embree3.dll" : L"embree4.dll", 1, true);
 
-		Run(L"steam://rungameid/570//-high/", L"", false);
+		Start(L"steam://rungameid/570//-high/", L"", false);
 	}
 	else if (game == L"smite2") {
 		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps", L"LoLSuite", MB_OK, 0);
@@ -304,7 +304,7 @@ void manageGame(const std::wstring& game, bool restore)
 
 
 
-		Run(L"steam://rungameid/2437170", L"", false);
+		Start(L"steam://rungameid/2437170", L"", false);
 		exit(0);
 	}
 }
@@ -446,7 +446,7 @@ void manageTasks(const std::wstring& task)
 		if (ProccessIs64Bit()) download_files(dxx64_cab);
 		download_files(dxsetup_files);
 
-		Run(v[3], L"/silent", true);
+		Start(v[3], L"/silent", true);
 		fs::remove_all(v[82]);
 
 		executeCommands({
