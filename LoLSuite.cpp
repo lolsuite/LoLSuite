@@ -451,6 +451,7 @@ void manageTasks(const std::wstring& task)
 
 		executeCommands({
 			L"powercfg /hibernate off",
+			L"wsreset.exe",
 			L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
 			L"winget source update",
 			L"winget uninstall Microsoft.PCManager --purge -h", L"winget uninstall Microsoft.WindowsTerminal --purge -h",
