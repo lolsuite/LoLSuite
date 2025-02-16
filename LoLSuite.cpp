@@ -284,14 +284,11 @@ void manageGame(const std::wstring& game, bool restore)
 		CombinePath(7, 0, L"common\\SMITE 2\\Windows\\Hemingway\\Binaries\\Win64");
 		AppendPath(0, L"common\\SMITE 2\\Windows\\Engine\\Binaries\\Win64");
 
-
-
 		CombinePath(1, 0, L"tbb.dll");
 		dl(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 1, true);
 
 		CombinePath(2, 0, L"tbbmalloc.dll");
 		dl(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 2, true);
-
 
 		CombinePath(4, 7, L"tbb.dll");
 		CombinePath(5, 7, L"tbb12.dll");
@@ -299,9 +296,6 @@ void manageGame(const std::wstring& game, bool restore)
 		dl(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 4, true);
 		dl(restore ? L"r/smite2/tbb12.dll" : L"tbb.dll", 5, true);
 		dl(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 6, true);
-
-
-
 
 		Start(L"steam://rungameid/2437170", L"", false);
 		exit(0);
@@ -353,7 +347,6 @@ void manageTasks(const std::wstring& task)
 		for (const auto& process : processes) {
 			Term(process);
 		}
-
 
 		executeCommands({
 	L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
