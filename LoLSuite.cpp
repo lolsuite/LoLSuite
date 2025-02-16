@@ -6,9 +6,9 @@
 #include <ShObjIdl_core.h>
 #include <TlHelp32.h>
 #include <vector>
-
 #include <shellapi.h>
 #include <windows.h>
+
 namespace fs = std::filesystem;
 int cb = 0;
 WCHAR szFolderPath[MAX_PATH + 1];
@@ -18,7 +18,6 @@ std::vector<std::wstring> v(158);
 HINSTANCE hInst;
 WCHAR szTitle[MAX_LOADSTRING];
 WCHAR szWindowClass[MAX_LOADSTRING];
-
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
