@@ -59,10 +59,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <UseStructuredOutput>false</UseStructuredOutput>
-    <GenerateManifest>false</GenerateManifest>
+    <GenerateManifest>true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <GenerateManifest>false</GenerateManifest>
+    <GenerateManifest>true</GenerateManifest>
     <UseStructuredOutput>false</UseStructuredOutput>
     <OutDir>C:\Users\mobas\OneDrive\Documents\GitHub\LoLSuite\Release\</OutDir>
   </PropertyGroup>
@@ -113,7 +113,8 @@
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <EnableUAC>true</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -162,7 +163,7 @@
       <AllowIsolation>false</AllowIsolation>
       <LargeAddressAware>true</LargeAddressAware>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <EnableUAC>false</EnableUAC>
+      <EnableUAC>true</EnableUAC>
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
       <OutputFile>$(OutDir)$(TargetName)_intel_x64$(TargetExt)</OutputFile>
