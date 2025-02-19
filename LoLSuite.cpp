@@ -378,7 +378,7 @@ void manageTasks(const std::wstring& task)
 		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"DXSETUP.exe" };
 		for (const auto& process : processes) Term(process);
 
-		const std::vector<std::wstring> dxx86_cab = {
+		const std::vector<std::wstring> dx9 = {
 			L"Apr2005_d3dx9_25_x86.cab", L"Apr2006_d3dx9_30_x86.cab", L"Apr2006_MDX1_x86.cab", L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_XACT_x86.cab",
 			L"Apr2006_xinput_x86.cab", L"APR2007_d3dx9_33_x86.cab", L"APR2007_d3dx10_33_x86.cab", L"APR2007_XACT_x86.cab", L"APR2007_xinput_x86.cab",
 			L"Aug2005_d3dx9_27_x86.cab", L"AUG2006_XACT_x86.cab", L"AUG2006_xinput_x86.cab", L"AUG2007_d3dx9_35_x86.cab", L"AUG2007_d3dx10_35_x86.cab",
@@ -394,10 +394,7 @@ void manageTasks(const std::wstring& task)
 			L"Mar2008_X3DAudio_x86.cab", L"Mar2008_XACT_x86.cab", L"Mar2008_XAudio_x86.cab", L"Mar2009_d3dx9_41_x86.cab", L"Mar2009_d3dx10_41_x86.cab",
 			L"Mar2009_X3DAudio_x86.cab", L"Mar2009_XACT_x86.cab", L"Mar2009_XAudio_x86.cab", L"Nov2007_d3dx9_36_x86.cab", L"Nov2007_d3dx10_36_x86.cab",
 			L"NOV2007_X3DAudio_x86.cab", L"NOV2007_XACT_x86.cab", L"Nov2008_d3dx9_40_x86.cab", L"Nov2008_d3dx10_40_x86.cab", L"Nov2008_X3DAudio_x86.cab",
-			L"Nov2008_XACT_x86.cab", L"Nov2008_XAudio_x86.cab", L"Oct2005_xinput_x86.cab", L"OCT2006_d3dx9_31_x86.cab", L"OCT2006_XACT_x86.cab"
-		};
-
-		const std::vector<std::wstring> dxx64_cab = {
+			L"Nov2008_XACT_x86.cab", L"Nov2008_XAudio_x86.cab", L"Oct2005_xinput_x86.cab", L"OCT2006_d3dx9_31_x86.cab", L"OCT2006_XACT_x86.cab",
 			L"Apr2005_d3dx9_25_x64.cab", L"Apr2006_d3dx9_30_x64.cab", L"Apr2006_XACT_x64.cab", L"Apr2006_xinput_x64.cab",
 			L"APR2007_d3dx9_33_x64.cab", L"APR2007_d3dx10_33_x64.cab", L"APR2007_XACT_x64.cab", L"APR2007_xinput_x64.cab",
 			L"Aug2005_d3dx9_27_x64.cab", L"AUG2006_XACT_x64.cab", L"AUG2006_xinput_x64.cab", L"AUG2007_d3dx9_35_x64.cab",
@@ -416,10 +413,7 @@ void manageTasks(const std::wstring& task)
 			L"Mar2009_X3DAudio_x64.cab", L"Mar2009_XACT_x64.cab", L"Mar2009_XAudio_x64.cab", L"Nov2007_d3dx9_36_x64.cab",
 			L"Nov2007_d3dx10_36_x64.cab", L"NOV2007_X3DAudio_x64.cab", L"NOV2007_XACT_x64.cab", L"Nov2008_d3dx9_40_x64.cab",
 			L"Nov2008_d3dx10_40_x64.cab", L"Nov2008_X3DAudio_x64.cab", L"Nov2008_XACT_x64.cab", L"Nov2008_XAudio_x64.cab",
-			L"Oct2005_xinput_x64.cab", L"OCT2006_d3dx9_31_x64.cab", L"OCT2006_XACT_x64.cab"
-		};
-
-		const std::vector<std::wstring> dxsetup_files = { L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab" };
+			L"Oct2005_xinput_x64.cab", L"OCT2006_d3dx9_31_x64.cab", L"OCT2006_XACT_x64.cab", L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab" };
 
 		v[82].clear();
 		AppendPath(82, currentPath);
@@ -434,9 +428,7 @@ void manageTasks(const std::wstring& task)
 			}
 			};
 
-		download_files(dxx86_cab);
-		if (ProccessIs64Bit()) download_files(dxx64_cab);
-		download_files(dxsetup_files);
+		download_files(dx9);
 
 		Start(v[3], L"/silent", true);
 		fs::remove_all(v[82]);
@@ -453,9 +445,6 @@ void manageTasks(const std::wstring& task)
 			L"winget uninstall 9MVZQVXJBQ9V --purge -h", L"winget uninstall 9PMMSR1CGPWG --purge -h",
 			L"winget uninstall 9N4D0MSMP0PT --purge -h", L"winget uninstall 9PG2DK419DRG --purge -h",
 			L"winget uninstall 9N5TDP8VCMHS --purge -h", L"winget uninstall 9PCSD6N03BKV --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
@@ -466,13 +455,22 @@ void manageTasks(const std::wstring& task)
 			L"winget install 9PMMSR1CGPWG --accept-package-agreements", L"winget install 9N4D0MSMP0PT --accept-package-agreements",
 			L"winget install 9PG2DK419DRG --accept-package-agreements", L"winget install 9PB0TRCNRHFX --accept-package-agreements",
 			L"winget install 9N5TDP8VCMHS --accept-package-agreements", L"winget install 9PCSD6N03BKV --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
 			});
+
+		if (ProccessIs64Bit)
+		{
+			executeCommands({
+			L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
+			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
+			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
+			});
+		}
 	}
 	else if (task == L"gameclients")
 	{
