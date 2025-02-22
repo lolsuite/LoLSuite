@@ -264,11 +264,11 @@ void manageGame(const std::wstring& game, bool restore)
 		Start(JoinPath(56, L"Riot Client.exe"), L"", false);
 	}
 	else if (game == L"dota2") {
-		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps", L"LoLSuite", MB_OK, 0);
+		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"dota2.exe");
 
-		AppendPath(0, L"common\\dota 2 beta\\game\\bin\\win64");
+		AppendPath(0, L"game\\bin\\win64");
 		CombinePath(1, 0, L"embree3.dll");
 
 		unblock(JoinPath(0, L"dota2.exe"));
@@ -277,17 +277,18 @@ void manageGame(const std::wstring& game, bool restore)
 		Start(L"steam://rungameid/570//-high/", L"", false);
 	}
 	else if (game == L"smite2") {
-		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps", L"LoLSuite", MB_OK, 0);
+		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"Hemingway.exe");
 		Term(L"Hemingway-Win64-Shipping.exe");
-		CombinePath(7, 0, L"common\\SMITE 2\\Windows\\Hemingway\\Binaries\\Win64");
-		AppendPath(0, L"common\\SMITE 2\\Windows\\Engine\\Binaries\\Win64");
+		
+		CombinePath(8, 0, L"Windows\\Engine\\Binaries\\Win64");
+		CombinePath(7, 0, L"Windows\\Hemingway\\Binaries\\Win64");
 
-		CombinePath(1, 0, L"tbb.dll");
+		CombinePath(1, 8, L"tbb.dll");
 		dl(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 1, true);
 
-		CombinePath(2, 0, L"tbbmalloc.dll");
+		CombinePath(2, 8, L"tbbmalloc.dll");
 		dl(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 2, true);
 
 		CombinePath(4, 7, L"tbb.dll");
