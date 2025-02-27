@@ -453,7 +453,7 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 
-		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe" };
+		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe"};
 		for (const auto& process : processes) Term(process);
 
 		ExecutePowerShellCommands();
@@ -680,6 +680,7 @@ int APIENTRY wWinMain(
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
 
+	Term(L"winget.exe");
 	executeCommands({ L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe", L"winget source update" });
 
 	// Main message loop
