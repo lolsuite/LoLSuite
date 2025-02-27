@@ -362,7 +362,6 @@ void ExecutePowerShellCommands()
 		L"Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\iconcache_*.db\" -Force",
 		L"Remove-Item -Path \"C:\\Windows\\SoftwareDistribution\\*\" -Recurse -Force",
 		L"Remove-Item -Path \"C:\\Windows\\System32\\catroot2\\*\" -Recurse -Force",
-		L"Start-Process explorer",
 		L"Start-Service -Name wuauserv",
 		L"Start-Service -Name bits",
 		L"Start-Service -Name cryptsvc",
@@ -379,7 +378,7 @@ void manageTasks(const std::wstring& task)
 
 	if (task == L"JDK")
 	{
-		const std::vector<std::wstring> processes = { L"Minecraft.exe", L"javaw.exe", L"Minecraft.Windows.exe" };
+		const std::vector<std::wstring> processes = { L"Minecraft.exe", L"javaw.exe", L"java.exe" L"Minecraft.Windows.exe"};
 
 		for (const auto& process : processes) {
 			Term(process);
@@ -410,7 +409,7 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 
-		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"DXSETUP.exe", L"explorer.exe"};
+		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe"};
 		for (const auto& process : processes) Term(process);
 
 		ExecutePowerShellCommands();
