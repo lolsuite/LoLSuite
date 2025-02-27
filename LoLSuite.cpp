@@ -279,7 +279,7 @@ void manageGame(const std::wstring& game, bool restore)
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"Hemingway.exe");
 		Term(L"Hemingway-Win64-Shipping.exe");
-		
+
 		CombinePath(8, 0, L"Windows\\Engine\\Binaries\\Win64");
 		CombinePath(7, 0, L"Windows\\Hemingway\\Binaries\\Win64");
 
@@ -422,7 +422,7 @@ void manageTasks(const std::wstring& task)
 
 	if (task == L"JDK")
 	{
-		const std::vector<std::wstring> processes = { L"Minecraft.exe", L"javaw.exe", L"java.exe", L"Minecraft.Windows.exe"};
+		const std::vector<std::wstring> processes = { L"Minecraft.exe", L"javaw.exe", L"java.exe", L"Minecraft.Windows.exe" };
 
 		for (const auto& process : processes) {
 			Term(process);
@@ -453,11 +453,11 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 
-		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe"};
+		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe" };
 		for (const auto& process : processes) Term(process);
 
 		ExecutePowerShellCommands();
-		
+
 
 		executeCommands({
 			L"powercfg /hibernate off",
@@ -495,7 +495,7 @@ void manageTasks(const std::wstring& task)
 			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
-			});
+				});
 		}
 
 		const std::vector<std::wstring> dxx86_cab = {
@@ -564,17 +564,17 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"gameclients")
 	{
 		executeCommands({
-		// Uninstall commands
-		L"winget uninstall Valve.Steam --purge -h",
-		L"winget uninstall ElectronicArts.EADesktop --purge -h",
-		L"winget uninstall ElectronicArts.Origin --purge -h",
-		L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
-		L"winget uninstall Blizzard.BattleNet --purge -h",
-		// Install commands
-		L"winget install Valve.Steam --accept-package-agreements",
-		L"winget install ElectronicArts.EADesktop --accept-package-agreements",
-		L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
-		L"winget install Blizzard.BattleNet --accept-package-agreements"
+			// Uninstall commands
+			L"winget uninstall Valve.Steam --purge -h",
+			L"winget uninstall ElectronicArts.EADesktop --purge -h",
+			L"winget uninstall ElectronicArts.Origin --purge -h",
+			L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
+			L"winget uninstall Blizzard.BattleNet --purge -h",
+			// Install commands
+			L"winget install Valve.Steam --accept-package-agreements",
+			L"winget install ElectronicArts.EADesktop --accept-package-agreements",
+			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
+			L"winget install Blizzard.BattleNet --accept-package-agreements"
 			});
 	}
 }
@@ -680,7 +680,7 @@ int APIENTRY wWinMain(
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
 
-	executeCommands({L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe", L"winget source update"});
+	executeCommands({ L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe", L"winget source update" });
 
 	// Main message loop
 	while (GetMessageW(&msg, nullptr, 0, 0))
