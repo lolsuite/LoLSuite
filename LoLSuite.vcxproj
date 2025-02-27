@@ -107,7 +107,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <MinimumRequiredVersion>10.00</MinimumRequiredVersion>
-      <AdditionalDependencies>urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>urlmon.lib;Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LargeAddressAware>true</LargeAddressAware>
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
