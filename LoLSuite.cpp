@@ -63,44 +63,41 @@ const wchar_t* box[6] = {
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
-	for (auto& path : v) path.clear();
+	v[0].clear();
 	IFileDialog* pfd = nullptr;
 	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
-	if (FAILED(hr)) return hr;
+	if (FAILED(hr)) {
+		return hr;
+	}
+
 	DWORD dwOptions;
 	hr = pfd->GetOptions(&dwOptions);
-	if (FAILED(hr))
-	{
-		pfd->Release();
-		return hr;
+	if (SUCCEEDED(hr)) {
+		hr = pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
 	}
-	hr = pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
-	if (FAILED(hr))
-	{
-		pfd->Release();
-		return hr;
+
+	if (SUCCEEDED(hr)) {
+		hr = pfd->Show(hwndOwner);
 	}
-	hr = pfd->Show(hwndOwner);
-	if (FAILED(hr))
-	{
-		pfd->Release();
-		return hr;
-	}
-	IShellItem* psi = nullptr;
-	hr = pfd->GetResult(&psi);
-	if (SUCCEEDED(hr))
-	{
-		PWSTR pszPath = nullptr;
-		hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
-		if (SUCCEEDED(hr))
-		{
-			wcsncpy_s(pszFolderPath, cchFolderPath, pszPath, _TRUNCATE);
-			CoTaskMemFree(pszPath);
+
+	if (SUCCEEDED(hr)) {
+		IShellItem* psi = nullptr;
+		hr = pfd->GetResult(&psi);
+		if (SUCCEEDED(hr)) {
+			PWSTR pszPath = nullptr;
+			hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
+			if (SUCCEEDED(hr)) {
+				wcsncpy_s(pszFolderPath, cchFolderPath, pszPath, _TRUNCATE);
+				CoTaskMemFree(pszPath);
+			}
+			psi->Release();
 		}
-		psi->Release();
 	}
+
 	pfd->Release();
-	v[0] = szFolderPath;
+	if (SUCCEEDED(hr)) {
+		v[0] = pszFolderPath;
+	}
 	return hr;
 }
 
@@ -142,9 +139,9 @@ void Term(const std::wstring& process_name)
 {
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if (snapshot == INVALID_HANDLE_VALUE) return;
+
 	PROCESSENTRY32 processEntry = { sizeof(PROCESSENTRY32) };
-	for (BOOL hasProcess = Process32First(snapshot, &processEntry); hasProcess; hasProcess = Process32Next(
-		snapshot, &processEntry))
+	for (BOOL hasProcess = Process32First(snapshot, &processEntry); hasProcess; hasProcess = Process32Next(snapshot, &processEntry))
 	{
 		if (wcscmp(processEntry.szExeFile, process_name.c_str()) == 0)
 		{
@@ -325,13 +322,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// Create the first combo box
-	HWND cmb_1 = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 150, 20, 200, 300, hWnd, NULL, hInstance, NULL);
+	HWND combobox = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 150, 20, 200, 300, hWnd, NULL, hInstance, NULL);
 
 	// Populate the first combo box
 	for (const auto& str : box) {
-		SendMessage(cmb_1, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
+		SendMessage(combobox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
 	}
-	SendMessageW(cmb_1, CB_SETCURSEL, 0, 0);
+	SendMessageW(combobox, CB_SETCURSEL, 0, 0);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -350,8 +347,6 @@ void manageTasks(const std::wstring& task)
 		}
 
 		executeCommands({
-	L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
-	L"winget source update",
 	L"winget uninstall Mojang.MinecraftLauncher --purge -h",
 	L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
 	L"winget uninstall Oracle.JDK.23 --purge -h",
@@ -445,8 +440,6 @@ void manageTasks(const std::wstring& task)
 		executeCommands({
 			L"powercfg /hibernate off",
 			L"wsreset.exe",
-			L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
-			L"winget source update",
 			L"winget uninstall Microsoft.PCManager --purge -h", L"winget uninstall Microsoft.WindowsTerminal --purge -h",
 			L"winget uninstall Microsoft.PowerShell --purge -h", L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
 			L"winget uninstall 9NQPSL29BFFF --purge -h", L"winget uninstall 9PB0TRCNRHFX --purge -h",
@@ -484,34 +477,46 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"gameclients")
 	{
 		executeCommands({
-	L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
-	L"winget source update",
-	L"winget uninstall Valve.Steam --purge -h",
-	L"winget uninstall ElectronicArts.EADesktop --purge -h",
-	L"winget uninstall ElectronicArts.Origin --purge -h",
-	L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
-	L"winget uninstall Blizzard.BattleNet --purge -h",
-	L"winget install Valve.Steam --accept-package-agreements",
-	L"winget install ElectronicArts.EADesktop --accept-package-agreements",
-	L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
-	L"winget install Blizzard.BattleNet --accept-package-agreements"
+		// Uninstall commands
+		L"winget uninstall Valve.Steam --purge -h",
+		L"winget uninstall ElectronicArts.EADesktop --purge -h",
+		L"winget uninstall ElectronicArts.Origin --purge -h",
+		L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
+		L"winget uninstall Blizzard.BattleNet --purge -h",
+		// Install commands
+		L"winget install Valve.Steam --accept-package-agreements",
+		L"winget install ElectronicArts.EADesktop --accept-package-agreements",
+		L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
+		L"winget install Blizzard.BattleNet --accept-package-agreements"
 			});
 	}
 }
 
 void handleCommand(int cb, bool flag)
 {
-	std::vector<std::function<void()>> commands = {
-		[flag]() { manageGame(L"leagueoflegends", flag); },
-		[flag]() { manageGame(L"dota2", flag); },
-		[flag]() { manageGame(L"smite2", flag); },
-		[]() { manageTasks(L"JDK"); },
-		[]() { manageTasks(L"support"); },
-		[]() { manageTasks(L"gameclients"); }
-	};
-	if (cb >= 0 && cb < commands.size())
+	switch (cb)
 	{
-		commands[cb]();
+	case 0:
+		manageGame(L"leagueoflegends", flag);
+		break;
+	case 1:
+		manageGame(L"dota2", flag);
+		break;
+	case 2:
+		manageGame(L"smite2", flag);
+		break;
+	case 3:
+		manageTasks(L"JDK");
+		break;
+	case 4:
+		manageTasks(L"support");
+		break;
+	case 5:
+		manageTasks(L"gameclients");
+		break;
+	default:
+		// Handle invalid command index if necessary
+		break;
 	}
 }
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -587,6 +592,8 @@ int APIENTRY wWinMain(
 	// Load the accelerator table
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
+
+	executeCommands({L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe", L"winget source update"});
 
 	// Main message loop
 	while (GetMessageW(&msg, nullptr, 0, 0))
