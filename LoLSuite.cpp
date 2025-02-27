@@ -7,6 +7,7 @@
 #include <TlHelp32.h>
 #include <vector>
 #include <shellapi.h>
+#include <shlobj.h>
 #include <windows.h>
 
 namespace fs = std::filesystem;
@@ -352,22 +353,65 @@ void ExecutePowerShellCommand(const std::wstring& command)
 	}
 }
 
+void DeleteFilesAndDirectories()
+{
+	// Get the local app data path
+	WCHAR localAppDataPath[MAX_PATH];
+	if (FAILED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath)))
+	{
+		return;
+	}
+
+	// Construct the path to the thumbcache and iconcache files
+	fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
+
+	// Iterate through the thumbcache and iconcache files and delete them
+	for (const auto& entry : fs::directory_iterator(explorerPath))
+	{
+		if ((entry.path().filename().wstring().find(L"thumbcache_") == 0 || entry.path().filename().wstring().find(L"iconcache_") == 0) && entry.path().extension() == L".db")
+		{
+			fs::remove(entry.path());
+		}
+	}
+
+	// Define the directories to be cleaned
+	std::vector<std::wstring> directories = {
+		L"C:\\Windows\\SoftwareDistribution",
+		L"C:\\Windows\\System32\\catroot2"
+	};
+
+	// Iterate through the directories and delete their contents
+	for (const auto& directory : directories)
+	{
+		for (const auto& entry : fs::directory_iterator(directory))
+		{
+			fs::remove_all(entry.path());
+		}
+	}
+}
+
 void ExecutePowerShellCommands()
 {
 	std::vector<std::wstring> commands = {
 		L"Stop-Service -Name wuauserv -Force",
 		L"Stop-Service -Name bits -Force",
-		L"Stop-Service -Name cryptsvc -Force",
-		L"Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\thumbcache_*.db\" -Force",
-		L"Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\iconcache_*.db\" -Force",
-		L"Remove-Item -Path \"C:\\Windows\\SoftwareDistribution\\*\" -Recurse -Force",
-		L"Remove-Item -Path \"C:\\Windows\\System32\\catroot2\\*\" -Recurse -Force",
-		L"Start-Service -Name wuauserv",
-		L"Start-Service -Name bits",
-		L"Start-Service -Name cryptsvc",
+		L"Stop-Service -Name cryptsvc -Force"
+	};
+
+	std::vector<std::wstring> commands_start = {
+	L"Start-Service -Name wuauserv",
+	L"Start-Service -Name bits",
+	L"Start-Service -Name cryptsvc"
 	};
 
 	for (const auto& command : commands)
+	{
+		ExecutePowerShellCommand(command);
+	}
+
+	DeleteFilesAndDirectories();
+
+	for (const auto& command : commands_start)
 	{
 		ExecutePowerShellCommand(command);
 	}
@@ -378,7 +422,7 @@ void manageTasks(const std::wstring& task)
 
 	if (task == L"JDK")
 	{
-		const std::vector<std::wstring> processes = { L"Minecraft.exe", L"javaw.exe", L"java.exe" L"Minecraft.Windows.exe"};
+		const std::vector<std::wstring> processes = { L"Minecraft.exe", L"javaw.exe", L"java.exe", L"Minecraft.Windows.exe"};
 
 		for (const auto& process : processes) {
 			Term(process);
@@ -413,6 +457,7 @@ void manageTasks(const std::wstring& task)
 		for (const auto& process : processes) Term(process);
 
 		ExecutePowerShellCommands();
+		
 
 		executeCommands({
 			L"powercfg /hibernate off",
