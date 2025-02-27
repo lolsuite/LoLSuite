@@ -440,6 +440,7 @@ void manageTasks(const std::wstring& task)
 		executeCommands({
 			L"powercfg /hibernate off",
 			L"wsreset.exe",
+			L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
 			L"winget uninstall Microsoft.PCManager --purge -h", L"winget uninstall Microsoft.WindowsTerminal --purge -h",
 			L"winget uninstall Microsoft.PowerShell --purge -h", L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
 			L"winget uninstall 9NQPSL29BFFF --purge -h", L"winget uninstall 9PB0TRCNRHFX --purge -h",
