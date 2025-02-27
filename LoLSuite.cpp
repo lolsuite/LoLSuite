@@ -1,7 +1,6 @@
 #define UNICODE
 #define WIN32_LEAN_AND_MEAN
 #include "resource.h"
-#include <functional>
 #include <filesystem>
 #include <ShObjIdl_core.h>
 #include <TlHelp32.h>
