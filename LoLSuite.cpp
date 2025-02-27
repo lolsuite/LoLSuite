@@ -7,7 +7,7 @@
 #include <TlHelp32.h>
 #include <vector>
 #include <shellapi.h>
-#include <shlobj.h>
+#include <shlobj_core.h>
 #include <windows.h>
 
 namespace fs = std::filesystem;
@@ -198,14 +198,6 @@ void dl(const std::wstring& url, int j, bool serv)
 	unblock(v[j]);
 }
 
-auto executeCommands = [](const std::vector<std::wstring>& commands)
-	{
-		for (const auto& cmd : commands)
-		{
-			_wsystem(cmd.c_str());
-		}
-	};
-
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
@@ -336,7 +328,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-void ExecutePowerShellCommand(const std::wstring& command)
+void InvokePowerShellCommand(const std::wstring& command)
 {
 	std::wstring fullCommand = L"powershell.exe -Command \"" + command + L"\"";
 	SHELLEXECUTEINFO sei = { sizeof(sei) };
@@ -353,10 +345,18 @@ void ExecutePowerShellCommand(const std::wstring& command)
 	}
 }
 
+auto executeCommands = [](const std::vector<std::wstring>& commands)
+	{
+		for (const auto& cmd : commands)
+		{
+			InvokePowerShellCommand(cmd);
+		}
+	};
 
-void ExecutePowerShellCommands()
+
+void Cleanup()
 {
-	std::vector<std::wstring> commands = {
+	std::vector<std::wstring> commands_end = {
 		L"Stop-Service -Name wuauserv -Force",
 		L"Stop-Service -Name bits -Force",
 		L"Stop-Service -Name cryptsvc -Force"
@@ -368,9 +368,9 @@ void ExecutePowerShellCommands()
 	L"Start-Service -Name cryptsvc"
 	};
 
-	for (const auto& command : commands)
+	for (const auto& command : commands_end)
 	{
-		ExecutePowerShellCommand(command);
+		InvokePowerShellCommand(command);
 	}
 
 	// Get the local app data path
@@ -409,7 +409,7 @@ void ExecutePowerShellCommands()
 
 	for (const auto& command : commands_start)
 	{
-		ExecutePowerShellCommand(command);
+		InvokePowerShellCommand(command);
 	}
 }
 
@@ -449,10 +449,10 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 
-		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe"};
+		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe" };
 		for (const auto& process : processes) Term(process);
 
-		ExecutePowerShellCommands();
+		Cleanup();
 
 
 		executeCommands({
