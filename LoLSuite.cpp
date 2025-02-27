@@ -8,6 +8,7 @@
 #include <shellapi.h>
 #include <shlobj_core.h>
 #include <windows.h>
+#include <wininet.h>
 
 namespace fs = std::filesystem;
 int cb = 0;
@@ -193,6 +194,7 @@ void unblock(const std::wstring& file)
 void dl(const std::wstring& url, int j, bool serv)
 {
 	std::wstring Url = serv ? L"https://lolsuite.org/files/" + url : url;
+	DeleteUrlCacheEntry(Url.c_str());
 	URLDownloadToFile(nullptr, Url.c_str(), v[j].c_str(), 0, nullptr);
 	unblock(v[j]);
 }
