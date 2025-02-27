@@ -385,7 +385,9 @@ void Cleanup()
 	// Iterate through the thumbcache and iconcache files and delete them
 	for (const auto& entry : fs::directory_iterator(explorerPath))
 	{
-		if ((entry.path().filename().wstring().find(L"thumbcache_") == 0 || entry.path().filename().wstring().find(L"iconcache_") == 0) && entry.path().extension() == L".db")
+		const auto& filename = entry.path().filename().wstring();
+		if ((filename.find(L"thumbcache_") == 0 || filename.find(L"iconcache_") == 0) && entry.path().extension() == L".db" ||
+			filename == L"ExplorerStartupLog.etl" || filename == L"ExplorerStartupLog_RunOnce.etl" || filename == L"RecommendationsFilterList.json")
 		{
 			fs::remove(entry.path());
 		}
