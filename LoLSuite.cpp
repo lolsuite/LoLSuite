@@ -353,8 +353,26 @@ void ExecutePowerShellCommand(const std::wstring& command)
 	}
 }
 
-void DeleteFilesAndDirectories()
+
+void ExecutePowerShellCommands()
 {
+	std::vector<std::wstring> commands = {
+		L"Stop-Service -Name wuauserv -Force",
+		L"Stop-Service -Name bits -Force",
+		L"Stop-Service -Name cryptsvc -Force"
+	};
+
+	std::vector<std::wstring> commands_start = {
+	L"Start-Service -Name wuauserv",
+	L"Start-Service -Name bits",
+	L"Start-Service -Name cryptsvc"
+	};
+
+	for (const auto& command : commands)
+	{
+		ExecutePowerShellCommand(command);
+	}
+
 	// Get the local app data path
 	WCHAR localAppDataPath[MAX_PATH];
 	if (FAILED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath)))
@@ -388,28 +406,6 @@ void DeleteFilesAndDirectories()
 			fs::remove_all(entry.path());
 		}
 	}
-}
-
-void ExecutePowerShellCommands()
-{
-	std::vector<std::wstring> commands = {
-		L"Stop-Service -Name wuauserv -Force",
-		L"Stop-Service -Name bits -Force",
-		L"Stop-Service -Name cryptsvc -Force"
-	};
-
-	std::vector<std::wstring> commands_start = {
-	L"Start-Service -Name wuauserv",
-	L"Start-Service -Name bits",
-	L"Start-Service -Name cryptsvc"
-	};
-
-	for (const auto& command : commands)
-	{
-		ExecutePowerShellCommand(command);
-	}
-
-	DeleteFilesAndDirectories();
 
 	for (const auto& command : commands_start)
 	{
