@@ -394,6 +394,15 @@ void Cleanup()
 		}
 	}
 
+	for (const auto& entry : fs::recursive_directory_iterator(L"C:\\", fs::directory_options::skip_permission_denied))
+	{
+		if (entry.is_regular_file() && entry.path().filename() == L"Thumbs.db")
+		{
+			fs::remove(entry.path());
+		}
+	}
+
+
 	// Define the directories to be cleaned
 	std::vector<std::wstring> directories = {
 		L"C:\\Windows\\SoftwareDistribution",
