@@ -369,50 +369,16 @@ void Pre()
 		InvokePowerShellCommand(command);
 	}
 
-	WCHAR tempPath[MAX_PATH];
-	if (GetTempPath2(MAX_PATH, tempPath) != 0)
-	{
-		for (const auto& entry : fs::directory_iterator(tempPath))
-		{
-			fs::remove_all(entry.path());
-		}
-	}
+	std::vector<std::wstring> directories = {
+		L"C:\\Windows\\SoftwareDistribution",
+		L"C:\\Windows\\System32\\catroot2",
+		L"C:\\Windows\\Prefetch",
+		L"C:\\Windows\\Temp",
+	};
 
-	WCHAR localTempPath[MAX_PATH];
-	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localTempPath)))
+	for (const auto& directory : directories)
 	{
-		fs::path tempDir = fs::path(localTempPath) / L"Temp";
-		for (const auto& entry : fs::directory_iterator(tempDir))
-		{
-			fs::remove_all(entry.path());
-		}
-	}
-
-	WCHAR WindowsPath[MAX_PATH];
-	if (GetWindowsDirectoryW(WindowsPath, MAX_PATH) != 0)
-	{
-		fs::path prefetchDir = fs::path(WindowsPath) / L"Prefetch";
-		fs::path sfDir = fs::path(WindowsPath) / L"SoftwareDistribution";
-		fs::path tempDir = fs::path(WindowsPath) / L"Temp";
-		for (const auto& entry : fs::directory_iterator(sfDir))
-		{
-			fs::remove_all(entry.path());
-		}
-		for (const auto& entry : fs::directory_iterator(tempDir))
-		{
-			fs::remove_all(entry.path());
-		}
-		for (const auto& entry : fs::directory_iterator(prefetchDir))
-		{
-			fs::remove_all(entry.path());
-		}
-	}
-
-	WCHAR system32Path[MAX_PATH];
-	if (GetSystemDirectoryW(system32Path, MAX_PATH) != 0)
-	{
-		fs::path catroot2Dir = fs::path(system32Path) / L"catroot2";
-		for (const auto& entry : fs::directory_iterator(catroot2Dir))
+		for (const auto& entry : fs::directory_iterator(directory))
 		{
 			fs::remove_all(entry.path());
 		}
@@ -425,7 +391,9 @@ void Pre()
 	}
 
 	fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
+	fs::path tempPath = fs::path(localAppDataPath) / L"Temp";
 
+	// Delete specific files in the Explorer directory
 	for (const auto& entry : fs::directory_iterator(explorerPath))
 	{
 		const auto& filename = entry.path().filename().wstring();
@@ -434,6 +402,9 @@ void Pre()
 			fs::remove(entry.path());
 		}
 	}
+
+	// Force delete the Temp directory
+	fs::remove_all(tempPath);
 
 	for (const auto& command : commands_start)
 	{
