@@ -350,9 +350,8 @@ auto executeCommands = [](const std::vector<std::wstring>& commands)
 		}
 	};
 
-void Cleanup()
+void Pre()
 {
-
 	std::vector<std::wstring> commands_end = {
 		L"Stop-Service -Name wuauserv -Force",
 		L"Stop-Service -Name bits -Force",
@@ -370,6 +369,55 @@ void Cleanup()
 		InvokePowerShellCommand(command);
 	}
 
+	WCHAR tempPath[MAX_PATH];
+	if (GetTempPath2(MAX_PATH, tempPath) != 0)
+	{
+		for (const auto& entry : fs::directory_iterator(tempPath))
+		{
+			fs::remove_all(entry.path());
+		}
+	}
+
+	WCHAR localTempPath[MAX_PATH];
+	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localTempPath)))
+	{
+		fs::path tempDir = fs::path(localTempPath) / L"Temp";
+		for (const auto& entry : fs::directory_iterator(tempDir))
+		{
+			fs::remove_all(entry.path());
+		}
+	}
+
+	WCHAR WindowsPath[MAX_PATH];
+	if (GetWindowsDirectoryW(WindowsPath, MAX_PATH) != 0)
+	{
+		fs::path prefetchDir = fs::path(WindowsPath) / L"Prefetch";
+		fs::path sfDir = fs::path(WindowsPath) / L"SoftwareDistribution";
+		fs::path tempDir = fs::path(WindowsPath) / L"Temp";
+		for (const auto& entry : fs::directory_iterator(sfDir))
+		{
+			fs::remove_all(entry.path());
+		}
+		for (const auto& entry : fs::directory_iterator(tempDir))
+		{
+			fs::remove_all(entry.path());
+		}
+		for (const auto& entry : fs::directory_iterator(prefetchDir))
+		{
+			fs::remove_all(entry.path());
+		}
+	}
+
+	WCHAR system32Path[MAX_PATH];
+	if (GetSystemDirectoryW(system32Path, MAX_PATH) != 0)
+	{
+		fs::path catroot2Dir = fs::path(system32Path) / L"catroot2";
+		for (const auto& entry : fs::directory_iterator(catroot2Dir))
+		{
+			fs::remove_all(entry.path());
+		}
+	}
+
 	WCHAR localAppDataPath[MAX_PATH];
 	if (FAILED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath)))
 	{
@@ -384,19 +432,6 @@ void Cleanup()
 		if ((filename.find(L"thumbcache_") == 0 || filename.find(L"iconcache_") == 0) && entry.path().extension() == L".db" || (filename.find(L"ExplorerStartupLog") == 0) && entry.path().extension() == L".etl" || filename == L"RecommendationsFilterList.json")
 		{
 			fs::remove(entry.path());
-		}
-	}
-
-	std::vector<std::wstring> directories = {
-		L"C:\\Windows\\SoftwareDistribution",
-		L"C:\\Windows\\System32\\catroot2"
-	};
-
-	for (const auto& directory : directories)
-	{
-		for (const auto& entry : fs::directory_iterator(directory))
-		{
-			fs::remove_all(entry.path());
 		}
 	}
 
@@ -442,10 +477,16 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 
-		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe"};
+		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe" };
 		for (const auto& process : processes) Term(process);
 
+		Pre();
+
 		executeCommands({
+			L"powercfg /hibernate off",
+			L"wsreset.exe",
+			L"Clear-DnsClientCache",
+			L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
 			L"winget uninstall Valve.Steam --purge -h",
 			L"winget uninstall ElectronicArts.EADesktop --purge -h",
 			L"winget uninstall ElectronicArts.Origin --purge -h",
@@ -454,18 +495,7 @@ void manageTasks(const std::wstring& task)
 			L"winget install Valve.Steam --accept-package-agreements",
 			L"winget install ElectronicArts.EADesktop --accept-package-agreements",
 			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
-			L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements"
-			});
-	}
-
-		Cleanup();
-
-
-		executeCommands({
-			L"powercfg /hibernate off",
-			L"wsreset.exe",
-			L"Clear-DnsClientCache",
-			L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
+			L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements",
 			L"winget uninstall Microsoft.PCManager --purge -h", L"winget uninstall Microsoft.WindowsTerminal --purge -h", L"winget uninstall Microsoft.DirectX --purge -h",
 			L"winget uninstall Microsoft.PowerShell --purge -h", L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
 			L"winget uninstall 9NQPSL29BFFF --purge -h", L"winget uninstall 9PB0TRCNRHFX --purge -h",
@@ -486,20 +516,14 @@ void manageTasks(const std::wstring& task)
 			L"winget install 9N5TDP8VCMHS --accept-package-agreements", L"winget install 9PCSD6N03BKV --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements"
-			});
-
-		if (ProccessIs64Bit)
-		{
-			executeCommands({
+			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
 			L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
 			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
-				});
-		}
+			});
 
 		const std::vector<std::wstring> dxx86_cab = {
 			L"Apr2005_d3dx9_25_x86.cab", L"Apr2006_d3dx9_30_x86.cab", L"Apr2006_MDX1_x86.cab", L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_XACT_x86.cab",
@@ -563,6 +587,8 @@ void manageTasks(const std::wstring& task)
 
 		Start(v[3], L"/silent", true);
 		fs::remove_all(v[82]);
+		MessageBoxEx(nullptr, L"You can Restart your PC now", L"LoLSuite", MB_OK, 0);
+	}
 }
 
 void handleCommand(int cb, bool flag)
