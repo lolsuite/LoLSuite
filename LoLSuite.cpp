@@ -350,68 +350,6 @@ auto executeCommands = [](const std::vector<std::wstring>& commands)
 		}
 	};
 
-void Pre()
-{
-	std::vector<std::wstring> commands_end = {
-		L"Stop-Service -Name wuauserv -Force",
-		L"Stop-Service -Name bits -Force",
-		L"Stop-Service -Name cryptsvc -Force"
-	};
-
-	std::vector<std::wstring> commands_start = {
-		L"Start-Service -Name wuauserv",
-		L"Start-Service -Name bits",
-		L"Start-Service -Name cryptsvc"
-	};
-
-	for (const auto& command : commands_end)
-	{
-		InvokePowerShellCommand(command);
-	}
-
-	std::vector<std::wstring> directories = {
-		L"C:\\Windows\\SoftwareDistribution",
-		L"C:\\Windows\\System32\\catroot2",
-		L"C:\\Windows\\Prefetch",
-		L"C:\\Windows\\Temp",
-	};
-
-	for (const auto& directory : directories)
-	{
-		for (const auto& entry : fs::directory_iterator(directory))
-		{
-			fs::remove_all(entry.path());
-		}
-	}
-
-	WCHAR localAppDataPath[MAX_PATH];
-	if (FAILED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath)))
-	{
-		return;
-	}
-
-	fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
-	fs::path tempPath = fs::path(localAppDataPath) / L"Temp";
-
-	// Delete specific files in the Explorer directory
-	for (const auto& entry : fs::directory_iterator(explorerPath))
-	{
-		const auto& filename = entry.path().filename().wstring();
-		if ((filename.find(L"thumbcache_") == 0 || filename.find(L"iconcache_") == 0) && entry.path().extension() == L".db" || (filename.find(L"ExplorerStartupLog") == 0) && entry.path().extension() == L".etl" || filename == L"RecommendationsFilterList.json")
-		{
-			fs::remove(entry.path());
-		}
-	}
-
-	// Force delete the Temp directory
-	fs::remove_all(tempPath);
-
-	for (const auto& command : commands_start)
-	{
-		InvokePowerShellCommand(command);
-	}
-}
-
 void manageTasks(const std::wstring& task)
 {
 
@@ -451,7 +389,60 @@ void manageTasks(const std::wstring& task)
 		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe" };
 		for (const auto& process : processes) Term(process);
 
-		Pre();
+		std::vector<std::wstring> commands_end = {
+		L"Stop-Service -Name wuauserv -Force",
+		L"Stop-Service -Name bits -Force",
+		L"Stop-Service -Name cryptsvc -Force"
+		};
+
+		std::vector<std::wstring> commands_start = {
+			L"Start-Service -Name wuauserv",
+			L"Start-Service -Name bits",
+			L"Start-Service -Name cryptsvc"
+		};
+
+		for (const auto& command : commands_end)
+		{
+			InvokePowerShellCommand(command);
+		}
+
+		std::vector<std::wstring> directories = {
+			L"C:\\Windows\\SoftwareDistribution",
+			L"C:\\Windows\\System32\\catroot2",
+			L"C:\\Windows\\Prefetch",
+			L"C:\\Windows\\Temp"
+		};
+
+		for (const auto& directory : directories)
+		{
+			for (const auto& entry : fs::directory_iterator(directory))
+			{
+				fs::remove_all(entry.path());
+			}
+		}
+
+		WCHAR localAppDataPath[MAX_PATH];
+		if (FAILED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath)))
+		{
+			return;
+		}
+
+		fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
+
+		// Delete specific files in the Explorer directory
+		for (const auto& entry : fs::directory_iterator(explorerPath))
+		{
+			const auto& filename = entry.path().filename().wstring();
+			if ((filename.find(L"thumbcache_") == 0 || filename.find(L"iconcache_") == 0) && entry.path().extension() == L".db" || (filename.find(L"ExplorerStartupLog") == 0) && entry.path().extension() == L".etl" || filename == L"RecommendationsFilterList.json")
+			{
+				fs::remove(entry.path());
+			}
+		}
+
+		for (const auto& command : commands_start)
+		{
+			InvokePowerShellCommand(command);
+		}
 
 		executeCommands({
 			L"powercfg /hibernate off",
