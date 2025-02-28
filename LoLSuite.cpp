@@ -354,21 +354,8 @@ auto executeCommands = [](const std::vector<std::wstring>& commands)
 		}
 	};
 
-void DeleteThumbsDbFiles(const std::wstring& path)
-{
-	for (const auto& entry : fs::recursive_directory_iterator(path, fs::directory_options::skip_permission_denied))
-	{
-		if (entry.is_regular_file() && entry.path().filename() == L"Thumbs.db")
-		{
-			fs::remove(entry.path());
-		}
-	}
-}
-
 void Cleanup()
 {
-
-	DeleteThumbsDbFiles(L"C:\\");
 
 	std::vector<std::wstring> commands_end = {
 		L"Stop-Service -Name wuauserv -Force",
