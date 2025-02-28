@@ -408,9 +408,7 @@ void manageTasks(const std::wstring& task)
 
 		std::vector<std::wstring> directories = {
 			L"C:\\Windows\\SoftwareDistribution",
-			L"C:\\Windows\\System32\\catroot2",
-			L"C:\\Windows\\Prefetch",
-			L"C:\\Windows\\Temp"
+			L"C:\\Windows\\System32\\catroot2"
 		};
 
 		for (const auto& directory : directories)
