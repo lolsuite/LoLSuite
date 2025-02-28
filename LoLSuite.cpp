@@ -364,9 +364,9 @@ void Cleanup()
 	};
 
 	std::vector<std::wstring> commands_start = {
-	L"Start-Service -Name wuauserv",
-	L"Start-Service -Name bits",
-	L"Start-Service -Name cryptsvc"
+		L"Start-Service -Name wuauserv",
+		L"Start-Service -Name bits",
+		L"Start-Service -Name cryptsvc"
 	};
 
 	for (const auto& command : commands_end)
