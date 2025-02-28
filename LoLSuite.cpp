@@ -476,6 +476,7 @@ void manageTasks(const std::wstring& task)
 			L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
+			L"winget uninstall Microsoft.Edge --purge -h", L"winget install Microsoft.Edge --accept-package-agreements",
 			L"winget install Microsoft.WindowsTerminal --accept-package-agreements", L"winget install Microsoft.PowerShell --accept-package-agreements",
 			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement", L"winget install Microsoft.PCManager --accept-package-agreement",
 			L"winget install 9NQPSL29BFFF --accept-package-agreements", L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
