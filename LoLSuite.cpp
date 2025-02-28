@@ -58,7 +58,7 @@ const wchar_t* box[5] = {
 	L"Dota 2",
 	L"SMITE 2",
 	L"Minecraft : Java",
-	L"Gamer Mode + Clients"
+	L"PC Cleaner"
 };
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
