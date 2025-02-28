@@ -53,13 +53,12 @@ public:
 	}
 };
 
-const wchar_t* box[6] = {
+const wchar_t* box[5] = {
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
 	L"Minecraft : Java",
-	L"PC Optimizer",
-	L"Game Desktop Clients"
+	L"Gamer Mode + Clients"
 };
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -245,7 +244,7 @@ void manageGame(const std::wstring& game, bool restore)
 			fs::remove(v[55]);
 		}
 		else {
-			dl(L"tbb.dll", 55, true); // Multi-Threaded
+			dl(L"tbb.dll", 55, true);
 		}
 
 		const std::wstring d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" : (ProccessIs64Bit() ? L"D3DCompiler_47.dll_x64" : L"D3DCompiler_47.dll");
@@ -294,7 +293,6 @@ void manageGame(const std::wstring& game, bool restore)
 	}
 }
 
-
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance;
@@ -315,10 +313,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 			return FALSE;
 	}
 
-	// Create the first combo box
 	HWND combobox = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 150, 20, 200, 300, hWnd, NULL, hInstance, NULL);
 
-	// Populate the first combo box
 	for (const auto& str : box) {
 		SendMessage(combobox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
 	}
@@ -374,17 +370,14 @@ void Cleanup()
 		InvokePowerShellCommand(command);
 	}
 
-	// Get the local app data path
 	WCHAR localAppDataPath[MAX_PATH];
 	if (FAILED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath)))
 	{
 		return;
 	}
 
-	// Construct the path to the thumbcache and iconcache files
 	fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
 
-	// Iterate through the thumbcache and iconcache files and delete them
 	for (const auto& entry : fs::directory_iterator(explorerPath))
 	{
 		const auto& filename = entry.path().filename().wstring();
@@ -394,13 +387,11 @@ void Cleanup()
 		}
 	}
 
-	// Define the directories to be cleaned
 	std::vector<std::wstring> directories = {
 		L"C:\\Windows\\SoftwareDistribution",
 		L"C:\\Windows\\System32\\catroot2"
 	};
 
-	// Iterate through the directories and delete their contents
 	for (const auto& directory : directories)
 	{
 		for (const auto& entry : fs::directory_iterator(directory))
@@ -451,8 +442,21 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 
-		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe" };
+		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
 		for (const auto& process : processes) Term(process);
+
+		executeCommands({
+			L"winget uninstall Valve.Steam --purge -h",
+			L"winget uninstall ElectronicArts.EADesktop --purge -h",
+			L"winget uninstall ElectronicArts.Origin --purge -h",
+			L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
+			L"winget uninstall Blizzard.BattleNet --purge -h",
+			L"winget install Valve.Steam --accept-package-agreements",
+			L"winget install ElectronicArts.EADesktop --accept-package-agreements",
+			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
+			L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements"
+			});
+	}
 
 		Cleanup();
 
@@ -558,23 +562,6 @@ void manageTasks(const std::wstring& task)
 
 		Start(v[3], L"/silent", true);
 		fs::remove_all(v[82]);
-	}
-	else if (task == L"gameclients")
-	{
-		executeCommands({
-			// Uninstall commands
-			L"winget uninstall Valve.Steam --purge -h",
-			L"winget uninstall ElectronicArts.EADesktop --purge -h",
-			L"winget uninstall ElectronicArts.Origin --purge -h",
-			L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
-			L"winget uninstall Blizzard.BattleNet --purge -h",
-			// Install commands
-			L"winget install Valve.Steam --accept-package-agreements",
-			L"winget install ElectronicArts.EADesktop --accept-package-agreements",
-			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
-			L"winget install Blizzard.BattleNet --accept-package-agreements"
-			});
-	}
 }
 
 void handleCommand(int cb, bool flag)
@@ -596,11 +583,7 @@ void handleCommand(int cb, bool flag)
 	case 4:
 		manageTasks(L"support");
 		break;
-	case 5:
-		manageTasks(L"gameclients");
-		break;
 	default:
-		// Handle invalid command index if necessary
 		break;
 	}
 }
@@ -644,7 +627,6 @@ int APIENTRY wWinMain(
 	_In_ int nShowCmd
 )
 {
-	// Ensure only one instance of the application is running
 	LimitSingleInstance GUID(L"Global\\{L0LSU1T3-BYL0LSU1T3@G17HUB-V3RYR4ND0M4NDR4R3MUCHW0W}");
 	if (LimitSingleInstance::AnotherInstanceRunning())
 		return 0;
@@ -652,11 +634,9 @@ int APIENTRY wWinMain(
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	// Load application title and window class name
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadStringW(hInstance, IDC_BUFFER, szWindowClass, MAX_LOADSTRING);
 
-	// Register the window class
 	WNDCLASSEXW wcex = {};
 	wcex.cbSize = sizeof(WNDCLASSEXW);
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -670,18 +650,15 @@ int APIENTRY wWinMain(
 	wcex.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON));
 	RegisterClassExW(&wcex);
 
-	// Initialize the application instance
 	if (!InitInstance(hInstance, nShowCmd))
 		return FALSE;
 
-	// Load the accelerator table
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
 
 	Term(L"winget.exe");
 	executeCommands({ L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe", L"winget source update" });
 
-	// Main message loop
 	while (GetMessageW(&msg, nullptr, 0, 0))
 	{
 		if (!TranslateAcceleratorW(msg.hwnd, hAccelTable, &msg))
