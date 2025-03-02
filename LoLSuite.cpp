@@ -58,7 +58,7 @@ const wchar_t* box[5] = {
 	L"Dota 2",
 	L"SMITE 2",
 	L"Minecraft : Java",
-	L"DirectX Unblocked"
+	L"DirectX9"
 };
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -201,7 +201,7 @@ void dl(const std::wstring& url, int j, bool serv)
 void manageGame(const std::wstring& game, bool restore)
 {
 	if (game == L"leagueoflegends") {
-		MessageBoxEx(nullptr, L"Select Folder: C:\\Riot Games", L"LoLSuite", MB_OK, 0);
+		MessageBoxEx(nullptr, L"Select: C:\\Riot Games", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 
 		const std::vector<std::wstring> processes = {
@@ -254,7 +254,7 @@ void manageGame(const std::wstring& game, bool restore)
 		Start(JoinPath(56, L"Riot Client.exe"), L"", false);
 	}
 	else if (game == L"dota2") {
-		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta", L"LoLSuite", MB_OK, 0);
+		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"dota2.exe");
 
@@ -267,7 +267,7 @@ void manageGame(const std::wstring& game, bool restore)
 		Start(L"steam://rungameid/570//-high/", L"", false);
 	}
 	else if (game == L"smite2") {
-		MessageBoxEx(nullptr, L"Select Folder: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2", L"LoLSuite", MB_OK, 0);
+		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"Hemingway.exe");
 		Term(L"Hemingway-Win64-Shipping.exe");
@@ -628,6 +628,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+bool IsWingetInstalled()
+{
+	std::wstring command = L"powershell.exe -Command \"Get-AppxPackage -Name Microsoft.DesktopAppInstaller\"";
+	SHELLEXECUTEINFO sei = { sizeof(sei) };
+	sei.lpVerb = L"open";
+	sei.lpFile = L"powershell.exe";
+	sei.lpParameters = command.c_str();
+	sei.nShow = SW_HIDE;
+	sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NO_CONSOLE;
+
+	if (ShellExecuteEx(&sei))
+	{
+		DWORD waitResult = WaitForSingleObject(sei.hProcess, INFINITE);
+		if (waitResult == WAIT_OBJECT_0)
+		{
+			DWORD exitCode;
+			if (GetExitCodeProcess(sei.hProcess, &exitCode) && exitCode == 0)
+			{
+				CloseHandle(sei.hProcess);
+				return true;
+			}
+		}
+		CloseHandle(sei.hProcess);
+	}
+	return false;
+}
+
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -663,9 +690,22 @@ int APIENTRY wWinMain(
 
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
+	if (!IsWingetInstalled())
+	{
+		executeCommands({
+			L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
+			L"winget source update"
+			});
+	}
+	executeCommands({
+				L"winget source update"
+		});
 
-	Term(L"winget.exe");
-	executeCommands({ L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe", L"winget source update" });
+	// URL to open
+	const wchar_t* url = L"https://lolsuite.org";
+
+	// Open the URL in the default web browser
+	ShellExecute(0, L"open", url, 0, 0, SW_SHOWNORMAL);
 
 	while (GetMessageW(&msg, nullptr, 0, 0))
 	{
