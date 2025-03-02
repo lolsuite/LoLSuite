@@ -701,11 +701,7 @@ int APIENTRY wWinMain(
 				L"winget source update"
 		});
 
-	// URL to open
-	const wchar_t* url = L"https://lolsuite.org";
-
-	// Open the URL in the default web browser
-	ShellExecute(0, L"open", url, 0, 0, SW_SHOWNORMAL);
+	ShellExecute(0, L"open", L"https://lolsuite.org", 0, 0, SW_SHOWNORMAL);
 
 	while (GetMessageW(&msg, nullptr, 0, 0))
 	{
