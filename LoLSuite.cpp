@@ -405,16 +405,20 @@ void manageTasks(const std::wstring& task)
 		{
 			InvokePowerShellCommand(command);
 		}
+		WCHAR windowsDir[MAX_PATH];
+		WCHAR systemDir[MAX_PATH];
+
+		if (GetWindowsDirectory(windowsDir, MAX_PATH) == 0 || GetSystemDirectory(systemDir, MAX_PATH) == 0) {
+			return;
+		}
 
 		std::vector<std::wstring> directories = {
-			L"C:\\Windows\\SoftwareDistribution",
-			L"C:\\Windows\\System32\\catroot2"
+			std::wstring(windowsDir) + L"\\SoftwareDistribution",
+			std::wstring(systemDir) + L"\\catroot2"
 		};
 
-		for (const auto& directory : directories)
-		{
-			for (const auto& entry : fs::directory_iterator(directory))
-			{
+		for (const auto& directory : directories) {
+			for (const auto& entry : fs::directory_iterator(directory)) {
 				fs::remove_all(entry.path());
 			}
 		}
