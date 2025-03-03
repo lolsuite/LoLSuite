@@ -340,12 +340,7 @@ void InvokePowerShellCommand(const std::wstring& command)
 
 	if (ShellExecuteEx(&sei))
 	{
-		DWORD waitResult = WaitForSingleObject(sei.hProcess, INFINITE);
-		if (waitResult == WAIT_FAILED)
-		{
-			// Handle the error
-			DWORD error = GetLastError();
-		}
+		WaitForSingleObject(sei.hProcess, INFINITE);
 		CloseHandle(sei.hProcess);
 	}
 }
@@ -422,11 +417,7 @@ void manageTasks(const std::wstring& task)
 		}
 
 		std::wstring windir(MAX_PATH + 1, L'\0');
-		if (GetWindowsDirectoryW(&windir[0], MAX_PATH + 1) == 0) {
-			// Handle the error
-			DWORD error = GetLastError();
-			return;
-		}
+		GetWindowsDirectoryW(&windir[0], MAX_PATH + 1);
 		windir.resize(wcslen(windir.c_str()));
 
 		std::wstring system32dir(MAX_PATH + 1, L'\0');
