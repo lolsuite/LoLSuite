@@ -386,7 +386,7 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 
-		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe" L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe" };
+		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe", L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe" };
 		for (const auto& process : processes) Term(process);
 
 		std::vector<std::wstring> commands_end = {
