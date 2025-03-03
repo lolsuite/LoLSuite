@@ -297,14 +297,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance;
 	HWND hWnd = CreateWindowExW(
-		0, szWindowClass, szTitle, WS_EX_LAYERED & ~WS_MAXIMIZEBOX,
+		0, szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
 		CW_USEDEFAULT, CW_USEDEFAULT, 400, 100,
 		nullptr, nullptr, hInstance, nullptr
 	);
-
-	if (hWnd == NULL) {
-		return FALSE;
-	}
+	if (!hWnd) return FALSE;
 
 	std::vector<std::tuple<DWORD, LPCWSTR, LPCWSTR, DWORD, int, int, int, int, HMENU>> controls = {
 		{WS_EX_TOOLWINDOW, L"BUTTON", L"Patch", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 20, 60, 30, reinterpret_cast<HMENU>(1)},
@@ -353,13 +350,6 @@ auto executeCommands = [](const std::vector<std::wstring>& commands)
 		}
 	};
 
-std::wstring getDirectoryPath(UINT folderId) {
-	std::wstring path(MAX_PATH + 1, L'\0');
-	SHGetFolderPathW(NULL, folderId, NULL, 0, &path[0]);
-	path.resize(wcslen(path.c_str()));
-	return path;
-}
-
 void manageTasks(const std::wstring& task)
 {
 
@@ -372,17 +362,17 @@ void manageTasks(const std::wstring& task)
 		}
 
 		executeCommands({
-			L"winget uninstall Mojang.MinecraftLauncher --purge -h",
-			L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
-			L"winget uninstall Oracle.JDK.23 --purge -h",
-			L"winget uninstall Oracle.JDK.22 --purge -h",
-			L"winget uninstall Oracle.JDK.21 --purge -h",
-			L"winget uninstall Oracle.JDK.20 --purge -h",
-			L"winget uninstall Oracle.JDK.19 --purge -h",
-			L"winget uninstall Oracle.JDK.18 --purge -h",
-			L"winget uninstall Oracle.JDK.17 --purge -h",
-			L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
-			L"winget install Oracle.JDK.23 --accept-package-agreements"
+	L"winget uninstall Mojang.MinecraftLauncher --purge -h",
+	L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
+	L"winget uninstall Oracle.JDK.23 --purge -h",
+	L"winget uninstall Oracle.JDK.22 --purge -h",
+	L"winget uninstall Oracle.JDK.21 --purge -h",
+	L"winget uninstall Oracle.JDK.20 --purge -h",
+	L"winget uninstall Oracle.JDK.19 --purge -h",
+	L"winget uninstall Oracle.JDK.18 --purge -h",
+	L"winget uninstall Oracle.JDK.17 --purge -h",
+	L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
+	L"winget install Oracle.JDK.23 --accept-package-agreements"
 			});
 
 		MessageBoxEx(
@@ -400,9 +390,9 @@ void manageTasks(const std::wstring& task)
 		for (const auto& process : processes) Term(process);
 
 		std::vector<std::wstring> commands_end = {
-			L"Stop-Service -Name wuauserv -Force",
-			L"Stop-Service -Name bits -Force",
-			L"Stop-Service -Name cryptsvc -Force"
+		L"Stop-Service -Name wuauserv -Force",
+		L"Stop-Service -Name bits -Force",
+		L"Stop-Service -Name cryptsvc -Force"
 		};
 
 		std::vector<std::wstring> commands_start = {
@@ -416,32 +406,34 @@ void manageTasks(const std::wstring& task)
 			InvokePowerShellCommand(command);
 		}
 
-		std::wstring windir(MAX_PATH + 1, L'\0');
-		GetWindowsDirectoryW(&windir[0], MAX_PATH + 1);
-		windir.resize(wcslen(windir.c_str()));
-
-		std::wstring system32dir(MAX_PATH + 1, L'\0');
-		GetSystemDirectoryW(&system32dir[0], MAX_PATH + 1);
-		system32dir.resize(wcslen(system32dir.c_str()));
-
 		std::vector<std::wstring> directories = {
-			windir + L"\\SoftwareDistribution",
-			windir + L"\\Temp",
-			system32dir + L"\\catroot2",
-			getDirectoryPath(CSIDL_LOCAL_APPDATA) + L"\\Microsoft\\Windows\\Explorer"
+			L"C:\\Windows\\SoftwareDistribution",
+			L"C:\\Windows\\System32\\catroot2"
 		};
 
-		for (const auto& directory : directories) {
-			for (const auto& entry : fs::directory_iterator(directory)) {
-				const auto& filename = entry.path().filename().wstring();
-				if ((filename.find(L"thumbcache_") == 0 || filename.find(L"iconcache_") == 0) && entry.path().extension() == L".db" ||
-					(filename.find(L"ExplorerStartupLog") == 0) && entry.path().extension() == L".etl" ||
-					filename == L"RecommendationsFilterList.json") {
-					fs::remove(entry.path());
-				}
-				else {
-					fs::remove_all(entry.path());
-				}
+		for (const auto& directory : directories)
+		{
+			for (const auto& entry : fs::directory_iterator(directory))
+			{
+				fs::remove_all(entry.path());
+			}
+		}
+
+		WCHAR localAppDataPath[MAX_PATH];
+		if (FAILED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath)))
+		{
+			return;
+		}
+
+		fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
+
+		// Delete specific files in the Explorer directory
+		for (const auto& entry : fs::directory_iterator(explorerPath))
+		{
+			const auto& filename = entry.path().filename().wstring();
+			if ((filename.find(L"thumbcache_") == 0 || filename.find(L"iconcache_") == 0) && entry.path().extension() == L".db" || (filename.find(L"ExplorerStartupLog") == 0) && entry.path().extension() == L".etl" || filename == L"RecommendationsFilterList.json")
+			{
+				fs::remove(entry.path());
 			}
 		}
 
@@ -589,25 +581,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		if (HIWORD(wParam) == CBN_SELCHANGE)
 		{
-			HWND hComboBox = reinterpret_cast<HWND>(lParam);
-			cb = SendMessage(hComboBox, CB_GETCURSEL, 0, 0);
+			cb = SendMessage(reinterpret_cast<HWND>(lParam), CB_GETCURSEL, 0, 0);
 		}
-		else
+		switch (LOWORD(wParam))
 		{
-			switch (LOWORD(wParam))
-			{
-			case 1:
-				handleCommand(cb, false);
-				break;
-			case 2:
-				handleCommand(cb, true);
-				break;
-			case IDM_EXIT:
-				DestroyWindow(hWnd);
-				break;
-			default:
-				return DefWindowProcW(hWnd, message, wParam, lParam);
-			}
+		case 1:
+			handleCommand(cb, false);
+			break;
+		case 2:
+			handleCommand(cb, true);
+			break;
+		case IDM_EXIT:
+			DestroyWindow(hWnd);
+			break;
+		default:
+			return DefWindowProcW(hWnd, message, wParam, lParam);
 		}
 		break;
 	case WM_DESTROY:
