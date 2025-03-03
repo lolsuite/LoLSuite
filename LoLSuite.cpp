@@ -619,33 +619,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-bool IsWingetInstalled()
-{
-	std::wstring command = L"powershell.exe -Command \"Get-AppxPackage -Name Microsoft.DesktopAppInstaller\"";
-	SHELLEXECUTEINFO sei = { sizeof(sei) };
-	sei.lpVerb = L"open";
-	sei.lpFile = L"powershell.exe";
-	sei.lpParameters = command.c_str();
-	sei.nShow = SW_HIDE;
-	sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NO_CONSOLE;
-
-	if (ShellExecuteEx(&sei))
-	{
-		DWORD waitResult = WaitForSingleObject(sei.hProcess, INFINITE);
-		if (waitResult == WAIT_OBJECT_0)
-		{
-			DWORD exitCode;
-			if (GetExitCodeProcess(sei.hProcess, &exitCode) && exitCode == 0)
-			{
-				CloseHandle(sei.hProcess);
-				return true;
-			}
-		}
-		CloseHandle(sei.hProcess);
-	}
-	return false;
-}
-
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -681,14 +654,8 @@ int APIENTRY wWinMain(
 
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
-	if (!IsWingetInstalled())
-	{
-		executeCommands({
-			L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
-			L"winget source update"
-			});
-	}
 	executeCommands({
+				L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
 				L"winget source update"
 		});
 
