@@ -1,7 +1,6 @@
 #define UNICODE
 #define WIN32_LEAN_AND_MEAN
 #include "resource.h"
-#include <filesystem>
 #include <ShObjIdl_core.h>
 #include <TlHelp32.h>
 #include <vector>
@@ -9,6 +8,7 @@
 #include <shlobj_core.h>
 #include <windows.h>
 #include <wininet.h>
+import std.filesystem;
 
 namespace fs = std::filesystem;
 int cb = 0;
