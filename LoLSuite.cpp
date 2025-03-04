@@ -451,6 +451,7 @@ void manageTasks(const std::wstring& task)
 			L"wsreset.exe",
 			L"Clear-DnsClientCache",
 			L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
+			L"winget source update",
 			L"winget uninstall Valve.Steam --purge -h",
 			L"winget uninstall ElectronicArts.EADesktop --purge -h",
 			L"winget uninstall ElectronicArts.Origin --purge -h",
@@ -646,12 +647,7 @@ int APIENTRY wWinMain(
 
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
-	executeCommands({
-				L"Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
-				L"winget source update"
-		});
 
-	ShellExecute(0, L"open", L"https://lolsuite.org", 0, 0, SW_SHOWNORMAL);
 
 	while (GetMessageW(&msg, nullptr, 0, 0))
 	{

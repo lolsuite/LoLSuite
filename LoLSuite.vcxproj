@@ -25,10 +25,10 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <VCToolsVersion>14.43.34808</VCToolsVersion>
+    <VCToolsVersion>14.44.34823</VCToolsVersion>
     <EnableUnitySupport>false</EnableUnitySupport>
     <PreferredToolArchitecture>x86</PreferredToolArchitecture>
-    <SpectreMitigation>Spectre</SpectreMitigation>
+    <SpectreMitigation>false</SpectreMitigation>
     <EnableASAN>false</EnableASAN>
     <InterproceduralOptimization>true</InterproceduralOptimization>
   </PropertyGroup>
