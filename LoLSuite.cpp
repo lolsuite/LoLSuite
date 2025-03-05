@@ -7,6 +7,8 @@
 #include <shellapi.h>
 #include <shlobj_core.h>
 #include <windows.h>
+#include <unordered_map>
+#include <functional>
 #include <wininet.h>
 import std.filesystem;
 
@@ -386,20 +388,10 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 
-		const std::vector<std::wstring> processes = { L"MSPCManager.exe", L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe", L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe" };
+		const std::vector<std::wstring> processes = {L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe", L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe" };
 		for (const auto& process : processes) Term(process);
 
-		std::vector<std::wstring> commands_end = {
-		L"Stop-Service -Name wuauserv -Force",
-		L"Stop-Service -Name bits -Force",
-		L"Stop-Service -Name cryptsvc -Force"
-		};
 
-		std::vector<std::wstring> commands_start = {
-			L"Start-Service -Name wuauserv",
-			L"Start-Service -Name bits",
-			L"Start-Service -Name cryptsvc"
-		};
 
 		if (OpenClipboard(nullptr))
 		{
@@ -407,10 +399,13 @@ void manageTasks(const std::wstring& task)
 			CloseClipboard();
 		}
 
-		for (const auto& command : commands_end)
-		{
-			InvokePowerShellCommand(command);
-		}
+        std::vector<std::wstring> commands_end = {
+        L"Stop-Service -Name wuauserv -Force",
+        L"Stop-Service -Name bits -Force",
+        L"Stop-Service -Name cryptsvc -Force"
+        };
+
+        executeCommands(commands_end);
 		WCHAR windowsDir[MAX_PATH];
 		WCHAR systemDir[MAX_PATH];
 
@@ -447,10 +442,13 @@ void manageTasks(const std::wstring& task)
 			}
 		}
 
-		for (const auto& command : commands_start)
-		{
-			InvokePowerShellCommand(command);
-		}
+        std::vector<std::wstring> commands_start = {
+        L"Start-Service -Name wuauserv",
+        L"Start-Service -Name bits",
+        L"Start-Service -Name cryptsvc"
+        };
+
+        executeCommands(commands_start);
 
 		executeCommands({
 			L"powercfg /hibernate off",
@@ -467,7 +465,7 @@ void manageTasks(const std::wstring& task)
 			L"winget install ElectronicArts.EADesktop --accept-package-agreements",
 			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
 			L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements",
-			L"winget uninstall Microsoft.PCManager --purge -h", L"winget uninstall Microsoft.WindowsTerminal --purge -h", L"winget uninstall Microsoft.DirectX --purge -h",
+			L"winget uninstall Microsoft.WindowsTerminal --purge -h", L"winget uninstall Microsoft.DirectX --purge -h",
 			L"winget uninstall Microsoft.PowerShell --purge -h", L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
 			L"winget uninstall 9NQPSL29BFFF --purge -h", L"winget uninstall 9PB0TRCNRHFX --purge -h",
 			L"winget uninstall 9N95Q1ZZPMH4 --purge -h", L"winget uninstall 9NCTDW2W1BH8 --purge -h",
@@ -479,7 +477,7 @@ void manageTasks(const std::wstring& task)
 			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
 			L"winget uninstall Microsoft.Edge --purge -h", L"winget install Microsoft.Edge --accept-package-agreements",
 			L"winget install Microsoft.WindowsTerminal --accept-package-agreements", L"winget install Microsoft.PowerShell --accept-package-agreements",
-			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement", L"winget install Microsoft.PCManager --accept-package-agreement",
+			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
 			L"winget install 9NQPSL29BFFF --accept-package-agreements", L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
 			L"winget install 9NCTDW2W1BH8 --accept-package-agreements", L"winget install 9MVZQVXJBQ9V --accept-package-agreements",
 			L"winget install 9PMMSR1CGPWG --accept-package-agreements", L"winget install 9N4D0MSMP0PT --accept-package-agreements",
@@ -558,31 +556,23 @@ void manageTasks(const std::wstring& task)
 
 		Start(v[3], L"/silent", true);
 		fs::remove_all(v[82]);
-		MessageBoxEx(nullptr, L"You can Restart your PC now", L"LoLSuite", MB_OK, 0);
 	}
 }
 
 void handleCommand(int cb, bool flag)
 {
-	switch (cb)
+	static const std::unordered_map<int, std::function<void()>> commandMap = {
+		{0, [flag]() { manageGame(L"leagueoflegends", flag); }},
+		{1, [flag]() { manageGame(L"dota2", flag); }},
+		{2, [flag]() { manageGame(L"smite2", flag); }},
+		{3, []() { manageTasks(L"JDK"); }},
+		{4, []() { manageTasks(L"support"); }}
+	};
+
+	auto it = commandMap.find(cb);
+	if (it != commandMap.end())
 	{
-	case 0:
-		manageGame(L"leagueoflegends", flag);
-		break;
-	case 1:
-		manageGame(L"dota2", flag);
-		break;
-	case 2:
-		manageGame(L"smite2", flag);
-		break;
-	case 3:
-		manageTasks(L"JDK");
-		break;
-	case 4:
-		manageTasks(L"support");
-		break;
-	default:
-		break;
+		it->second();
 	}
 }
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
