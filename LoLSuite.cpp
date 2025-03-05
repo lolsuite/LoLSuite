@@ -401,6 +401,12 @@ void manageTasks(const std::wstring& task)
 			L"Start-Service -Name cryptsvc"
 		};
 
+		if (OpenClipboard(nullptr))
+		{
+			EmptyClipboard();
+			CloseClipboard();
+		}
+
 		for (const auto& command : commands_end)
 		{
 			InvokePowerShellCommand(command);
@@ -412,10 +418,11 @@ void manageTasks(const std::wstring& task)
 			return;
 		}
 
-		std::vector<std::wstring> directories = {
-			std::wstring(windowsDir) + L"\\SoftwareDistribution",
-			std::wstring(systemDir) + L"\\catroot2"
-		};
+        std::vector<std::wstring> directories = {
+									std::wstring(windowsDir) + L"\\SoftwareDistribution",
+									std::wstring(systemDir) + L"\\catroot2",
+									std::wstring(windowsDir) + L"\\temp"
+        };
 
 		for (const auto& directory : directories) {
 			for (const auto& entry : fs::directory_iterator(directory)) {
@@ -424,10 +431,7 @@ void manageTasks(const std::wstring& task)
 		}
 
 		WCHAR localAppDataPath[MAX_PATH];
-		if (FAILED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath)))
-		{
-			return;
-		}
+		SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
 
 		fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
 
@@ -435,7 +439,9 @@ void manageTasks(const std::wstring& task)
 		for (const auto& entry : fs::directory_iterator(explorerPath))
 		{
 			const auto& filename = entry.path().filename().wstring();
-			if ((filename.find(L"thumbcache_") == 0 || filename.find(L"iconcache_") == 0) && entry.path().extension() == L".db" || (filename.find(L"ExplorerStartupLog") == 0) && entry.path().extension() == L".etl" || filename == L"RecommendationsFilterList.json")
+			if ((filename.find(L"thumbcache_") == 0 || filename.find(L"iconcache_") == 0) && entry.path().extension() == L".db" ||
+				(filename.find(L"ExplorerStartupLog") == 0 && entry.path().extension() == L".etl") ||
+				filename == L"RecommendationsFilterList.json")
 			{
 				fs::remove(entry.path());
 			}
