@@ -295,6 +295,38 @@ void manageGame(const std::wstring& game, bool restore)
 	}
 }
 
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+{
+	hInst = hInstance;
+	HWND hWnd = CreateWindowExW(
+		0, szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
+		CW_USEDEFAULT, CW_USEDEFAULT, 400, 100,
+		nullptr, nullptr, hInstance, nullptr
+	);
+	if (!hWnd) return FALSE;
+
+	std::vector<std::tuple<DWORD, LPCWSTR, LPCWSTR, DWORD, int, int, int, int, HMENU>> controls = {
+		{WS_EX_TOOLWINDOW, L"BUTTON", L"Patch", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 20, 60, 30, reinterpret_cast<HMENU>(1)},
+		{0, L"BUTTON", L"Restore", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 75, 20, 60, 30, reinterpret_cast<HMENU>(2)}
+	};
+
+	for (const auto& [dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hMenu] : controls) {
+		if (!CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWnd, hMenu, hInstance, nullptr))
+			return FALSE;
+	}
+
+	HWND combobox = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 150, 20, 200, 300, hWnd, NULL, hInstance, NULL);
+
+	for (const auto& str : box) {
+		SendMessage(combobox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
+	}
+	SendMessageW(combobox, CB_SETCURSEL, 0, 0);
+
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
+	return TRUE;
+}
+
 void InvokePowerShellCommand(const std::wstring& command)
 {
 	std::wstring fullCommand = L"powershell.exe -Command \"" + command + L"\"";
@@ -600,33 +632,8 @@ int APIENTRY wWinMain(
 	wcex.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON));
 	RegisterClassExW(&wcex);
 
-	HWND hwnd = CreateWindowExW(
-		0, szWindowClass, szTitle, WS_EX_LAYERED & WS_EX_COMPOSITED & WS_EX_TRANSPARENT,
-		CW_USEDEFAULT, CW_USEDEFAULT, 375, 100,
-		nullptr, nullptr, hInstance, nullptr
-	);
-	if (!hwnd) return FALSE;
-
-	std::vector<std::tuple<DWORD, LPCWSTR, LPCWSTR, DWORD, int, int, int, int, HMENU>> controls = {
-		{WS_EX_TOOLWINDOW, L"BUTTON", L"Patch", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 20, 60, 30, reinterpret_cast<HMENU>(1)},
-		{0, L"BUTTON", L"Restore", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 75, 20, 60, 30, reinterpret_cast<HMENU>(2)}
-	};
-
-	for (const auto& [dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hMenu] : controls) {
-		if (!CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hwnd, hMenu, hInstance, nullptr))
-			return FALSE;
-	}
-
-	HWND combobox = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 150, 20, 200, 300, hwnd, NULL, hInstance, NULL);
-
-	for (const auto& str : box) {
-		SendMessage(combobox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
-	}
-	SendMessageW(combobox, CB_SETCURSEL, 0, 0);
-
-	ShowWindow(hwnd, nShowCmd);
-	UpdateWindow(hwnd);
-	return TRUE;
+	if (!InitInstance(hInstance, nShowCmd))
+		return FALSE;
 
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
