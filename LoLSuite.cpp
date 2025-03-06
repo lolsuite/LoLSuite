@@ -619,17 +619,21 @@ int APIENTRY wWinMain(
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadStringW(hInstance, IDC_BUFFER, szWindowClass, MAX_LOADSTRING);
 
-	WNDCLASSEXW wcex = {};
-	wcex.cbSize = sizeof(WNDCLASSEXW);
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON));
-	wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
-	wcex.hbrBackground = reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1));
-	wcex.lpszClassName = szWindowClass;
-	wcex.lpszMenuName = nullptr;
-	wcex.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON));
+	WNDCLASSEXW wcex = {
+		sizeof(WNDCLASSEXW),
+		CS_HREDRAW | CS_VREDRAW,
+		WndProc,
+		0,
+		0,
+		hInstance,
+		LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON)),
+		LoadCursorW(nullptr, IDC_ARROW),
+		reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1)),
+		nullptr,
+		szWindowClass,
+		LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON))
+	};
+
 	RegisterClassExW(&wcex);
 
 	if (!InitInstance(hInstance, nShowCmd))
@@ -637,7 +641,6 @@ int APIENTRY wWinMain(
 
 	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
 	MSG msg;
-
 
 	while (GetMessageW(&msg, nullptr, 0, 0))
 	{
