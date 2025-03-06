@@ -60,7 +60,7 @@ const wchar_t* box[5] = {
 	L"Dota 2",
 	L"SMITE 2",
 	L"Minecraft Java Edition",
-	L"DirectX9 / Client Updater"
+	L"DirectX9 Unblocker"
 };
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
