@@ -59,8 +59,8 @@ const wchar_t* box[5] = {
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
-	L"Minecraft : Java",
-	L"DirectX9"
+	L"Minecraft Java Edition",
+	L"DirectX9 / Client Updater"
 };
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -409,14 +409,6 @@ void manageTasks(const std::wstring& task)
 		WCHAR windowsDir[MAX_PATH];
 		WCHAR systemDir[MAX_PATH];
 
-		for (const auto& entry : fs::recursive_directory_iterator(L"C:\\"))
-		{
-			if (entry.path().filename() == L"desktop.ini")
-			{
-				fs::remove(entry.path());
-			}
-		}
-
 		if (GetWindowsDirectory(windowsDir, MAX_PATH) == 0 || GetSystemDirectory(systemDir, MAX_PATH) == 0) {
 			return;
 		}
@@ -426,12 +418,6 @@ void manageTasks(const std::wstring& task)
 									std::wstring(systemDir) + L"\\catroot2",
 									std::wstring(windowsDir) + L"\\temp"
         };
-
-		for (const auto& directory : directories) {
-			for (const auto& entry : fs::directory_iterator(directory)) {
-				fs::remove_all(entry.path());
-			}
-		}
 
 		WCHAR localAppDataPath[MAX_PATH];
 		SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
@@ -444,7 +430,7 @@ void manageTasks(const std::wstring& task)
 			const auto& filename = entry.path().filename().wstring();
 			if ((filename.find(L"thumbcache_") == 0 || filename.find(L"iconcache_") == 0) && entry.path().extension() == L".db" ||
 				(filename.find(L"ExplorerStartupLog") == 0 && entry.path().extension() == L".etl") ||
-				filename == L"RecommendationsFilterList.json")
+				filename == L"RecommendationsFilterList.json" || filename == L"desktop.ini" || filename == L"thumbs.db")
 			{
 				fs::remove(entry.path());
 			}
@@ -547,7 +533,7 @@ void manageTasks(const std::wstring& task)
 
 		v[82].clear();
 		AppendPath(82, currentPath);
-		AppendPath(82, L"temp_dx");
+		AppendPath(82, L"temp_dx9");
 		fs::create_directory(v[82]);
 
 		auto download_files = [&](const std::vector<std::wstring>& files) {
@@ -559,7 +545,7 @@ void manageTasks(const std::wstring& task)
 			};
 
 		download_files(dxx86_cab);
-		if (ProccessIs64Bit()) download_files(dxx64_cab);
+		download_files(dxx64_cab);
 		download_files(dxsetup_files);
 
 		Start(v[3], L"/silent", true);
