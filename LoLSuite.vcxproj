@@ -91,7 +91,7 @@
       <FloatingPointExceptions>true</FloatingPointExceptions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <EnableModules>true</EnableModules>
+      <EnableModules>false</EnableModules>
       <BuildStlModules>false</BuildStlModules>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ErrorReporting>None</ErrorReporting>
