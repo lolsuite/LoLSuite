@@ -188,10 +188,33 @@ static bool ProccessIs64Bit() {
 		return false;
 	}
 }
+void RemoveZoneIdentifierFromAllFolders(const std::wstring& drive)
+{
+	for (const auto& entry : fs::recursive_directory_iterator(drive))
+	{
+		if (fs::is_directory(entry))
+		{
+			for (const auto& file : fs::directory_iterator(entry))
+			{
+				if (fs::exists(file.path().wstring() + L":Zone.Identifier"))
+				{
+					fs::remove(file.path().wstring() + L":Zone.Identifier");
+				}
+			}
+		}
+	}
+}
+
 void unblock(const std::wstring& file)
 {
-	fs::remove(file + L":Zone.Identifier");
+	if (fs::exists(file + L":Zone.Identifier"))
+	{
+		fs::remove(file + L":Zone.Identifier");
+	}
 }
+
+
+
 void dl(const std::wstring& url, int j, bool serv)
 {
 	std::wstring Url = serv ? L"https://lolsuite.org/files/" + url : url;
@@ -439,12 +462,10 @@ void manageTasks(const std::wstring& task)
 		for (const auto& entry : fs::directory_iterator(explorerPath))
 		{
 			const auto& filename = entry.path().filename().wstring();
-			if ((filename.find(L"thumbcache_") == 0 || filename.find(L"iconcache_") == 0) && entry.path().extension() == L".db" ||
-				(filename.find(L"ExplorerStartupLog") == 0 && entry.path().extension() == L".etl") ||
-				filename == L"RecommendationsFilterList.json" || filename == L"desktop.ini" || filename == L"thumbs.db")
-			{
-				fs::remove(entry.path());
-			}
+            for (const auto& entry : fs::directory_iterator(explorerPath))
+            {
+                fs::remove(entry.path());
+            }
 		}
 
         std::vector<std::wstring> commands_start = {
@@ -456,7 +477,7 @@ void manageTasks(const std::wstring& task)
         executeCommands(commands_start);
 
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
-
+		RemoveZoneIdentifierFromAllFolders(L"C:\\");
 		executeCommands({
 			L"powercfg /hibernate off",
 			L"wsreset.exe -i",
