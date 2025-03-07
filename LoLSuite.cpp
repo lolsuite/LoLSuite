@@ -454,11 +454,13 @@ void manageTasks(const std::wstring& task)
         };
 
         executeCommands(commands_start);
+
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
 		executeCommands({
 			L"powercfg /hibernate off",
 			L"wsreset.exe -i",
+			L"powercfg -restoredefaultschemes",
 			L"Clear-DnsClientCache",
 			L"winget source update",
 			L"winget uninstall Valve.Steam --purge -h",
