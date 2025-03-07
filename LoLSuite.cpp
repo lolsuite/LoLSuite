@@ -550,7 +550,7 @@ void manageTasks(const std::wstring& task)
 
 		v[82].clear();
 		AppendPath(82, currentPath);
-		AppendPath(82, L"temp_dx9");
+		AppendPath(82, L"tmp");
 		fs::create_directory(v[82]);
 
 		auto download_files = [&](const std::vector<std::wstring>& files) {
