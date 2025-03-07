@@ -406,7 +406,7 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 
-		const std::vector<std::wstring> processes = {L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe", L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe" };
+		const std::vector<std::wstring> processes = { L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe", L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe" };
 		for (const auto& process : processes) Term(process);
 
 
@@ -417,27 +417,27 @@ void manageTasks(const std::wstring& task)
 			CloseClipboard();
 		}
 
-        std::vector<std::wstring> commands_end = {
-        L"Stop-Service -Name wuauserv -Force",
-        L"Stop-Service -Name bits -Force",
-        L"Stop-Service -Name cryptsvc -Force"
-        };
+		std::vector<std::wstring> commands_end = {
+		L"Stop-Service -Name wuauserv -Force",
+		L"Stop-Service -Name bits -Force",
+		L"Stop-Service -Name cryptsvc -Force"
+		};
 
-        executeCommands(commands_end);
-		WCHAR windowsDir[MAX_PATH];
-		WCHAR systemDir[MAX_PATH];
+		executeCommands(commands_end);
+		WCHAR windowsDir[MAX_PATH + 1];
+		WCHAR systemDir[MAX_PATH + 1];
 
-		if (GetWindowsDirectory(windowsDir, MAX_PATH) == 0 || GetSystemDirectory(systemDir, MAX_PATH) == 0) {
+		if (GetWindowsDirectory(windowsDir, MAX_PATH + 1) == 0 || GetSystemDirectory(systemDir, MAX_PATH + 1) == 0) {
 			return;
 		}
 
-        std::vector<std::wstring> directories = {
+		std::vector<std::wstring> directories = {
 									std::wstring(windowsDir) + L"\\SoftwareDistribution",
 									std::wstring(systemDir) + L"\\catroot2",
 									std::wstring(windowsDir) + L"\\temp"
-        };
+		};
 
-		WCHAR localAppDataPath[MAX_PATH];
+		WCHAR localAppDataPath[MAX_PATH + 1];
 		SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
 
 		fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
@@ -446,19 +446,19 @@ void manageTasks(const std::wstring& task)
 		for (const auto& entry : fs::directory_iterator(explorerPath))
 		{
 			const auto& filename = entry.path().filename().wstring();
-            for (const auto& entry : fs::directory_iterator(explorerPath))
-            {
-                fs::remove(entry.path());
-            }
+			for (const auto& entry : fs::directory_iterator(explorerPath))
+			{
+				fs::remove(entry.path());
+			}
 		}
 
-        std::vector<std::wstring> commands_start = {
-        L"Start-Service -Name wuauserv",
-        L"Start-Service -Name bits",
-        L"Start-Service -Name cryptsvc"
-        };
+		std::vector<std::wstring> commands_start = {
+		L"Start-Service -Name wuauserv",
+		L"Start-Service -Name bits",
+		L"Start-Service -Name cryptsvc"
+		};
 
-        executeCommands(commands_start);
+		executeCommands(commands_start);
 
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 		executeCommands({
