@@ -446,7 +446,7 @@ void manageTasks(const std::wstring& task)
 
 		executeCommands({
 			L"powercfg /hibernate off",
-			L"wsreset.exe",
+			L"wsreset.exe -i",
 			L"Clear-DnsClientCache",
 			L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
 			L"winget source update",
