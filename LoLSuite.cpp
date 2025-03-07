@@ -352,6 +352,17 @@ auto executeCommands = [](const std::vector<std::wstring>& commands)
 		}
 	};
 
+void AddCommandToRunOnce(const std::wstring& commandName, const std::wstring& command)
+{
+	HKEY hKey;
+	LONG result = RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce", 0, KEY_SET_VALUE, &hKey);
+	if (result == ERROR_SUCCESS)
+	{
+		result = RegSetValueEx(hKey, commandName.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(command.c_str()), (command.size() + 1) * sizeof(wchar_t));
+		RegCloseKey(hKey);
+	}
+}
+
 void manageTasks(const std::wstring& task)
 {
 
@@ -443,12 +454,12 @@ void manageTasks(const std::wstring& task)
         };
 
         executeCommands(commands_start);
+		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
 		executeCommands({
 			L"powercfg /hibernate off",
 			L"wsreset.exe -i",
 			L"Clear-DnsClientCache",
-			L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
 			L"winget source update",
 			L"winget uninstall Valve.Steam --purge -h",
 			L"winget uninstall ElectronicArts.EADesktop --purge -h",
