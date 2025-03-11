@@ -448,11 +448,11 @@ void manageTasks(const std::wstring& task)
 			L"winget source update",
 			L"winget uninstall Valve.Steam --purge -h",
 			L"winget uninstall ElectronicArts.EADesktop --purge -h",
-			L"winget uninstall ElectronicArts.Origin --purge -h",
+			L"winget uninstall ElectronicArts.Origin --purge -h", // Remove old EA App
 			L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
 			L"winget uninstall Blizzard.BattleNet --purge -h",
 			L"winget install Valve.Steam --accept-package-agreements",
-			L"winget install ElectronicArts.EADesktop --accept-package-agreements",
+			L"winget install ElectronicArts.EADesktop --accept-package-agreements", // Upgrade to EA.Desktop
 			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
 			L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements",
 			L"winget uninstall Microsoft.WindowsTerminal --purge -h", L"winget uninstall Microsoft.DirectX --purge -h",
