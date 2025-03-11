@@ -11,6 +11,7 @@
 #include <functional>
 #include <wininet.h>
 #include <filesystem>
+#include <urlmon.h>
 
 namespace fs = std::filesystem;
 int cb = 0;
@@ -68,38 +69,19 @@ HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 	v[0].clear();
 	IFileDialog* pfd = nullptr;
 	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
-	if (FAILED(hr)) {
-		return hr;
-	}
-
 	DWORD dwOptions;
 	hr = pfd->GetOptions(&dwOptions);
-	if (SUCCEEDED(hr)) {
-		hr = pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
-	}
-
-	if (SUCCEEDED(hr)) {
-		hr = pfd->Show(hwndOwner);
-	}
-
-	if (SUCCEEDED(hr)) {
-		IShellItem* psi = nullptr;
-		hr = pfd->GetResult(&psi);
-		if (SUCCEEDED(hr)) {
-			PWSTR pszPath = nullptr;
-			hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
-			if (SUCCEEDED(hr)) {
-				wcsncpy_s(pszFolderPath, cchFolderPath, pszPath, _TRUNCATE);
-				CoTaskMemFree(pszPath);
-			}
-			psi->Release();
-		}
-	}
-
+	hr = pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
+	hr = pfd->Show(hwndOwner);
+	IShellItem* psi = nullptr;
+	hr = pfd->GetResult(&psi);
+	PWSTR pszPath = nullptr;
+	hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
+	wcsncpy_s(pszFolderPath, cchFolderPath, pszPath, _TRUNCATE);
+	CoTaskMemFree(pszPath);
+	psi->Release();
 	pfd->Release();
-	if (SUCCEEDED(hr)) {
-		v[0] = pszFolderPath;
-	}
+	v[0] = pszFolderPath;
 	return hr;
 }
 
