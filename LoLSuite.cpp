@@ -448,13 +448,9 @@ void manageTasks(const std::wstring& task)
 			L"winget source update",
 			L"winget uninstall Valve.Steam --purge -h",
 			L"winget uninstall ElectronicArts.EADesktop --purge -h",
-			L"winget uninstall ElectronicArts.Origin --purge -h", // Remove old EA App
+			L"winget uninstall ElectronicArts.Origin --purge -h",
 			L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
 			L"winget uninstall Blizzard.BattleNet --purge -h",
-			L"winget install Valve.Steam --accept-package-agreements",
-			L"winget install ElectronicArts.EADesktop --accept-package-agreements", // Upgrade to EA.Desktop
-			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
-			L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements",
 			L"winget uninstall Microsoft.WindowsTerminal --purge -h", L"winget uninstall Microsoft.DirectX --purge -h",
 			L"winget uninstall Microsoft.PowerShell --purge -h", L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
 			L"winget uninstall 9NQPSL29BFFF --purge -h", L"winget uninstall 9PB0TRCNRHFX --purge -h",
@@ -465,7 +461,9 @@ void manageTasks(const std::wstring& task)
 			L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
 			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
-			L"winget uninstall Microsoft.Edge --purge -h", L"winget install Microsoft.Edge --accept-package-agreements",
+			L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
+			L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
 			L"winget install Microsoft.WindowsTerminal --accept-package-agreements", L"winget install Microsoft.PowerShell --accept-package-agreements",
 			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
 			L"winget install 9NQPSL29BFFF --accept-package-agreements", L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
@@ -476,12 +474,13 @@ void manageTasks(const std::wstring& task)
 			L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
-			L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
+			L"winget install ElectronicArts.EADesktop --accept-package-agreements",
+			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
+			L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
+			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements",
+			L"winget install Valve.Steam --accept-package-agreements"
 			});
 		
 		// PowerCFG Commands
