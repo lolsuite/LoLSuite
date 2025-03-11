@@ -447,7 +447,7 @@ void manageTasks(const std::wstring& task)
 		executeCommands(commands_start);
 
 		executeCommands({
-			L"powercfg /hibernate off",
+			L"powercfg -h off",
 			L"wsreset.exe -i",
 			L"powercfg -restoredefaultschemes",
 			L"Clear-DnsClientCache",
@@ -490,6 +490,7 @@ void manageTasks(const std::wstring& task)
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
 			});
 
+        AddCommandToRunOnce(L"PowerCfgHibernateOn", L"cmd.exe /c powercfg -h on");
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
 		const std::vector<std::wstring> dxx86_cab = {
