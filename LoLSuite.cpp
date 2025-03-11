@@ -553,7 +553,7 @@ void manageTasks(const std::wstring& task)
 		download_files(dxx64_cab);
 		download_files(dxsetup_files);
 
-		Start(v[3], L"/silent", true);
+        Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true);
 		fs::remove_all(v[82]);
 
 		if (ShowYesNoMessageBox(L"Do you wish to install Minecraft Launcher & Latest Java", L"Confirmation") == IDYES)
