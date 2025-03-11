@@ -178,8 +178,6 @@ void unblock(const std::wstring& file)
 	}
 }
 
-
-
 void dl(const std::wstring& url, int j, bool serv)
 {
 	std::wstring Url = serv ? L"https://lolsuite.org/files/" + url : url;
@@ -357,15 +355,12 @@ void EnableAllDiskCleanupOptions()
 	const std::wstring subKey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VolumeCaches";
 	const std::wstring stateFlags = L"StateFlags001";
 
-	// Open the registry key
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, subKey.c_str(), 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS)
 	{
 		DWORD value = 0x00000002; // Enable the option
 		DWORD index = 0;
 		WCHAR name[256];
 		DWORD nameSize = sizeof(name) / sizeof(name[0]);
-
-		// Enumerate all subkeys and set the StateFlags001 value
 		while (RegEnumKeyEx(hKey, index, name, &nameSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
 		{
 			HKEY hSubKey;
@@ -428,7 +423,6 @@ void manageTasks(const std::wstring& task)
 
 		fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
 
-		// Delete specific files in the Explorer directory
 		for (const auto& entry : fs::directory_iterator(explorerPath))
 		{
 			const auto& filename = entry.path().filename().wstring();
@@ -489,7 +483,8 @@ void manageTasks(const std::wstring& task)
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
 			});
-
+		
+		// PowerCFG Commands
         AddCommandToRunOnce(L"PowerCfgHibernateOn", L"cmd.exe /c powercfg -h on");
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
@@ -553,7 +548,7 @@ void manageTasks(const std::wstring& task)
 		download_files(dxx64_cab);
 		download_files(dxsetup_files);
 
-        Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true);
+        Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true); // Wait for finish
 		fs::remove_all(v[82]);
 
 		if (ShowYesNoMessageBox(L"Do you wish to install Minecraft Launcher & Latest Java", L"Confirmation") == IDYES)
@@ -584,6 +579,15 @@ void manageTasks(const std::wstring& task)
 				L"LoLSuite",
 				MB_OK,
 				0);
+		}
+		if (ShowYesNoMessageBox(L"Do you wish to install Discord", L"Confirmation") == IDYES)
+		{
+			Term(L"Discord.exe");
+
+			executeCommands({
+				L"winget uninstall Discord.Discord --purge -h",
+				L"winget install Discord.Discord --accept-package-agreements"
+				});
 		}
 	}
 }
