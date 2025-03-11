@@ -453,7 +453,7 @@ void manageTasks(const std::wstring& task)
 		L"Stop-Service -Name wuauserv -Force",
 		L"Stop-Service -Name bits -Force",
 		L"Stop-Service -Name cryptsvc -Force",
-		L"cleanmgr / sagerun:1"
+		L"cleanmgr /sagerun:1"
 		};
 
 		executeCommands(commands_end);
