@@ -56,12 +56,11 @@ public:
 	}
 };
 
-const wchar_t* box[5] = {
+const wchar_t* box[4] = {
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
-	L"Minecraft Java Edition",
-	L"DirectX9 Unblocker"
+	L"Unblocked DirectX9"
 };
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -382,46 +381,18 @@ void EnableAllDiskCleanupOptions()
 	}
 }
 
+int ShowYesNoMessageBox(const std::wstring& text, const std::wstring& caption)
+{
+	return MessageBoxEx(nullptr, text.c_str(), caption.c_str(), MB_YESNO | MB_ICONQUESTION, 0);
+}
+
 void manageTasks(const std::wstring& task)
 {
 
-	if (task == L"JDK")
+	if (task == L"support")
 	{
-		const std::vector<std::wstring> processes = { L"Minecraft.exe", L"javaw.exe", L"java.exe", L"Minecraft.Windows.exe" };
-
-		for (const auto& process : processes) {
-			Term(process);
-		}
-
-		executeCommands({
-	L"winget uninstall Mojang.MinecraftLauncher --purge -h",
-	L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
-	L"winget uninstall Oracle.JDK.23 --purge -h",
-	L"winget uninstall Oracle.JDK.22 --purge -h",
-	L"winget uninstall Oracle.JDK.21 --purge -h",
-	L"winget uninstall Oracle.JDK.20 --purge -h",
-	L"winget uninstall Oracle.JDK.19 --purge -h",
-	L"winget uninstall Oracle.JDK.18 --purge -h",
-	L"winget uninstall Oracle.JDK.17 --purge -h",
-	L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
-	L"winget install Oracle.JDK.23 --accept-package-agreements"
-			});
-
-		MessageBoxEx(
-			nullptr,
-			L"Minecraft Launcher > Java Edition > Latest Release > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
-			L"LoLSuite",
-			MB_OK,
-			0);
-
-	}
-	else if (task == L"support")
-	{
-
 		const std::vector<std::wstring> processes = { L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe", L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe" };
 		for (const auto& process : processes) Term(process);
-
-
 
 		if (OpenClipboard(nullptr))
 		{
@@ -472,8 +443,6 @@ void manageTasks(const std::wstring& task)
 		L"Start-Service -Name bits",
 		L"Start-Service -Name cryptsvc"
 		};
-
-
 
 		executeCommands(commands_start);
 
@@ -585,6 +554,36 @@ void manageTasks(const std::wstring& task)
 
 		Start(v[3], L"/silent", true);
 		fs::remove_all(v[82]);
+
+		if (ShowYesNoMessageBox(L"Do you wish to install Minecraft Launcher & Latest Java", L"Confirmation") == IDYES)
+		{
+			const std::vector<std::wstring> processes = { L"Minecraft.exe", L"javaw.exe", L"java.exe", L"Minecraft.Windows.exe" };
+
+			for (const auto& process : processes) {
+				Term(process);
+			}
+
+			executeCommands({
+				L"winget uninstall Mojang.MinecraftLauncher --purge -h",
+				L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
+				L"winget uninstall Oracle.JDK.23 --purge -h",
+				L"winget uninstall Oracle.JDK.22 --purge -h",
+				L"winget uninstall Oracle.JDK.21 --purge -h",
+				L"winget uninstall Oracle.JDK.20 --purge -h",
+				L"winget uninstall Oracle.JDK.19 --purge -h",
+				L"winget uninstall Oracle.JDK.18 --purge -h",
+				L"winget uninstall Oracle.JDK.17 --purge -h",
+				L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
+				L"winget install Oracle.JDK.23 --accept-package-agreements"
+				});
+
+			MessageBoxEx(
+				nullptr,
+				L"Minecraft Launcher > Java Edition > Latest Release > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
+				L"LoLSuite",
+				MB_OK,
+				0);
+		}
 	}
 }
 
@@ -594,8 +593,7 @@ void handleCommand(int cb, bool flag)
 		{0, [flag]() { manageGame(L"leagueoflegends", flag); }},
 		{1, [flag]() { manageGame(L"dota2", flag); }},
 		{2, [flag]() { manageGame(L"smite2", flag); }},
-		{3, []() { manageTasks(L"JDK"); }},
-		{4, []() { manageTasks(L"support"); }}
+		{3, []() { manageTasks(L"support"); }}
 	};
 
 	auto it = commandMap.find(cb);
