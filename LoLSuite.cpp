@@ -370,6 +370,36 @@ void AddCommandToRunOnce(const std::wstring& commandName, const std::wstring& co
 	}
 }
 
+void EnableAllDiskCleanupOptions()
+{
+	HKEY hKey;
+	const std::wstring subKey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VolumeCaches";
+	const std::wstring stateFlags = L"StateFlags001";
+
+	// Open the registry key
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, subKey.c_str(), 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS)
+	{
+		DWORD value = 0x00000002; // Enable the option
+		DWORD index = 0;
+		WCHAR name[256];
+		DWORD nameSize = sizeof(name) / sizeof(name[0]);
+
+		// Enumerate all subkeys and set the StateFlags001 value
+		while (RegEnumKeyEx(hKey, index, name, &nameSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+		{
+			HKEY hSubKey;
+			if (RegOpenKeyEx(hKey, name, 0, KEY_SET_VALUE, &hSubKey) == ERROR_SUCCESS)
+			{
+				RegSetValueEx(hSubKey, stateFlags.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(value));
+				RegCloseKey(hSubKey);
+			}
+			nameSize = sizeof(name) / sizeof(name[0]);
+			index++;
+		}
+		RegCloseKey(hKey);
+	}
+}
+
 void manageTasks(const std::wstring& task)
 {
 
@@ -417,10 +447,13 @@ void manageTasks(const std::wstring& task)
 			CloseClipboard();
 		}
 
+		EnableAllDiskCleanupOptions();
+
 		std::vector<std::wstring> commands_end = {
 		L"Stop-Service -Name wuauserv -Force",
 		L"Stop-Service -Name bits -Force",
-		L"Stop-Service -Name cryptsvc -Force"
+		L"Stop-Service -Name cryptsvc -Force",
+		L"cleanmgr / sagerun:1"
 		};
 
 		executeCommands(commands_end);
@@ -457,6 +490,8 @@ void manageTasks(const std::wstring& task)
 		L"Start-Service -Name bits",
 		L"Start-Service -Name cryptsvc"
 		};
+
+
 
 		executeCommands(commands_start);
 
