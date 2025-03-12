@@ -60,8 +60,8 @@ const wchar_t* box[5] = {
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
-	L"Unblocked DirectX9",
-	L"Clear Cache"
+	L"DirectX9 Unblocked",
+	L"Clear WinUpdate Cache"
 };
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -357,9 +357,11 @@ int ShowYesNoMessageBox(const std::wstring& text, const std::wstring& caption)
 
 void manageTasks(const std::wstring& task)
 {
-	const std::vector<std::wstring> processes = { L"Powershell.exe", L"cleanmgr.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe", L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
+	// Close running scripts as we will update PowerShell & Windows Terminal & Replace Origin with EA Desktop
+	const std::vector<std::wstring> processes = { L"cmd.exe", L"pwsh.exe",L"powershell.exe", L"WindowsTerminal.exe", L"OpenConsole.exe" L"DXSETUP.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
 	for (const auto& process : processes) Term(process);
 
+	
 	if (task == L"cache")
 	{
 		if (OpenClipboard(nullptr))
@@ -368,13 +370,11 @@ void manageTasks(const std::wstring& task)
 			CloseClipboard();
 		}
 
-		std::vector<std::wstring> commands_end = {
+		executeCommands({
 		L"Stop-Service -Name wuauserv -Force",
 		L"Stop-Service -Name bits -Force",
 		L"Stop-Service -Name cryptsvc -Force"
-		};
-
-		executeCommands(commands_end);
+			});
 
 		WCHAR windowsDir[MAX_PATH + 1];
 		WCHAR systemDir[MAX_PATH + 1];
@@ -394,20 +394,16 @@ void manageTasks(const std::wstring& task)
 			}
 		}
 
-		std::vector<std::wstring> commands_start = {
+		executeCommands({
 		L"Start-Service -Name wuauserv",
 		L"Start-Service -Name bits",
 		L"Start-Service -Name cryptsvc"
-		};
-
-		executeCommands(commands_start);
+			});
 
 	}
 	else if (task == L"support")
 	{
 		executeCommands({
-			L"powercfg -h off",
-			L"wsreset.exe -i",
 			L"powercfg -restoredefaultschemes",
 			L"Clear-DnsClientCache",
 			L"winget source update",
@@ -441,15 +437,13 @@ void manageTasks(const std::wstring& task)
 			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
 			L"winget install ElectronicArts.EADesktop --accept-package-agreements",
 			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
+			L"winget install Valve.Steam --accept-package-agreements",
 			L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
 			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements",
-			L"winget install Valve.Steam --accept-package-agreements"
+			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
 			});
 
-		// PowerCFG Commands
-		AddCommandToRunOnce(L"PowerCfgHibernateOn", L"cmd.exe /c powercfg -h on");
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
 		const std::vector<std::wstring> dxx86_cab = {
