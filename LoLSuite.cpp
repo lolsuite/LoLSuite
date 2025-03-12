@@ -370,7 +370,7 @@ void manageTasks(const std::wstring& task)
 
 		HKEY hKey;
 		const std::wstring subKey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VolumeCaches";
-		const std::wstring stateFlags = L"StateFlags0001"; // Change to work with sagerun:1
+		const std::wstring stateFlags = L"StateFlags001";
 
 		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, subKey.c_str(), 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS)
 		{
@@ -395,22 +395,21 @@ void manageTasks(const std::wstring& task)
 		std::vector<std::wstring> commands_end = {
 		L"Stop-Service -Name wuauserv -Force",
 		L"Stop-Service -Name bits -Force",
-		L"Stop-Service -Name cryptsvc -Force",
-		L"cleanmgr /sagerun:1"
+		L"Stop-Service -Name cryptsvc -Force"
 		};
 
 		executeCommands(commands_end);
+
 		WCHAR windowsDir[MAX_PATH + 1];
 		WCHAR systemDir[MAX_PATH + 1];
+		GetWindowsDirectory(windowsDir, MAX_PATH + 1);
+		GetSystemDirectory(systemDir, MAX_PATH + 1);
 
-		if (GetWindowsDirectory(windowsDir, MAX_PATH + 1) == 0 || GetSystemDirectory(systemDir, MAX_PATH + 1) == 0) {
-			return;
-		}
 
 		std::vector<std::wstring> directories = {
-			std::wstring(windowsDir) + L"\\SoftwareDistribution",
-			std::wstring(systemDir) + L"\\catroot2",
-			std::wstring(windowsDir) + L"\\temp"
+			(fs::path(windowsDir) / L"SoftwareDistribution").wstring(),
+			(fs::path(windowsDir) / L"Temp").wstring(),
+			(fs::path(systemDir) / L"catroot2").wstring()
 		};
 
 		for (const auto& dir : directories) {
@@ -419,24 +418,11 @@ void manageTasks(const std::wstring& task)
 			}
 		}
 
-
-		WCHAR localAppDataPath[MAX_PATH + 1];
-		SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
-		fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
-		fs::path tempPath = fs::path(localAppDataPath) / L"Temp";
-
-		// Erase all files in these folders
-		for (const auto& entry : fs::directory_iterator(explorerPath)) {
-			fs::remove_all(entry.path());
-		}
-		for (const auto& entry : fs::directory_iterator(tempPath)) {
-			fs::remove_all(entry.path());
-		}
-
 		std::vector<std::wstring> commands_start = {
 		L"Start-Service -Name wuauserv",
 		L"Start-Service -Name bits",
-		L"Start-Service -Name cryptsvc"
+		L"Start-Service -Name cryptsvc",
+		L"cleanmgr /sagerun:1"
 		};
 
 		executeCommands(commands_start);
@@ -486,9 +472,9 @@ void manageTasks(const std::wstring& task)
 			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements",
 			L"winget install Valve.Steam --accept-package-agreements"
 			});
-		
+
 		// PowerCFG Commands
-        AddCommandToRunOnce(L"PowerCfgHibernateOn", L"cmd.exe /c powercfg -h on");
+		AddCommandToRunOnce(L"PowerCfgHibernateOn", L"cmd.exe /c powercfg -h on");
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
 		const std::vector<std::wstring> dxx86_cab = {
@@ -551,7 +537,7 @@ void manageTasks(const std::wstring& task)
 		download_files(dxx64_cab);
 		download_files(dxsetup_files);
 
-        Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true); // Wait for finish
+		Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true); // Wait for finish
 		fs::remove_all(v[82]);
 
 		if (ShowYesNoMessageBox(L"Do you wish to install Minecraft Launcher & Latest Java", L"Confirmation") == IDYES)
@@ -602,7 +588,7 @@ void handleCommand(int cb, bool flag)
 		{1, [flag]() { manageGame(L"dota2", flag); }},
 		{2, [flag]() { manageGame(L"smite2", flag); }},
 		{3, []() { manageTasks(L"support"); }},
-	    {4, []() { manageTasks(L"cache"); } }
+		{4, []() { manageTasks(L"cache"); } }
 	};
 
 	auto it = commandMap.find(cb);
