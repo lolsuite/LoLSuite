@@ -56,11 +56,12 @@ public:
 	}
 };
 
-const wchar_t* box[4] = {
+const wchar_t* box[5] = {
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
-	L"Unblocked DirectX9"
+	L"Unblocked DirectX9",
+	L"Clear Cache"
 };
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -349,33 +350,6 @@ void AddCommandToRunOnce(const std::wstring& commandName, const std::wstring& co
 	}
 }
 
-void EnableAllDiskCleanupOptions()
-{
-	HKEY hKey;
-	const std::wstring subKey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VolumeCaches";
-	const std::wstring stateFlags = L"StateFlags001";
-
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, subKey.c_str(), 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS)
-	{
-		DWORD value = 0x00000002; // Enable the option
-		DWORD index = 0;
-		WCHAR name[256];
-		DWORD nameSize = sizeof(name) / sizeof(name[0]);
-		while (RegEnumKeyEx(hKey, index, name, &nameSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-		{
-			HKEY hSubKey;
-			if (RegOpenKeyEx(hKey, name, 0, KEY_SET_VALUE, &hSubKey) == ERROR_SUCCESS)
-			{
-				RegSetValueEx(hSubKey, stateFlags.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(value));
-				RegCloseKey(hSubKey);
-			}
-			nameSize = sizeof(name) / sizeof(name[0]);
-			index++;
-		}
-		RegCloseKey(hKey);
-	}
-}
-
 int ShowYesNoMessageBox(const std::wstring& text, const std::wstring& caption)
 {
 	return MessageBoxEx(nullptr, text.c_str(), caption.c_str(), MB_YESNO | MB_ICONQUESTION, 0);
@@ -383,19 +357,40 @@ int ShowYesNoMessageBox(const std::wstring& text, const std::wstring& caption)
 
 void manageTasks(const std::wstring& task)
 {
+	const std::vector<std::wstring> processes = { L"Powershell.exe", L"cleanmgr.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe", L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
+	for (const auto& process : processes) Term(process);
 
-	if (task == L"support")
+	if (task == L"cache")
 	{
-		const std::vector<std::wstring> processes = { L"Powershell.exe", L"OpenConsole.exe", L"cmd.exe", L"WindowsTerminal.exe", L"DXSETUP.exe", L"explorer.exe", L"Taskmgr.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe", L"msedge.exe" };
-		for (const auto& process : processes) Term(process);
-
 		if (OpenClipboard(nullptr))
 		{
 			EmptyClipboard();
 			CloseClipboard();
 		}
 
-		EnableAllDiskCleanupOptions();
+		HKEY hKey;
+		const std::wstring subKey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VolumeCaches";
+		const std::wstring stateFlags = L"StateFlags0001"; // Change to work with sagerun:1
+
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, subKey.c_str(), 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS)
+		{
+			DWORD value = 0x00000002; // Enable the option
+			DWORD index = 0;
+			WCHAR name[256];
+			DWORD nameSize = sizeof(name) / sizeof(name[0]);
+			while (RegEnumKeyEx(hKey, index, name, &nameSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+			{
+				HKEY hSubKey;
+				if (RegOpenKeyEx(hKey, name, 0, KEY_SET_VALUE, &hSubKey) == ERROR_SUCCESS)
+				{
+					RegSetValueEx(hSubKey, stateFlags.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(value));
+					RegCloseKey(hSubKey);
+				}
+				nameSize = sizeof(name) / sizeof(name[0]);
+				index++;
+			}
+			RegCloseKey(hKey);
+		}
 
 		std::vector<std::wstring> commands_end = {
 		L"Stop-Service -Name wuauserv -Force",
@@ -413,23 +408,29 @@ void manageTasks(const std::wstring& task)
 		}
 
 		std::vector<std::wstring> directories = {
-									std::wstring(windowsDir) + L"\\SoftwareDistribution",
-									std::wstring(systemDir) + L"\\catroot2",
-									std::wstring(windowsDir) + L"\\temp"
+			std::wstring(windowsDir) + L"\\SoftwareDistribution",
+			std::wstring(systemDir) + L"\\catroot2",
+			std::wstring(windowsDir) + L"\\temp"
 		};
+
+		for (const auto& dir : directories) {
+			for (const auto& entry : fs::directory_iterator(dir)) {
+				fs::remove_all(entry.path());
+			}
+		}
+
 
 		WCHAR localAppDataPath[MAX_PATH + 1];
 		SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
-
 		fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
+		fs::path tempPath = fs::path(localAppDataPath) / L"Temp";
 
-		for (const auto& entry : fs::directory_iterator(explorerPath))
-		{
-			const auto& filename = entry.path().filename().wstring();
-			for (const auto& entry : fs::directory_iterator(explorerPath))
-			{
-				fs::remove(entry.path());
-			}
+		// Erase all files in these folders
+		for (const auto& entry : fs::directory_iterator(explorerPath)) {
+			fs::remove_all(entry.path());
+		}
+		for (const auto& entry : fs::directory_iterator(tempPath)) {
+			fs::remove_all(entry.path());
 		}
 
 		std::vector<std::wstring> commands_start = {
@@ -440,6 +441,9 @@ void manageTasks(const std::wstring& task)
 
 		executeCommands(commands_start);
 
+	}
+	else if (task == L"support")
+	{
 		executeCommands({
 			L"powercfg -h off",
 			L"wsreset.exe -i",
@@ -597,7 +601,8 @@ void handleCommand(int cb, bool flag)
 		{0, [flag]() { manageGame(L"leagueoflegends", flag); }},
 		{1, [flag]() { manageGame(L"dota2", flag); }},
 		{2, [flag]() { manageGame(L"smite2", flag); }},
-		{3, []() { manageTasks(L"support"); }}
+		{3, []() { manageTasks(L"support"); }},
+	    {4, []() { manageTasks(L"cache"); } }
 	};
 
 	auto it = commandMap.find(cb);
