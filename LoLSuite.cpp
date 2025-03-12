@@ -400,6 +400,13 @@ void manageTasks(const std::wstring& task)
 		L"Start-Service -Name cryptsvc"
 			});
 
+		MessageBoxEx(
+			nullptr,
+			L"Done",
+			L"LoLSuite",
+			MB_OK,
+			0);
+
 	}
 	else if (task == L"support")
 	{
