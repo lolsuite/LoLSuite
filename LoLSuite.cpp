@@ -342,7 +342,7 @@ auto executeCommands = [](const std::vector<std::wstring>& commands)
 void AddCommandToRunOnce(const std::wstring& commandName, const std::wstring& command)
 {
 	HKEY hKey;
-	LONG result = RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce", 0, KEY_SET_VALUE, &hKey);
+	LONG result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce", 0, KEY_SET_VALUE, &hKey);
 	if (result == ERROR_SUCCESS)
 	{
 		result = RegSetValueEx(hKey, commandName.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(command.c_str()), (command.size() + 1) * sizeof(wchar_t));
@@ -366,30 +366,6 @@ void manageTasks(const std::wstring& task)
 		{
 			EmptyClipboard();
 			CloseClipboard();
-		}
-
-		HKEY hKey;
-		const std::wstring subKey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VolumeCaches";
-		const std::wstring stateFlags = L"StateFlags001";
-
-		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, subKey.c_str(), 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS)
-		{
-			DWORD value = 0x00000002; // Enable the option
-			DWORD index = 0;
-			WCHAR name[256];
-			DWORD nameSize = sizeof(name) / sizeof(name[0]);
-			while (RegEnumKeyEx(hKey, index, name, &nameSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-			{
-				HKEY hSubKey;
-				if (RegOpenKeyEx(hKey, name, 0, KEY_SET_VALUE, &hSubKey) == ERROR_SUCCESS)
-				{
-					RegSetValueEx(hSubKey, stateFlags.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(value));
-					RegCloseKey(hSubKey);
-				}
-				nameSize = sizeof(name) / sizeof(name[0]);
-				index++;
-			}
-			RegCloseKey(hKey);
 		}
 
 		std::vector<std::wstring> commands_end = {
@@ -421,8 +397,7 @@ void manageTasks(const std::wstring& task)
 		std::vector<std::wstring> commands_start = {
 		L"Start-Service -Name wuauserv",
 		L"Start-Service -Name bits",
-		L"Start-Service -Name cryptsvc",
-		L"cleanmgr /sagerun:1"
+		L"Start-Service -Name cryptsvc"
 		};
 
 		executeCommands(commands_start);
