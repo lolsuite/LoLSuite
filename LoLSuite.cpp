@@ -5,7 +5,6 @@
 #include <TlHelp32.h>
 #include <vector>
 #include <shellapi.h>
-#include <shlobj_core.h>
 #include <windows.h>
 #include <unordered_map>
 #include <functional>
