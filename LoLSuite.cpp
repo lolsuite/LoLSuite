@@ -17,12 +17,8 @@ namespace fs = std::filesystem;
 int cb = 0;
 WCHAR szFolderPath[MAX_PATH + 1];
 auto currentPath = fs::current_path();
-constexpr int MAX_LOADSTRING = 100;
 std::vector<std::wstring> v(200);
-HINSTANCE hInst;
-WCHAR szTitle[MAX_LOADSTRING];
-WCHAR szWindowClass[MAX_LOADSTRING];
-BOOL InitInstance(HINSTANCE, int);
+MSG msg;
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 class LimitSingleInstance
@@ -280,38 +276,6 @@ void manageGame(const std::wstring& game, bool restore)
 		Start(L"steam://rungameid/2437170", L"", false);
 		exit(0);
 	}
-}
-
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-	hInst = hInstance;
-	HWND hWnd = CreateWindowExW(
-		0, szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
-		CW_USEDEFAULT, CW_USEDEFAULT, 400, 100,
-		nullptr, nullptr, hInstance, nullptr
-	);
-	if (!hWnd) return FALSE;
-
-	std::vector<std::tuple<DWORD, LPCWSTR, LPCWSTR, DWORD, int, int, int, int, HMENU>> controls = {
-		{WS_EX_TOOLWINDOW, L"BUTTON", L"Patch", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 20, 60, 30, reinterpret_cast<HMENU>(1)},
-		{0, L"BUTTON", L"Restore", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 75, 20, 60, 30, reinterpret_cast<HMENU>(2)}
-	};
-
-	for (const auto& [dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hMenu] : controls) {
-		if (!CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWnd, hMenu, hInstance, nullptr))
-			return FALSE;
-	}
-
-	HWND combobox = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 150, 20, 200, 300, hWnd, NULL, hInstance, NULL);
-
-	for (const auto& str : box) {
-		SendMessage(combobox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
-	}
-	SendMessageW(combobox, CB_SETCURSEL, 0, 0);
-
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
-	return TRUE;
 }
 
 void InvokePowerShellCommand(const std::wstring& command)
@@ -617,11 +581,7 @@ int APIENTRY wWinMain(
 	if (LimitSingleInstance::AnotherInstanceRunning())
 		return 0;
 
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
-
-	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadStringW(hInstance, IDC_BUFFER, szWindowClass, MAX_LOADSTRING);
+	WCHAR szWindowClass[] = L"LoLSuite";
 
 	WNDCLASSEXW wcex = {
 		sizeof(WNDCLASSEXW),
@@ -637,22 +597,39 @@ int APIENTRY wWinMain(
 		szWindowClass,
 		LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON))
 	};
-	RegisterClassExW(&wcex);
+	RegisterClassEx(&wcex);
 
-	if (!InitInstance(hInstance, nShowCmd))
-		return FALSE;
+	HWND hWnd = CreateWindowExW(
+		0, szWindowClass, L"LoLSuite", WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
+		CW_USEDEFAULT, CW_USEDEFAULT, 400, 100,
+		nullptr, nullptr, hInstance, nullptr
+	);
+	if (!hWnd) return FALSE;
 
-	HACCEL hAccelTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_BUFFER));
-	MSG msg;
+	std::vector<std::tuple<DWORD, LPCWSTR, LPCWSTR, DWORD, int, int, int, int, HMENU>> controls = {
+		{WS_EX_TOOLWINDOW, L"BUTTON", L"Patch", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 20, 60, 30, reinterpret_cast<HMENU>(1)},
+		{0, L"BUTTON", L"Restore", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 75, 20, 60, 30, reinterpret_cast<HMENU>(2)}
+	};
 
+	for (const auto& [dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hMenu] : controls) {
+		if (!CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWnd, hMenu, hInstance, nullptr))
+			return FALSE;
+	}
 
-	while (GetMessageW(&msg, nullptr, 0, 0))
+	HWND combobox = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 150, 20, 200, 300, hWnd, NULL, hInstance, NULL);
+
+	for (const auto& str : box) {
+		SendMessage(combobox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
+	}
+	SendMessage(combobox, CB_SETCURSEL, 0, 0);
+
+	ShowWindow(hWnd, nShowCmd);
+	UpdateWindow(hWnd);
+
+	while (GetMessage(&msg, nullptr, 0, 0))
 	{
-		if (!TranslateAcceleratorW(msg.hwnd, hAccelTable, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessageW(&msg);
-		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 
 	return static_cast<int>(msg.wParam);
