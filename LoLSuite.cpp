@@ -385,6 +385,7 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"support")
 	{
 		executeCommands({
+			L"w32tm /resync",
 			L"powercfg -restoredefaultschemes",
 			L"Clear-DnsClientCache",
 			L"winget source update",
