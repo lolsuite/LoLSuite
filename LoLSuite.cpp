@@ -354,10 +354,6 @@ bool ManageServices(const std::vector<std::wstring>& services, bool start)
 
 void manageTasks(const std::wstring& task)
 {
-	// Close running scripts as we will update PowerShell & Windows Terminal & Replace Origin with EA Desktop
-	const std::vector<std::wstring> processes = { L"cmd.exe", L"pwsh.exe",L"powershell.exe", L"WindowsTerminal.exe", L"OpenConsole.exe", L"DXSETUP.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
-	for (const auto& process : processes) Term(process);
-
 	if (task == L"cache")
 	{
 		const std::vector<std::wstring> services = { L"wuauserv", L"bits", L"cryptsvc" };
@@ -384,6 +380,12 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"support")
 	{
+		// Close running scripts as we will update PowerShell & Windows Terminal & Replace Origin with EA Desktop
+		const std::vector<std::wstring> processes = { L"cmd.exe", L"pwsh.exe",L"powershell.exe", L"WindowsTerminal.exe", L"OpenConsole.exe", L"DXSETUP.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
+		for (const auto& process : processes) Term(process);
+		const std::vector<std::wstring> services = { L"W32Time"};
+		ManageServices(services, true);
+
 		executeCommands({
 			L"w32tm /resync",
 			L"powercfg -restoredefaultschemes",
