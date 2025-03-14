@@ -318,37 +318,56 @@ int ShowYesNoMessageBox(const std::wstring& text, const std::wstring& caption)
 	return MessageBoxEx(nullptr, text.c_str(), caption.c_str(), MB_YESNO | MB_ICONQUESTION, 0);
 }
 
+bool ManageServices(const std::vector<std::wstring>& services, bool start)
+{
+	SC_HANDLE scManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
+	if (!scManager) return false;
+
+	for (const auto& service : services)
+	{
+		SC_HANDLE scService = OpenService(scManager, service.c_str(), start ? SERVICE_START : SERVICE_STOP);
+		if (scService)
+		{
+			if (start)
+			{
+				StartService(scService, 0, nullptr);
+			}
+			else
+			{
+				SERVICE_STATUS status;
+				ControlService(scService, SERVICE_CONTROL_STOP, &status);
+			}
+			CloseServiceHandle(scService);
+		}
+	}
+	CloseServiceHandle(scManager);
+	return true;
+}
+
 void manageTasks(const std::wstring& task)
 {
 	// Close running scripts as we will update PowerShell & Windows Terminal & Replace Origin with EA Desktop
 	const std::vector<std::wstring> processes = { L"cmd.exe", L"pwsh.exe",L"powershell.exe", L"WindowsTerminal.exe", L"OpenConsole.exe" L"DXSETUP.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
 	for (const auto& process : processes) Term(process);
-
 	
 	if (task == L"cache")
 	{
+		const std::vector<std::wstring> services = { L"wuauserv", L"bits", L"cryptsvc" };
+		ManageServices(services, false);
+
 		if (OpenClipboard(nullptr))
 		{
 			EmptyClipboard();
 			CloseClipboard();
 		}
-
-		executeCommands({
-		L"Stop-Service -Name wuauserv -Force",
-		L"Stop-Service -Name bits -Force",
-		L"Stop-Service -Name cryptsvc -Force"
-			});
-
 		WCHAR windowsDir[MAX_PATH + 1];
 		WCHAR systemDir[MAX_PATH + 1];
 		GetWindowsDirectory(windowsDir, MAX_PATH + 1);
 		GetSystemDirectory(systemDir, MAX_PATH + 1);
 
-
 		std::vector<std::wstring> directories = {
-			(fs::path(windowsDir) / L"SoftwareDistribution").wstring(),
-			(fs::path(windowsDir) / L"Temp").wstring(),
-			(fs::path(systemDir) / L"catroot2").wstring()
+			(fs::path(windowsDir) / L"SoftwareDistribution"),
+			(fs::path(systemDir) / L"catroot2")
 		};
 
 		for (const auto& dir : directories) {
@@ -357,11 +376,7 @@ void manageTasks(const std::wstring& task)
 			}
 		}
 
-		executeCommands({
-		L"Start-Service -Name wuauserv",
-		L"Start-Service -Name bits",
-		L"Start-Service -Name cryptsvc"
-			});
+		ManageServices(services, true);
 
 		MessageBoxEx(
 			nullptr,
@@ -373,46 +388,71 @@ void manageTasks(const std::wstring& task)
 	}
 	else if (task == L"support")
 	{
-		executeCommands({
-			L"powercfg -restoredefaultschemes",
-			L"Clear-DnsClientCache",
-			L"winget source update",
-			L"winget uninstall Valve.Steam --purge -h",
-			L"winget uninstall ElectronicArts.EADesktop --purge -h",
-			L"winget uninstall ElectronicArts.Origin --purge -h",
-			L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
-			L"winget uninstall Blizzard.BattleNet --purge -h",
-			L"winget uninstall Microsoft.WindowsTerminal --purge -h", L"winget uninstall Microsoft.DirectX --purge -h",
-			L"winget uninstall Microsoft.PowerShell --purge -h", L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
-			L"winget uninstall 9NQPSL29BFFF --purge -h", L"winget uninstall 9PB0TRCNRHFX --purge -h",
-			L"winget uninstall 9N95Q1ZZPMH4 --purge -h", L"winget uninstall 9NCTDW2W1BH8 --purge -h",
-			L"winget uninstall 9MVZQVXJBQ9V --purge -h", L"winget uninstall 9PMMSR1CGPWG --purge -h",
-			L"winget uninstall 9N4D0MSMP0PT --purge -h", L"winget uninstall 9PG2DK419DRG --purge -h",
-			L"winget uninstall 9N5TDP8VCMHS --purge -h", L"winget uninstall 9PCSD6N03BKV --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h", L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
-			L"winget install Microsoft.WindowsTerminal --accept-package-agreements", L"winget install Microsoft.PowerShell --accept-package-agreements",
-			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
-			L"winget install 9NQPSL29BFFF --accept-package-agreements", L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
-			L"winget install 9NCTDW2W1BH8 --accept-package-agreements", L"winget install 9MVZQVXJBQ9V --accept-package-agreements",
-			L"winget install 9PMMSR1CGPWG --accept-package-agreements", L"winget install 9N4D0MSMP0PT --accept-package-agreements",
-			L"winget install 9PG2DK419DRG --accept-package-agreements", L"winget install 9PB0TRCNRHFX --accept-package-agreements",
-			L"winget install 9N5TDP8VCMHS --accept-package-agreements", L"winget install 9PCSD6N03BKV --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
-			L"winget install ElectronicArts.EADesktop --accept-package-agreements",
-			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
-			L"winget install Valve.Steam --accept-package-agreements",
-			L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements", L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
-			});
+        executeCommands({
+            L"powercfg -restoredefaultschemes",
+            L"Clear-DnsClientCache",
+            L"winget source update",
+            L"winget uninstall Valve.Steam --purge -h",
+            L"winget uninstall ElectronicArts.EADesktop --purge -h",
+            L"winget uninstall ElectronicArts.Origin --purge -h",
+            L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
+            L"winget uninstall Blizzard.BattleNet --purge -h",
+            L"winget uninstall Microsoft.WindowsTerminal --purge -h",
+            L"winget uninstall Microsoft.DirectX --purge -h",
+            L"winget uninstall Microsoft.PowerShell --purge -h",
+            L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
+            L"winget uninstall 9NQPSL29BFFF --purge -h",
+            L"winget uninstall 9PB0TRCNRHFX --purge -h",
+            L"winget uninstall 9N95Q1ZZPMH4 --purge -h",
+            L"winget uninstall 9NCTDW2W1BH8 --purge -h",
+            L"winget uninstall 9MVZQVXJBQ9V --purge -h",
+            L"winget uninstall 9PMMSR1CGPWG --purge -h",
+            L"winget uninstall 9N4D0MSMP0PT --purge -h",
+            L"winget uninstall 9PG2DK419DRG --purge -h",
+            L"winget uninstall 9N5TDP8VCMHS --purge -h",
+            L"winget uninstall 9PCSD6N03BKV --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h",
+            L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
+            L"winget install Microsoft.WindowsTerminal --accept-package-agreements",
+            L"winget install Microsoft.PowerShell --accept-package-agreements",
+            L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
+            L"winget install 9NQPSL29BFFF --accept-package-agreements",
+            L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
+            L"winget install 9NCTDW2W1BH8 --accept-package-agreements",
+            L"winget install 9MVZQVXJBQ9V --accept-package-agreements",
+            L"winget install 9PMMSR1CGPWG --accept-package-agreements",
+            L"winget install 9N4D0MSMP0PT --accept-package-agreements",
+            L"winget install 9PG2DK419DRG --accept-package-agreements",
+            L"winget install 9PB0TRCNRHFX --accept-package-agreements",
+            L"winget install 9N5TDP8VCMHS --accept-package-agreements",
+            L"winget install 9PCSD6N03BKV --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
+            L"winget install ElectronicArts.EADesktop --accept-package-agreements",
+            L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
+            L"winget install Valve.Steam --accept-package-agreements",
+            L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
+            L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
+        });
 
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
