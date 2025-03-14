@@ -353,31 +353,8 @@ bool ManageServices(const std::vector<std::wstring>& services, bool start)
 
 void manageTasks(const std::wstring& task)
 {
-	if (task == L"cache")
-	{
-		const std::vector<std::wstring> services = { L"wuauserv", L"bits", L"cryptsvc" };
-		ManageServices(services, false);
 
-		WCHAR windowsDir[MAX_PATH + 1];
-		WCHAR systemDir[MAX_PATH + 1];
-		GetWindowsDirectory(windowsDir, MAX_PATH + 1);
-		GetSystemDirectory(systemDir, MAX_PATH + 1);
-
-		std::vector<std::wstring> directories = {
-			(fs::path(windowsDir) / L"SoftwareDistribution"),
-			(fs::path(systemDir) / L"catroot2")
-		};
-
-		for (const auto& dir : directories) {
-			for (const auto& entry : fs::directory_iterator(dir)) {
-				fs::remove_all(entry.path());
-			}
-		}
-
-		ManageServices(services, true);
-
-	}
-	else if (task == L"support")
+	if (task == L"support")
 	{
 		// Close running scripts as we will update PowerShell & Windows Terminal & Replace Origin with EA Desktop
 		const std::vector<std::wstring> processes = { L"cmd.exe", L"pwsh.exe",L"powershell.exe", L"WindowsTerminal.exe", L"OpenConsole.exe", L"DXSETUP.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
@@ -555,6 +532,30 @@ void manageTasks(const std::wstring& task)
 				L"winget install Discord.Discord --accept-package-agreements"
 				});
 		}
+	}
+	else if (task == L"cache")
+	{
+		const std::vector<std::wstring> services = { L"wuauserv", L"bits", L"cryptsvc" };
+		ManageServices(services, false);
+
+		WCHAR windowsDir[MAX_PATH + 1];
+		WCHAR systemDir[MAX_PATH + 1];
+		GetWindowsDirectory(windowsDir, MAX_PATH + 1);
+		GetSystemDirectory(systemDir, MAX_PATH + 1);
+
+		std::vector<std::wstring> directories = {
+			(fs::path(windowsDir) / L"SoftwareDistribution"),
+			(fs::path(systemDir) / L"catroot2")
+		};
+
+		for (const auto& dir : directories) {
+			for (const auto& entry : fs::directory_iterator(dir)) {
+				fs::remove_all(entry.path());
+			}
+		}
+
+		ManageServices(services, true);
+
 	}
 }
 
