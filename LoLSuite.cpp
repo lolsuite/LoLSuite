@@ -11,6 +11,7 @@
 #include <wininet.h>
 #include <filesystem>
 #include <urlmon.h>
+#include <winsvc.h>
 
 namespace fs = std::filesystem;
 int cb = 0;
@@ -325,30 +326,40 @@ int ShowYesNoMessageBox(const std::wstring& text, const std::wstring& caption)
 	return MessageBoxEx(nullptr, text.c_str(), caption.c_str(), MB_YESNO | MB_ICONQUESTION, 0);
 }
 
-bool ManageServices(const std::vector<std::wstring>& services, bool start)
+void ManageService(const std::wstring& serviceName, bool start)
 {
-	SC_HANDLE scManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
-	if (!scManager) return false;
+    SC_HANDLE schSCManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
+    if (!schSCManager)
+        return;
 
-	for (const auto& service : services)
-	{
-		SC_HANDLE scService = OpenService(scManager, service.c_str(), start ? SERVICE_START : SERVICE_STOP);
-		if (scService)
-		{
-			if (start)
-			{
-				StartService(scService, 0, nullptr);
-			}
-			else
-			{
-				SERVICE_STATUS status;
-				ControlService(scService, SERVICE_CONTROL_STOP, &status);
-			}
-			CloseServiceHandle(scService);
-		}
-	}
-	CloseServiceHandle(scManager);
-	return true;
+    SC_HANDLE schService = OpenService(schSCManager, serviceName.c_str(), SERVICE_START | SERVICE_STOP);
+    if (!schService)
+    {
+        CloseServiceHandle(schSCManager);
+        return;
+    }
+
+    if (start)
+    {
+        StartService(schService, 0, nullptr);
+    }
+    else
+    {
+        SERVICE_STATUS status;
+        ControlService(schService, SERVICE_CONTROL_STOP, &status);
+        // Wait until the service is fully stopped
+        while (status.dwCurrentState != SERVICE_STOPPED)
+        {
+            Sleep(100); // Wait for 100 milliseconds
+            if (!QueryServiceStatus(schService, &status))
+            {
+                break;
+            }
+        }
+    }
+
+    CloseServiceHandle(schService);
+    CloseServiceHandle(schSCManager);
 }
 
 void manageTasks(const std::wstring& task)
@@ -359,8 +370,7 @@ void manageTasks(const std::wstring& task)
 		// Close running scripts as we will update PowerShell & Windows Terminal & Replace Origin with EA Desktop
 		const std::vector<std::wstring> processes = { L"cmd.exe", L"pwsh.exe",L"powershell.exe", L"WindowsTerminal.exe", L"OpenConsole.exe", L"DXSETUP.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
 		for (const auto& process : processes) Term(process);
-		const std::vector<std::wstring> services = { L"W32Time"};
-		ManageServices(services, true);
+		ManageService(L"W32Time", true);
 
 		executeCommands({
 			L"w32tm /resync",
@@ -536,7 +546,9 @@ void manageTasks(const std::wstring& task)
 	else if (task == L"cache")
 	{
 		const std::vector<std::wstring> services = { L"wuauserv", L"bits", L"cryptsvc" };
-		ManageServices(services, false);
+        for (const auto& service : services) {
+            ManageService(service, false);
+        }
 
 		WCHAR windowsDir[MAX_PATH + 1];
 		WCHAR systemDir[MAX_PATH + 1];
@@ -554,7 +566,9 @@ void manageTasks(const std::wstring& task)
 			}
 		}
 
-		ManageServices(services, true);
+		for (const auto& service : services) {
+			ManageService(service, true);
+		}
 
 	}
 }
