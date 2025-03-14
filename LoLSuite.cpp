@@ -281,7 +281,6 @@ void manageGame(const std::wstring& game, bool restore)
 		dl(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 6, true);
 
 		Start(L"steam://rungameid/2437170", L"", false);
-		exit(0);
 	}
 }
 
