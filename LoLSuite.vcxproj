@@ -5,10 +5,6 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -32,19 +28,6 @@
     <EnableASAN>false</EnableASAN>
     <InterproceduralOptimization>true</InterproceduralOptimization>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>Intel C++ Compiler 2024</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <VCToolsVersion>14.44.34823</VCToolsVersion>
-    <EnableUnitySupport>false</EnableUnitySupport>
-    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
-    <SpectreMitigation>Spectre</SpectreMitigation>
-    <EnableASAN>false</EnableASAN>
-    <InterproceduralOptimization>true</InterproceduralOptimization>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -53,18 +36,10 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <UseStructuredOutput>false</UseStructuredOutput>
     <GenerateManifest>true</GenerateManifest>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <GenerateManifest>true</GenerateManifest>
-    <UseStructuredOutput>false</UseStructuredOutput>
-    <OutDir>C:\Users\mobas\OneDrive\Documents\GitHub\LoLSuite\Release\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -117,67 +92,13 @@
       <EnableUAC>true</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_UNICODE;UNICODE;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <DebugInformationFormat>None</DebugInformationFormat>
-      <StringPooling>true</StringPooling>
-      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <IncludeInUnityFile>false</IncludeInUnityFile>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <ConformanceMode>true</ConformanceMode>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <UseStandardPreprocessor>true</UseStandardPreprocessor>
-      <UseUnicodeForAssemblerListing>true</UseUnicodeForAssemblerListing>
-      <OpenMPSupport>false</OpenMPSupport>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
-      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
-      <OmitFramePointers>true</OmitFramePointers>
-      <EnableModules>true</EnableModules>
-      <BuildStlModules>false</BuildStlModules>
-      <LanguageStandard_C>Default</LanguageStandard_C>
-      <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <ErrorReporting>None</ErrorReporting>
-      <CompileAsWinRT>false</CompileAsWinRT>
-      <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
-      <CCppSupport>Cpp17Support</CCppSupport>
-      <CheckUnicodeSecurity>false</CheckUnicodeSecurity>
-      <PGOUsePreTrainedModel>true</PGOUsePreTrainedModel>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <MinimumRequiredVersion>10.00</MinimumRequiredVersion>
-      <AdditionalDependencies>urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AllowIsolation>false</AllowIsolation>
-      <LargeAddressAware>true</LargeAddressAware>
-      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <EnableUAC>true</EnableUAC>
-      <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
-      <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
-      <OutputFile>$(OutDir)$(TargetName)_intel_x64$(TargetExt)</OutputFile>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LoLSuite.cpp">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
