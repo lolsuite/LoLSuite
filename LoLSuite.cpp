@@ -12,7 +12,7 @@
 #include <filesystem>
 #include <urlmon.h>
 #include <winsvc.h>
-#include <ShlObj_core.h>
+#include <ShlObj.h>
 
 namespace fs = std::filesystem;
 int cb = 0;
@@ -347,10 +347,9 @@ void ManageService(const std::wstring& serviceName, bool start)
 	{
 		SERVICE_STATUS status;
 		ControlService(schService, SERVICE_CONTROL_STOP, &status);
-		// Wait until the service is fully stopped
 		while (status.dwCurrentState != SERVICE_STOPPED)
 		{
-			Sleep(100); // Wait for 100 milliseconds
+			Sleep(1000);
 			if (!QueryServiceStatus(schService, &status))
 			{
 				break;
@@ -367,7 +366,6 @@ void manageTasks(const std::wstring& task)
 
 	if (task == L"support")
 	{
-		// Close running scripts as we will update PowerShell & Windows Terminal & Replace Origin with EA Desktop
 		const std::vector<std::wstring> processes = { L"cmd.exe", L"pwsh.exe",L"powershell.exe", L"WindowsTerminal.exe", L"OpenConsole.exe", L"DXSETUP.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
 		for (const auto& process : processes) Term(process);
 		ManageService(L"W32Time", true);
@@ -589,9 +587,8 @@ void ClearWindowsUpdateCache()
 		CloseClipboard();
 	}
 
-	// Stop Windows Update services
 	const std::vector<std::wstring> services = {
-		L"wuauserv", L"bits", L"cryptsvc"
+		L"wuauserv", L"BITS", L"CryptSvc"
 	};
 
 	for (const auto& service : services)
@@ -599,14 +596,12 @@ void ClearWindowsUpdateCache()
 		ManageService(service, false);
 	}
 
-	// Clean Explorer Cache
 	WCHAR localAppDataPath[MAX_PATH + 1];
 	SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
 	fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
 	std::vector<std::wstring> explorerPatterns = { L"thumbcache_*.db", L"iconcache_*.db", L"ExplorerStartupLog*.etl" };
 	CleanCacheFiles(explorerPath.wstring(), explorerPatterns);
 
-	// Clean BITS Job Files
 	wchar_t* allUserProfile = nullptr;
 	size_t len = 0;
 	_wdupenv_s(&allUserProfile, &len, L"ALLUSERSPROFILE");
@@ -625,7 +620,6 @@ void ClearWindowsUpdateCache()
 			}
 		}
 
-	// Restart Windows Update services
 	for (const auto& service : services)
 	{
 		ManageService(service, true);
@@ -672,7 +666,7 @@ int APIENTRY wWinMain(
 	_In_ int nShowCmd
 )
 {
-	LimitSingleInstance GUID(L"Global\\{L0LSU1T3-BYL0LSU1T3@G17HUB-V3RYR4ND0M4NDR4R3MUCHW0W}");
+	LimitSingleInstance GUID(L"{3025d31f-c76e-435c-a4b48-9d084fa9f5ea}");
 	if (LimitSingleInstance::AnotherInstanceRunning())
 		return 0;
 
