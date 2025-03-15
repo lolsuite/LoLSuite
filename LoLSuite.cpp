@@ -12,12 +12,13 @@
 #include <filesystem>
 #include <urlmon.h>
 #include <winsvc.h>
+#include <ShlObj_core.h>
 
 namespace fs = std::filesystem;
 int cb = 0;
 WCHAR szFolderPath[MAX_PATH + 1];
 auto currentPath = fs::current_path();
-std::vector<std::wstring> v(125);
+std::vector<std::wstring> v(200);
 MSG msg;
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -52,12 +53,11 @@ public:
 	}
 };
 
-const wchar_t* box[5] = {
+const wchar_t* box[4] = {
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
-	L"DirectX9 Unblocked",
-	L"Clear WinUpdate Cache"
+	L"WinTweaks"
 };
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
@@ -328,38 +328,38 @@ int ShowYesNoMessageBox(const std::wstring& text, const std::wstring& caption)
 
 void ManageService(const std::wstring& serviceName, bool start)
 {
-    SC_HANDLE schSCManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
-    if (!schSCManager)
-        return;
+	SC_HANDLE schSCManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
+	if (!schSCManager)
+		return;
 
-    SC_HANDLE schService = OpenService(schSCManager, serviceName.c_str(), SERVICE_START | SERVICE_STOP);
-    if (!schService)
-    {
-        CloseServiceHandle(schSCManager);
-        return;
-    }
+	SC_HANDLE schService = OpenService(schSCManager, serviceName.c_str(), SERVICE_START | SERVICE_STOP);
+	if (!schService)
+	{
+		CloseServiceHandle(schSCManager);
+		return;
+	}
 
-    if (start)
-    {
-        StartService(schService, 0, nullptr);
-    }
-    else
-    {
-        SERVICE_STATUS status;
-        ControlService(schService, SERVICE_CONTROL_STOP, &status);
-        // Wait until the service is fully stopped
-        while (status.dwCurrentState != SERVICE_STOPPED)
-        {
-            Sleep(100); // Wait for 100 milliseconds
-            if (!QueryServiceStatus(schService, &status))
-            {
-                break;
-            }
-        }
-    }
+	if (start)
+	{
+		StartService(schService, 0, nullptr);
+	}
+	else
+	{
+		SERVICE_STATUS status;
+		ControlService(schService, SERVICE_CONTROL_STOP, &status);
+		// Wait until the service is fully stopped
+		while (status.dwCurrentState != SERVICE_STOPPED)
+		{
+			Sleep(100); // Wait for 100 milliseconds
+			if (!QueryServiceStatus(schService, &status))
+			{
+				break;
+			}
+		}
+	}
 
-    CloseServiceHandle(schService);
-    CloseServiceHandle(schSCManager);
+	CloseServiceHandle(schService);
+	CloseServiceHandle(schSCManager);
 }
 
 void manageTasks(const std::wstring& task)
@@ -546,34 +546,6 @@ void manageTasks(const std::wstring& task)
 				});
 		}
 	}
-	else if (task == L"cache")
-	{
-		const std::vector<std::wstring> services = { L"wuauserv", L"bits", L"cryptsvc" };
-        for (const auto& service : services) {
-            ManageService(service, false);
-        }
-
-		WCHAR windowsDir[MAX_PATH + 1];
-		WCHAR systemDir[MAX_PATH + 1];
-		GetWindowsDirectory(windowsDir, MAX_PATH + 1);
-		GetSystemDirectory(systemDir, MAX_PATH + 1);
-
-		std::vector<std::wstring> directories = {
-			(fs::path(windowsDir) / L"SoftwareDistribution"),
-			(fs::path(systemDir) / L"catroot2")
-		};
-
-		for (const auto& dir : directories) {
-			for (const auto& entry : fs::directory_iterator(dir)) {
-				fs::remove_all(entry.path());
-			}
-		}
-
-		for (const auto& service : services) {
-			ManageService(service, true);
-		}
-
-	}
 }
 
 void handleCommand(int cb, bool flag)
@@ -582,8 +554,7 @@ void handleCommand(int cb, bool flag)
 		{0, [flag]() { manageGame(L"leagueoflegends", flag); }},
 		{1, [flag]() { manageGame(L"dota2", flag); }},
 		{2, [flag]() { manageGame(L"smite2", flag); }},
-		{3, []() { manageTasks(L"support"); }},
-		{4, []() { manageTasks(L"cache"); } }
+		{3, []() { manageTasks(L"support"); }}
 	};
 
 	auto it = commandMap.find(cb);
@@ -592,6 +563,79 @@ void handleCommand(int cb, bool flag)
 		it->second();
 	}
 }
+
+void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstring>& patterns) {
+	for (const auto& pattern : patterns) {
+		std::wstring searchPath = fs::path(basePath) / pattern;
+		WIN32_FIND_DATA findFileData;
+		HANDLE hFind = FindFirstFile(searchPath.c_str(), &findFileData);
+
+		if (hFind != INVALID_HANDLE_VALUE) {
+			do {
+				std::wstring filePath = fs::path(basePath) / findFileData.cFileName;
+				fs::remove(filePath);
+			} while (FindNextFile(hFind, &findFileData) != 0);
+			FindClose(hFind);
+		}
+	}
+}
+
+void CleanExplorerAndBITSCache() {
+	// Clean Explorer Cache
+	WCHAR localAppDataPath[MAX_PATH + 1];
+	SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
+	fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
+	std::vector<std::wstring> explorerPatterns = { L"thumbcache_*.db", L"iconcache_*.db" };
+	CleanCacheFiles(explorerPath.wstring(), explorerPatterns);
+
+	// Clean BITS Job Files
+	wchar_t* allUserProfile = nullptr;
+	size_t len = 0;
+	_wdupenv_s(&allUserProfile, &len, L"ALLUSERSPROFILE");
+	if (allUserProfile) {
+		std::wstring bitsPath = fs::path(allUserProfile) / L"Application Data" / L"Microsoft" / L"Network" / L"Downloader";
+		std::vector<std::wstring> bitsPatterns = { L"qmgr*.dat" };
+		CleanCacheFiles(bitsPath, bitsPatterns);
+		free(allUserProfile);
+	}
+}
+
+
+void ClearWindowsUpdateCache()
+{
+	if (OpenClipboard(nullptr))
+	{
+		EmptyClipboard();
+		CloseClipboard();
+	}
+
+	// Stop Windows Update services
+	const std::vector<std::wstring> services = {
+		L"wuauserv", L"bits", L"cryptsvc"
+	};
+
+	for (const auto& service : services)
+	{
+		ManageService(service, false);
+	}
+
+	CleanExplorerAndBITSCache();
+
+		WCHAR windowsPath[MAX_PATH];
+		if (GetWindowsDirectory(windowsPath, MAX_PATH)) {
+			fs::path updateCachePath = fs::path(windowsPath) / L"SoftwareDistribution" / L"Download";
+			if (fs::exists(updateCachePath)) {
+				fs::remove_all(updateCachePath);
+			}
+		}
+
+	// Restart Windows Update services
+	for (const auto& service : services)
+	{
+		ManageService(service, true);
+	}
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -678,11 +722,7 @@ int APIENTRY wWinMain(
 	}
 	SendMessage(combobox, CB_SETCURSEL, 0, 0);
 
-	if (OpenClipboard(nullptr))
-	{
-		EmptyClipboard();
-		CloseClipboard();
-	}
+	ClearWindowsUpdateCache();
 
 	ShowWindow(hWnd, nShowCmd);
 	UpdateWindow(hWnd);
