@@ -623,7 +623,7 @@ void ClearWindowsUpdateCache()
 
 		WCHAR windowsPath[MAX_PATH];
 		if (GetWindowsDirectory(windowsPath, MAX_PATH)) {
-			fs::path updateCachePath = fs::path(windowsPath) / L"SoftwareDistribution" / L"Download";
+			fs::path updateCachePath = fs::path(windowsPath) / L"SoftwareDistribution";
 			if (fs::exists(updateCachePath)) {
 				fs::remove_all(updateCachePath);
 			}
