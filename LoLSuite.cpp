@@ -375,6 +375,7 @@ void manageTasks(const std::wstring& task)
 		executeCommands({
 			L"w32tm /resync",
 			L"powercfg -restoredefaultschemes",
+			L"powercfg /h off",
 			L"Clear-DnsClientCache",
 			L"winget source update",
 			L"winget uninstall Valve.Steam --purge -h",
@@ -580,27 +581,6 @@ void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstrin
 	}
 }
 
-void CleanExplorerAndBITSCache() {
-	// Clean Explorer Cache
-	WCHAR localAppDataPath[MAX_PATH + 1];
-	SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
-	fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
-	std::vector<std::wstring> explorerPatterns = { L"thumbcache_*.db", L"iconcache_*.db" };
-	CleanCacheFiles(explorerPath.wstring(), explorerPatterns);
-
-	// Clean BITS Job Files
-	wchar_t* allUserProfile = nullptr;
-	size_t len = 0;
-	_wdupenv_s(&allUserProfile, &len, L"ALLUSERSPROFILE");
-	if (allUserProfile) {
-		std::wstring bitsPath = fs::path(allUserProfile) / L"Application Data" / L"Microsoft" / L"Network" / L"Downloader";
-		std::vector<std::wstring> bitsPatterns = { L"qmgr*.dat" };
-		CleanCacheFiles(bitsPath, bitsPatterns);
-		free(allUserProfile);
-	}
-}
-
-
 void ClearWindowsUpdateCache()
 {
 	if (OpenClipboard(nullptr))
@@ -619,7 +599,23 @@ void ClearWindowsUpdateCache()
 		ManageService(service, false);
 	}
 
-	CleanExplorerAndBITSCache();
+	// Clean Explorer Cache
+	WCHAR localAppDataPath[MAX_PATH + 1];
+	SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
+	fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
+	std::vector<std::wstring> explorerPatterns = { L"thumbcache_*.db", L"iconcache_*.db", L"ExplorerStartupLog*.etl" };
+	CleanCacheFiles(explorerPath.wstring(), explorerPatterns);
+
+	// Clean BITS Job Files
+	wchar_t* allUserProfile = nullptr;
+	size_t len = 0;
+	_wdupenv_s(&allUserProfile, &len, L"ALLUSERSPROFILE");
+	if (allUserProfile) {
+		std::wstring bitsPath = fs::path(allUserProfile) / L"Application Data" / L"Microsoft" / L"Network" / L"Downloader";
+		std::vector<std::wstring> bitsPatterns = { L"qmgr*.dat" };
+		CleanCacheFiles(bitsPath, bitsPatterns);
+		free(allUserProfile);
+	}
 
 		WCHAR windowsPath[MAX_PATH];
 		if (GetWindowsDirectory(windowsPath, MAX_PATH)) {
