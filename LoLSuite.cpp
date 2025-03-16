@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <urlmon.h>
 #include <winsvc.h>
+#include <ShlObj.h>
 
 namespace fs = std::filesystem;
 int cb = 0;
