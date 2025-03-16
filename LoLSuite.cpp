@@ -18,7 +18,7 @@ namespace fs = std::filesystem;
 int cb = 0;
 WCHAR szFolderPath[MAX_PATH + 1];
 auto currentPath = fs::current_path();
-std::vector<std::wstring> v(200);
+std::vector<std::wstring> v(158);
 MSG msg;
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -440,7 +440,7 @@ void manageTasks(const std::wstring& task)
 
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
-		if (ShowYesNoMessageBox(L"Do you wish to install DirectX 9", L"Confirmation") == IDYES)
+		if (ShowYesNoMessageBox(L"Do you wish to install DirectX9", L"Confirmation") == IDYES)
 		{
 			const std::vector<std::wstring> dxx86_cab = {
 						L"Apr2005_d3dx9_25_x86.cab", L"Apr2006_d3dx9_30_x86.cab", L"Apr2006_MDX1_x86.cab", L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_XACT_x86.cab",
