@@ -366,6 +366,13 @@ void manageTasks(const std::wstring& task)
 
 	if (task == L"support")
 	{
+		MessageBoxEx(
+			nullptr,
+			L"Please wait until finish! (Press OK)",
+			L"LoLSuite",
+			MB_OK,
+			0);
+
 		const std::vector<std::wstring> processes = { L"cmd.exe", L"pwsh.exe",L"powershell.exe", L"WindowsTerminal.exe", L"OpenConsole.exe", L"DXSETUP.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
 		for (const auto& process : processes) Term(process);
 		ManageService(L"W32Time", true);
@@ -554,13 +561,14 @@ void handleCommand(int cb, bool flag)
 		{1, [flag]() { manageGame(L"dota2", flag); }},
 		{2, [flag]() { manageGame(L"smite2", flag); }},
 		{3, []() { manageTasks(L"support"); }}
-	};
+  };
 
 	auto it = commandMap.find(cb);
 	if (it != commandMap.end())
 	{
 		it->second();
 	}
+	exit(0);
 }
 
 void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstring>& patterns) {
@@ -612,13 +620,13 @@ void ClearWindowsUpdateCache()
 		free(allUserProfile);
 	}
 
-		WCHAR windowsPath[MAX_PATH];
-		if (GetWindowsDirectory(windowsPath, MAX_PATH)) {
-			fs::path updateCachePath = fs::path(windowsPath) / L"SoftwareDistribution";
-			if (fs::exists(updateCachePath)) {
-				fs::remove_all(updateCachePath);
-			}
+	WCHAR windowsPath[MAX_PATH];
+	if (GetWindowsDirectory(windowsPath, MAX_PATH)) {
+		fs::path updateCachePath = fs::path(windowsPath) / L"SoftwareDistribution";
+		if (fs::exists(updateCachePath)) {
+			fs::remove_all(updateCachePath);
 		}
+	}
 
 	for (const auto& service : services)
 	{
