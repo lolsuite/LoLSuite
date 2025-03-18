@@ -698,7 +698,7 @@ int APIENTRY wWinMain(
 	RegisterClassEx(&wcex);
 
 	HWND hWnd = CreateWindowExW(
-		0, szWindowClass, L"LoLSuite", WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
+		0, szWindowClass, L"LoLSuite", WS_EX_LAYERED,
 		CW_USEDEFAULT, CW_USEDEFAULT, 400, 100,
 		nullptr, nullptr, hInstance, nullptr
 	);
