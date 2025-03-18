@@ -382,6 +382,7 @@ void manageTasks(const std::wstring& task)
 			L"powercfg -restoredefaultschemes",
 			L"powercfg /h off",
 			L"Clear-DnsClientCache",
+			L"Add-WindowsCapability -Online -Name NetFx3~~~~",
 			L"winget source update",
 			L"winget uninstall Valve.Steam --purge -h",
 			L"winget uninstall ElectronicArts.EADesktop --purge -h",
