@@ -16,7 +16,7 @@ int cb = 0;
 namespace fs = std::filesystem;
 auto workdir = fs::current_path();
 WCHAR szFolderPath[MAX_PATH + 1];
-std::vector<std::wstring> v(158);
+std::vector<std::wstring> fileBuffer(158);
 MSG msg;
 
 // LimitSingleInstance Class
@@ -45,7 +45,7 @@ public:
 
 // Simplified Folder Browser
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath) {
-	v[0].clear();
+	fileBuffer[0].clear();
 
 	IFileDialog* pfd = nullptr;
 	if (FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd)))) return E_FAIL;
@@ -58,7 +58,7 @@ HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 			if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath))) {
 				wcsncpy_s(pszFolderPath, cchFolderPath, pszPath, _TRUNCATE);
 				CoTaskMemFree(pszPath);
-				v[0] = pszFolderPath;
+				fileBuffer[0] = pszFolderPath;
 			}
 			psi->Release();
 		}
@@ -69,18 +69,18 @@ HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 
 // Function to join a base path at a given index with an additional path component
 std::wstring JoinPath(const int index, const std::wstring& add) {
-	return (fs::path(v[index]) / add).wstring();
+	return (fs::path(fileBuffer[index]) / add).wstring();
 }
 
 // Function to append an additional path component to the base path at a given index
 void AppendPath(const int index, const std::wstring& add) {
-	v[index] = JoinPath(index, add);
+	fileBuffer[index] = JoinPath(index, add);
 }
 
 // Function to combine a source path at a specific index with an additional path component
 // and store the resulting path in the destination index
 void CombinePath(const int destIndex, const int srcIndex, const std::wstring& add) {
-	v[destIndex] = JoinPath(srcIndex, add);
+	fileBuffer[destIndex] = JoinPath(srcIndex, add);
 }
 
 // Start a Process
@@ -141,8 +141,8 @@ void Unblock(const std::wstring& file) {
 void DownloadFile(const std::wstring& url, int idx, bool fromServer) {
 	std::wstring targetUrl = fromServer ? L"https://lolsuite.org/files/" + url : url;
 	DeleteUrlCacheEntry(targetUrl.c_str());
-	URLDownloadToFile(nullptr, targetUrl.c_str(), v[idx].c_str(), 0, nullptr);
-	Unblock(v[idx]);
+	URLDownloadToFile(nullptr, targetUrl.c_str(), fileBuffer[idx].c_str(), 0, nullptr);
+	Unblock(fileBuffer[idx]);
 }
 
 
@@ -182,7 +182,7 @@ void manageGame(const std::wstring& game, bool restore) {
 		CombinePath(55, 51, L"tbb.dll");
 		CombinePath(54, 0, L"d3dcompiler_47.dll");
 
-		if (restore) fs::remove(v[55]);
+		if (restore) fs::remove(fileBuffer[55]);
 		else DownloadFile(L"tbb.dll", 55, true);
 
 		const auto d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" :
@@ -376,14 +376,14 @@ void manageTasks(const std::wstring& task)
 			L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab", L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_MDX1_x86.cab"
 		};
 
-		v[82].clear();
+		fileBuffer[82].clear();
 		AppendPath(82, workdir);
 		AppendPath(82, L"tmp");
-		fs::create_directory(v[82]);
+		fs::create_directory(fileBuffer[82]);
 
 		auto download_files = [&](const std::vector<std::wstring>& files) {
 			for (size_t i = 0; i < files.size(); ++i) {
-				v[i].clear();
+				fileBuffer[i].clear();
 				CombinePath(i, 82, files[i]);
 				DownloadFile(L"dx9/" + files[i], i, true);
 			}
@@ -394,7 +394,7 @@ void manageTasks(const std::wstring& task)
 		download_files(dxsetup_files);
 
 		Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true); // Wait for finish
-		fs::remove_all(v[82]);
+		fs::remove_all(fileBuffer[82]);
 
 		ManageService(L"W32Time", true);
 
