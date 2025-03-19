@@ -220,9 +220,12 @@ void manageGame(const std::wstring& game, bool restore) {
 		for (const auto& process : processes) {
 			Terminate(process);
 		}
+		Unblock(JoinPath(0, L"Hemingway.exe"));
 
 		CombinePath(8, 0, L"Windows\\Engine\\Binaries\\Win64");
 		CombinePath(7, 0, L"Windows\\Hemingway\\Binaries\\Win64");
+
+		Unblock(JoinPath(7, L"Hemingway-Win64-Shipping.exe"));
 
 		CombinePath(1, 8, L"tbb.dll");
 		DownloadFile(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 1, true);
