@@ -6,167 +6,107 @@
 #include <vector>
 #include <shellapi.h>
 #include <windows.h>
-#include <unordered_map>
 #include <functional>
 #include <wininet.h>
 #include <filesystem>
 #include <urlmon.h>
-#include <winsvc.h>
 #include <ShlObj.h>
 
+int cb = 0;
 namespace fs = std::filesystem;
+auto workdir = fs::current_path();
 WCHAR szFolderPath[MAX_PATH + 1];
-auto currentPath = fs::current_path();
 std::vector<std::wstring> v(158);
 MSG msg;
-int cb = 0;
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-class LimitSingleInstance
-{
-protected:
-	volatile HANDLE Mutex;
+// LimitSingleInstance Class
+class LimitSingleInstance {
+	HANDLE Mutex;
 
 public:
-	explicit LimitSingleInstance(const std::wstring& strMutexName)
-		: Mutex(nullptr)
-	{
-		Mutex = CreateMutex(nullptr, FALSE, strMutexName.c_str());
+	explicit LimitSingleInstance(const std::wstring& mutexName)
+		: Mutex(CreateMutex(nullptr, FALSE, mutexName.c_str())) {
 	}
 
-	~LimitSingleInstance()
-	{
-		if (Mutex)
-		{
+	~LimitSingleInstance() {
+		if (Mutex) {
 			ReleaseMutex(Mutex);
 			CloseHandle(Mutex);
-			Mutex = nullptr;
 		}
 	}
 
 	LimitSingleInstance(const LimitSingleInstance&) = delete;
 	LimitSingleInstance& operator=(const LimitSingleInstance&) = delete;
 
-	static BOOL AnotherInstanceRunning()
-	{
-		return (GetLastError() == ERROR_ALREADY_EXISTS);
+	static bool AnotherInstanceRunning() {
+		return GetLastError() == ERROR_ALREADY_EXISTS;
 	}
 };
 
-HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
-{
+// Simplified Folder Browser
+HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath) {
 	v[0].clear();
+
 	IFileDialog* pfd = nullptr;
-	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
-	if (FAILED(hr)) {
-		return hr; // Abort if the dialog creation fails
+	if (FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd)))) return E_FAIL;
+
+	pfd->SetOptions(FOS_PICKFOLDERS);
+	if (SUCCEEDED(pfd->Show(hwndOwner))) {
+		IShellItem* psi = nullptr;
+		if (SUCCEEDED(pfd->GetResult(&psi))) {
+			PWSTR pszPath = nullptr;
+			if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath))) {
+				wcsncpy_s(pszFolderPath, cchFolderPath, pszPath, _TRUNCATE);
+				CoTaskMemFree(pszPath);
+				v[0] = pszFolderPath;
+			}
+			psi->Release();
+		}
 	}
-
-	DWORD dwOptions;
-	hr = pfd->GetOptions(&dwOptions);
-	if (FAILED(hr)) {
-		pfd->Release(); // Clean up before aborting
-		return hr;
-	}
-
-	hr = pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
-	if (FAILED(hr)) {
-		pfd->Release(); // Clean up before aborting
-		return hr;
-	}
-
-	hr = pfd->Show(hwndOwner);
-	if (FAILED(hr)) {
-		pfd->Release(); // Clean up before aborting
-		return hr;
-	}
-
-	IShellItem* psi = nullptr;
-	hr = pfd->GetResult(&psi);
-	if (FAILED(hr)) {
-		pfd->Release(); // Clean up before aborting
-		return hr;
-	}
-
-	PWSTR pszPath = nullptr;
-	hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
-	if (FAILED(hr) || pszPath == nullptr) {
-		// Clean up and abort if the path is null
-		psi->Release();
-		pfd->Release();
-		return E_ABORT;
-	}
-
-	// Copy the folder path and clean up
-	wcsncpy_s(pszFolderPath, cchFolderPath, pszPath, _TRUNCATE);
-	CoTaskMemFree(pszPath);
-
-	// Release resources
-	psi->Release();
 	pfd->Release();
-
-	// Update the global variable and return the result
-	v[0] = pszFolderPath;
-	return hr;
+	return S_OK;
 }
 
-
-
-std::wstring JoinPath(const int index, const std::wstring& add)
-{
+// Function to join a base path at a given index with an additional path component
+std::wstring JoinPath(const int index, const std::wstring& add) {
 	return (fs::path(v[index]) / add).wstring();
 }
 
-void AppendPath(const int index, const std::wstring& add)
-{
+// Function to append an additional path component to the base path at a given index
+void AppendPath(const int index, const std::wstring& add) {
 	v[index] = JoinPath(index, add);
 }
 
-void CombinePath(const int destIndex, const int srcIndex, const std::wstring& add)
-{
+// Function to combine a source path at a specific index with an additional path component
+// and store the resulting path in the destination index
+void CombinePath(const int destIndex, const int srcIndex, const std::wstring& add) {
 	v[destIndex] = JoinPath(srcIndex, add);
 }
 
-void Start(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait, bool highPriority = true)
-{
-	SHELLEXECUTEINFO info = {};
-	info.cbSize = sizeof(SHELLEXECUTEINFO);
+// Start a Process
+void Start(const std::wstring& file, const std::wstring& params, bool wait, bool highPriority = true) {
+	SHELLEXECUTEINFO info = { sizeof(SHELLEXECUTEINFO) };
 	info.fMask = SEE_MASK_NOCLOSEPROCESS;
 	info.nShow = SW_SHOWNORMAL;
-	info.lpFile = lpFile.c_str();
-	info.lpParameters = lpParameters.c_str();
-	if (!ShellExecuteEx(&info))
-	{
-		return;
-	}
-	if (wait && info.hProcess != nullptr)
-	{
+	info.lpFile = file.c_str();
+	info.lpParameters = params.c_str();
+	if (ShellExecuteEx(&info) && wait && info.hProcess) {
+		if (highPriority) SetPriorityClass(info.hProcess, HIGH_PRIORITY_CLASS);
 		WaitForSingleObject(info.hProcess, INFINITE);
-	}
-
-	if (info.hProcess != nullptr)
-	{
-		if (highPriority)
-		{
-			SetPriorityClass(info.hProcess, HIGH_PRIORITY_CLASS);
-		}
 		CloseHandle(info.hProcess);
 	}
 }
 
-void Term(const std::wstring& process_name)
-{
+// Terminate a Process
+void Terminate(const std::wstring& processName) {
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if (snapshot == INVALID_HANDLE_VALUE) return;
 
-	PROCESSENTRY32 processEntry = { sizeof(PROCESSENTRY32) };
-	for (BOOL hasProcess = Process32First(snapshot, &processEntry); hasProcess; hasProcess = Process32Next(snapshot, &processEntry))
-	{
-		if (wcscmp(processEntry.szExeFile, process_name.c_str()) == 0)
-		{
-			HANDLE processHandle = OpenProcess(PROCESS_TERMINATE, FALSE, processEntry.th32ProcessID);
-			if (processHandle)
-			{
+	PROCESSENTRY32 entry = { sizeof(PROCESSENTRY32) };
+	for (BOOL hasProcess = Process32First(snapshot, &entry); hasProcess; hasProcess = Process32Next(snapshot, &entry)) {
+		if (!wcscmp(entry.szExeFile, processName.c_str())) {
+			HANDLE processHandle = OpenProcess(PROCESS_TERMINATE, FALSE, entry.th32ProcessID);
+			if (processHandle) {
 				TerminateProcess(processHandle, 0);
 				CloseHandle(processHandle);
 			}
@@ -175,82 +115,50 @@ void Term(const std::wstring& process_name)
 	}
 	CloseHandle(snapshot);
 }
-static bool ProcessIs64Bit() {
+
+// Check for 64-bit Process
+bool IsProcess64Bit() {
 	BOOL isWow64 = FALSE;
-	HMODULE hModule = GetModuleHandle(TEXT("kernel32"));
-
-	if (!hModule) {
-		return false;
-	}
-
-	USHORT processMachine = 0;
-	USHORT nativeMachine = 0;
-
-	// Attempt to use IsWow64Process2 (Windows 10+)
+	USHORT processMachine, nativeMachine;
 	auto fnIsWow64Process2 = reinterpret_cast<decltype(&IsWow64Process2)>(
-		GetProcAddress(hModule, "IsWow64Process2"));
+		GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process2"));
 
-	if (fnIsWow64Process2) {
-		if (!fnIsWow64Process2(GetCurrentProcess(), &processMachine, &nativeMachine)) {
-			return false; // Unable to query
-		}
-		return processMachine != IMAGE_FILE_MACHINE_UNKNOWN; // Check if Wow64
+	if (fnIsWow64Process2 && fnIsWow64Process2(GetCurrentProcess(), &processMachine, &nativeMachine)) {
+		return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
 	}
-	else {
-		// Fallback to IsWow64Process for older systems
-		using LPFN_ISWOW64PROCESS = BOOL(WINAPI*)(HANDLE, PBOOL);
-		auto fnIsWow64Process = reinterpret_cast<LPFN_ISWOW64PROCESS>(
-			GetProcAddress(hModule, "IsWow64Process"));
+	auto fnIsWow64Process = reinterpret_cast<BOOL(WINAPI*)(HANDLE, PBOOL)>(
+		GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process"));
+	return fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(), &isWow64) && isWow64;
+}
 
-		if (fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(), &isWow64)) {
-			return isWow64;
-		}
-	}
+// Remove Zone Identifier
+void Unblock(const std::wstring& file) {
+	auto zoneFile = file + L":Zone.Identifier";
+	if (fs::exists(zoneFile)) fs::remove(zoneFile);
+}
 
-	return false; // Default to false if neither method works
+// Download Helper
+void DownloadFile(const std::wstring& url, int idx, bool fromServer) {
+	std::wstring targetUrl = fromServer ? L"https://lolsuite.org/files/" + url : url;
+	DeleteUrlCacheEntry(targetUrl.c_str());
+	URLDownloadToFile(nullptr, targetUrl.c_str(), v[idx].c_str(), 0, nullptr);
+	Unblock(v[idx]);
 }
 
 
-void unblock(const std::wstring& file) {
-	if (std::filesystem::exists(file + L":Zone.Identifier")) {
-		std::filesystem::remove(file + L":Zone.Identifier");
-	}
-}
 
-void dl(const std::wstring& url, int j, bool serv) {
-	std::wstring Url = serv ? L"https://lolsuite.org/files/" + url : url;
-
-	// Clear cache entry
-	DeleteUrlCacheEntry(Url.c_str());
-
-	// Download the file
-	URLDownloadToFile(nullptr, Url.c_str(), v[j].c_str(), 0, nullptr);
-
-	// Unblock the downloaded file
-	unblock(v[j]);
-}
-
-
-void manageGame(const std::wstring& game, bool restore)
-{
+void manageGame(const std::wstring& game, bool restore) {
 	if (game == L"leagueoflegends") {
 		MessageBoxEx(nullptr, L"Select: C:\\Riot Games", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 
 		const std::vector<std::wstring> processes = {
-			L"LeagueClient.exe",
-			L"LeagueClientUx.exe",
-			L"LeagueClientUxRender.exe",
-			L"League of Legends.exe",
-			L"Riot Client.exe",
-			L"RiotClientServices.exe",
-			L"RiotClientCrashHandler.exe",
-			L"LeagueCrashHandler64.exe"
+			L"LeagueClient.exe", L"LeagueClientUx.exe", L"LeagueClientUxRender.exe",
+			L"League of Legends.exe", L"Riot Client.exe", L"RiotClientServices.exe",
+			L"RiotClientCrashHandler.exe", L"LeagueCrashHandler64.exe"
 		};
 
-		for (const auto& process : processes) {
-			Term(process);
-		}
+		for (const auto& process : processes) Terminate(process);
 
 		CombinePath(56, 0, L"Riot Client\\RiotClientElectron");
 		AppendPath(0, L"League of Legends");
@@ -263,143 +171,144 @@ void manageGame(const std::wstring& game, bool restore)
 
 		for (const auto& [index, file] : baseFiles) {
 			CombinePath(index, 0, file);
-			dl(restore ? (L"r/lol/" + file).c_str() : file.c_str(), index, true);
+			DownloadFile(restore ? L"r/lol/" + file : file, index, true);
 		}
 
 		CombinePath(51, 0, L"Game");
-		unblock(JoinPath(51, L"League of Legends.exe"));
-		unblock(JoinPath(56, L"Riot Client.exe"));
+		Unblock(JoinPath(51, L"League of Legends.exe"));
+		Unblock(JoinPath(56, L"Riot Client.exe"));
+
 		CombinePath(53, 51, L"D3DCompiler_47.dll");
 		CombinePath(55, 51, L"tbb.dll");
 		CombinePath(54, 0, L"d3dcompiler_47.dll");
 
-		if (restore) {
-			fs::remove(v[55]);
-		}
-		else {
-			dl(L"tbb.dll", 55, true);
-		}
+		if (restore) fs::remove(v[55]);
+		else DownloadFile(L"tbb.dll", 55, true);
 
-		const std::wstring d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" : (ProcessIs64Bit() ? L"D3DCompiler_47.dll_x64" : L"D3DCompiler_47.dll");
-		dl(d3dcompilerPath.c_str(), 53, true);
-		dl(d3dcompilerPath.c_str(), 54, true);
+		const auto d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" :
+			(IsProcess64Bit() ? L"D3DCompiler_47.dll_x64" : L"D3DCompiler_47.dll");
+
+		DownloadFile(d3dcompilerPath, 53, true);
+		DownloadFile(d3dcompilerPath, 54, true);
 
 		Start(JoinPath(56, L"Riot Client.exe"), L"", false);
 	}
 	else if (game == L"dota2") {
+		// Prompt the user to select the Dota 2 directory
 		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
-		Term(L"dota2.exe");
 
+		// Terminate any running Dota 2 process
+		Terminate(L"dota2.exe");
+
+		// Prepare paths and handle required files
 		AppendPath(0, L"game\\bin\\win64");
 		CombinePath(1, 0, L"embree3.dll");
 
-		unblock(JoinPath(0, L"dota2.exe"));
-		dl(restore ? L"r/dota2/embree3.dll" : L"embree4.dll", 1, true);
+		// Unblock and download files
+		Unblock(JoinPath(0, L"dota2.exe"));
+		DownloadFile(restore ? L"r/dota2/embree3.dll" : L"embree4.dll", 1, true);
 
+		// Launch Dota 2 via Steam
 		Start(L"steam://rungameid/570//-high/", L"", false);
 	}
 	else if (game == L"smite2") {
+		// Prompt the user to select the SMITE 2 directory
 		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
-		Term(L"Hemingway.exe");
-		Term(L"Hemingway-Win64-Shipping.exe");
 
+		// Terminate running SMITE 2 processes
+		std::vector<std::wstring> processes = { L"Hemingway.exe", L"Hemingway-Win64-Shipping.exe" };
+		for (const auto& process : processes) {
+			Terminate(process);
+		}
+
+		// Prepare paths for SMITE 2 binaries
 		CombinePath(8, 0, L"Windows\\Engine\\Binaries\\Win64");
 		CombinePath(7, 0, L"Windows\\Hemingway\\Binaries\\Win64");
 
-		CombinePath(1, 8, L"tbb.dll");
-		dl(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 1, true);
+		// Handle required files with optimized iteration
+		std::vector<std::pair<int, std::wstring>> files = {
+			{1, L"tbb.dll"}, {2, L"tbbmalloc.dll"},
+			{4, L"tbb.dll"}, {5, L"tbb12.dll"}, {6, L"tbbmalloc.dll"}
+		};
 
-		CombinePath(2, 8, L"tbbmalloc.dll");
-		dl(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 2, true);
+		for (const auto& [index, file] : files) {
+			CombinePath(index, index < 4 ? 8 : 7, file);
+			DownloadFile(restore ? L"r/smite2/" + file : file, index, true);
+		}
 
-		CombinePath(4, 7, L"tbb.dll");
-		CombinePath(5, 7, L"tbb12.dll");
-		CombinePath(6, 7, L"tbbmalloc.dll");
-		dl(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 4, true);
-		dl(restore ? L"r/smite2/tbb12.dll" : L"tbb.dll", 5, true);
-		dl(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 6, true);
-
+		// Launch SMITE 2 via Steam
 		Start(L"steam://rungameid/2437170", L"", false);
 	}
+
 }
 
-void InvokePowerShellCommand(const std::wstring& command)
-{
+
+// Execute a single PowerShell command
+void InvokePowerShellCommand(const std::wstring& command) {
 	std::wstring fullCommand = L"powershell.exe -Command \"" + command + L"\"";
-	SHELLEXECUTEINFO sei = { sizeof(sei) };
+	SHELLEXECUTEINFO sei = { sizeof(SHELLEXECUTEINFO) };
 	sei.lpVerb = L"open";
 	sei.lpFile = L"powershell.exe";
 	sei.lpParameters = fullCommand.c_str();
 	sei.nShow = SW_HIDE;
 	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
 
-	if (ShellExecuteEx(&sei))
-	{
+	if (ShellExecuteEx(&sei)) {
 		WaitForSingleObject(sei.hProcess, INFINITE);
 		CloseHandle(sei.hProcess);
 	}
 }
 
-auto executeCommands = [](const std::vector<std::wstring>& commands)
-	{
-		for (const auto& cmd : commands)
-		{
-			InvokePowerShellCommand(cmd);
-		}
+// Lambda for executing a series of PowerShell commands
+auto executeCommands = [](const std::vector<std::wstring>& commands) {
+	for (const auto& cmd : commands) {
+		InvokePowerShellCommand(cmd);
+	}
 	};
 
-void AddCommandToRunOnce(const std::wstring& commandName, const std::wstring& command)
-{
+// Add a command to the Windows RunOnce registry key
+void AddCommandToRunOnce(const std::wstring& commandName, const std::wstring& command) {
 	HKEY hKey;
-	LONG result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce", 0, KEY_SET_VALUE, &hKey);
-	if (result == ERROR_SUCCESS)
-	{
-		result = RegSetValueEx(hKey, commandName.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(command.c_str()), (command.size() + 1) * sizeof(wchar_t));
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce", 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS) {
+		RegSetValueEx(hKey, commandName.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(command.c_str()), (command.size() + 1) * sizeof(wchar_t));
 		RegCloseKey(hKey);
 	}
 }
 
-int ShowYesNoMessageBox(const std::wstring& text, const std::wstring& caption)
-{
+// Display a Yes/No message box and return the result
+int ShowYesNoMessageBox(const std::wstring& text, const std::wstring& caption) {
 	return MessageBoxEx(nullptr, text.c_str(), caption.c_str(), MB_YESNO | MB_ICONQUESTION, 0);
 }
 
-void ManageService(const std::wstring& serviceName, bool start)
-{
+// Start or stop a Windows service
+void ManageService(const std::wstring& serviceName, bool start) {
 	SC_HANDLE schSCManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
-	if (!schSCManager)
-		return;
+	if (!schSCManager) return;
 
 	SC_HANDLE schService = OpenService(schSCManager, serviceName.c_str(), SERVICE_START | SERVICE_STOP);
-	if (!schService)
-	{
+	if (!schService) {
 		CloseServiceHandle(schSCManager);
 		return;
 	}
 
-	if (start)
-	{
+	if (start) {
 		StartService(schService, 0, nullptr);
 	}
-	else
-	{
+	else {
 		SERVICE_STATUS status;
 		ControlService(schService, SERVICE_CONTROL_STOP, &status);
-		while (status.dwCurrentState != SERVICE_STOPPED)
-		{
+		while (status.dwCurrentState != SERVICE_STOPPED) {
 			Sleep(1000);
-			if (!QueryServiceStatus(schService, &status))
-			{
-				break;
-			}
+			if (!QueryServiceStatus(schService, &status)) break;
 		}
 	}
 
 	CloseServiceHandle(schService);
 	CloseServiceHandle(schSCManager);
 }
+
 
 // Helper function to generate file names dynamically
 std::vector<std::wstring> generateFiles(const std::vector<std::wstring>& prefixes, const std::wstring& suffix) {
@@ -431,7 +340,7 @@ void manageTasks(const std::wstring& task)
 		};
 
 		for (const auto& process : processes) {
-			Term(process);
+			Terminate(process);
 		}
 
 		// Common prefixes for the files
@@ -468,7 +377,7 @@ void manageTasks(const std::wstring& task)
 		};
 
 		v[82].clear();
-		AppendPath(82, currentPath);
+		AppendPath(82, workdir);
 		AppendPath(82, L"tmp");
 		fs::create_directory(v[82]);
 
@@ -476,7 +385,7 @@ void manageTasks(const std::wstring& task)
 			for (size_t i = 0; i < files.size(); ++i) {
 				v[i].clear();
 				CombinePath(i, 82, files[i]);
-				dl(L"dx9/" + files[i], i, true);
+				DownloadFile(L"dx9/" + files[i], i, true);
 			}
 			};
 
@@ -555,7 +464,7 @@ void manageTasks(const std::wstring& task)
 
 		if (ShowYesNoMessageBox(L"Do you wish to install Minecraft Launcher & Latest Java", L"Confirmation") == IDYES) {
 			const std::vector<std::wstring> processes = { L"Minecraft.exe", L"MinecraftLauncher.exe", L"javaw.exe", L"MinecraftServer.exe", L"java.exe", L"Minecraft.Windows.exe"};
-			for (const auto& process : processes) Term(process);
+			for (const auto& process : processes) Terminate(process);
 
 			executeCommands({
 				L"winget uninstall Mojang.MinecraftLauncher --purge -h",
@@ -576,39 +485,34 @@ void manageTasks(const std::wstring& task)
 	}
 }
 
-void handleCommand(int cb, bool flag)
-{
+void handleCommand(int cb, bool flag) {
 	static const std::unordered_map<int, std::function<void()>> commandMap = {
 		{0, [flag]() { manageGame(L"leagueoflegends", flag); }},
 		{1, [flag]() { manageGame(L"dota2", flag); }},
 		{2, [flag]() { manageGame(L"smite2", flag); }},
 		{3, []() { manageTasks(L"support"); }}
-  };
+	};
 
-	auto it = commandMap.find(cb);
-	if (it != commandMap.end())
-	{
+	if (auto it = commandMap.find(cb); it != commandMap.end()) {
 		it->second();
+		exit(0);
 	}
-	exit(0);
 }
 
 void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstring>& patterns) {
 	for (const auto& pattern : patterns) {
-		std::wstring searchPath = fs::path(basePath) / pattern;
 		WIN32_FIND_DATA findFileData;
-		HANDLE hFind = FindFirstFile(searchPath.c_str(), &findFileData);
+		HANDLE hFind = FindFirstFile((fs::path(basePath) / pattern).c_str(), &findFileData);
 
 		if (hFind != INVALID_HANDLE_VALUE) {
 			do {
-				std::wstring filePath = fs::path(basePath) / findFileData.cFileName;
-				fs::remove(filePath);
+				fs::remove(fs::path(basePath) / findFileData.cFileName);
 			} while (FindNextFile(hFind, &findFileData) != 0);
-
 			FindClose(hFind);
 		}
 	}
 }
+
 
 void ClearWindowsUpdateCache() {
 	// Clear clipboard content
@@ -617,7 +521,7 @@ void ClearWindowsUpdateCache() {
 		CloseClipboard();
 	}
 
-	// Stop necessary services
+	// Stop services
 	const std::vector<std::wstring> services = { L"wuauserv", L"BITS", L"CryptSvc" };
 	for (const auto& service : services) {
 		ManageService(service, false);
@@ -627,21 +531,8 @@ void ClearWindowsUpdateCache() {
 	WCHAR localAppDataPath[MAX_PATH + 1];
 	SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
 
-	fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
 	std::vector<std::wstring> explorerPatterns = { L"thumbcache_*.db", L"iconcache_*.db", L"ExplorerStartupLog*.etl" };
-	CleanCacheFiles(explorerPath.wstring(), explorerPatterns);
-
-	// Clean BITS cache
-	wchar_t* allUserProfile = nullptr;
-	size_t len = 0;
-	_wdupenv_s(&allUserProfile, &len, L"ALLUSERSPROFILE");
-
-	if (allUserProfile) {
-		std::wstring bitsPath = fs::path(allUserProfile) / L"Application Data" / L"Microsoft" / L"Network" / L"Downloader";
-		std::vector<std::wstring> bitsPatterns = { L"qmgr*.dat" };
-		CleanCacheFiles(bitsPath, bitsPatterns);
-		free(allUserProfile);
-	}
+	CleanCacheFiles((fs::path(localAppDataPath) / L"Microsoft/Windows/Explorer").wstring(), explorerPatterns);
 
 	// Clear SoftwareDistribution folder
 	WCHAR windowsPath[MAX_PATH];
@@ -652,25 +543,20 @@ void ClearWindowsUpdateCache() {
 		}
 	}
 
-	// Restart necessary services
+	// Restart services
 	for (const auto& service : services) {
 		ManageService(service, true);
 	}
 }
 
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-
-	switch (message)
-	{
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch (message) {
 	case WM_COMMAND:
-		if (HIWORD(wParam) == CBN_SELCHANGE)
-		{
+		if (HIWORD(wParam) == CBN_SELCHANGE) {
 			cb = SendMessage(reinterpret_cast<HWND>(lParam), CB_GETCURSEL, 0, 0);
 		}
-		switch (LOWORD(wParam))
-		{
+
+		switch (LOWORD(wParam)) {
 		case 1:
 			handleCommand(cb, false);
 			break;
@@ -684,12 +570,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return DefWindowProcW(hWnd, message, wParam, lParam);
 		}
 		break;
+
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
+
 	default:
 		return DefWindowProcW(hWnd, message, wParam, lParam);
 	}
+
 	return 0;
 }
 
