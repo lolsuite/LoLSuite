@@ -15,11 +15,11 @@
 #include <ShlObj.h>
 
 namespace fs = std::filesystem;
-int cb = 0;
 WCHAR szFolderPath[MAX_PATH + 1];
 auto currentPath = fs::current_path();
 std::vector<std::wstring> v(158);
 MSG msg;
+int cb = 0;
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 class LimitSingleInstance
@@ -53,33 +53,64 @@ public:
 	}
 };
 
-const wchar_t* box[4] = {
-	L"League of Legends",
-	L"Dota 2",
-	L"SMITE 2",
-	L"WinTweaks"
-};
-
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
 	v[0].clear();
 	IFileDialog* pfd = nullptr;
 	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
+	if (FAILED(hr)) {
+		return hr; // Abort if the dialog creation fails
+	}
+
 	DWORD dwOptions;
 	hr = pfd->GetOptions(&dwOptions);
+	if (FAILED(hr)) {
+		pfd->Release(); // Clean up before aborting
+		return hr;
+	}
+
 	hr = pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
+	if (FAILED(hr)) {
+		pfd->Release(); // Clean up before aborting
+		return hr;
+	}
+
 	hr = pfd->Show(hwndOwner);
+	if (FAILED(hr)) {
+		pfd->Release(); // Clean up before aborting
+		return hr;
+	}
+
 	IShellItem* psi = nullptr;
 	hr = pfd->GetResult(&psi);
+	if (FAILED(hr)) {
+		pfd->Release(); // Clean up before aborting
+		return hr;
+	}
+
 	PWSTR pszPath = nullptr;
 	hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
+	if (FAILED(hr) || pszPath == nullptr) {
+		// Clean up and abort if the path is null
+		psi->Release();
+		pfd->Release();
+		return E_ABORT;
+	}
+
+	// Copy the folder path and clean up
 	wcsncpy_s(pszFolderPath, cchFolderPath, pszPath, _TRUNCATE);
 	CoTaskMemFree(pszPath);
+
+	// Release resources
 	psi->Release();
 	pfd->Release();
+
+	// Update the global variable and return the result
 	v[0] = pszFolderPath;
 	return hr;
 }
+
+
 
 std::wstring JoinPath(const int index, const std::wstring& add)
 {
@@ -361,158 +392,157 @@ void ManageService(const std::wstring& serviceName, bool start)
 	CloseServiceHandle(schSCManager);
 }
 
+// Helper function to generate file names dynamically
+std::vector<std::wstring> generateFiles(const std::vector<std::wstring>& prefixes, const std::wstring& suffix) {
+	std::vector<std::wstring> files;
+	for (const auto& prefix : prefixes) {
+		files.push_back(prefix + suffix);
+	}
+	return files;
+}
+
 void manageTasks(const std::wstring& task)
 {
 
 	if (task == L"support")
 	{
-		MessageBoxEx(
-			nullptr,
-			L"Please wait until finish! (Press OK)",
-			L"LoLSuite",
-			MB_OK,
-			0);
+		const std::vector<std::wstring> processes = {
+			L"cmd.exe",                          // Command Prompt
+			L"pwsh.exe",                         // PowerShell Core/Modern
+			L"powershell.exe",                   // Windows PowerShell
+			L"WindowsTerminal.exe",              // Windows Terminal
+			L"OpenConsole.exe",                  // Legacy console processor used by Windows Terminal
+			L"wt.exe",                           // Shortcut for Windows Terminal
+			L"DXSETUP.exe",                      // DirectX Setup
+			L"Battle.net.exe",                   // Blizzard Battle.net Launcher
+			L"steam.exe",                        // Steam Launcher
+			L"Origin.exe",                       // EA's Legacy Origin Launcher
+			L"EADesktop.exe",                    // EA Desktop App
+			L"EpicGamesLauncher.exe"             // Epic Games Launcher
+		};
 
-		const std::vector<std::wstring> processes = { L"cmd.exe", L"pwsh.exe",L"powershell.exe", L"WindowsTerminal.exe", L"OpenConsole.exe", L"DXSETUP.exe", L"Battle.net.exe", L"steam.exe", L"Origin.exe", L"EADesktop.exe", L"EpicGamesLauncher.exe" };
-		for (const auto& process : processes) Term(process);
+		for (const auto& process : processes) {
+			Term(process);
+		}
+
+		// Common prefixes for the files
+		std::vector<std::wstring> dates = {
+			L"Apr2005_d3dx9_25", L"Apr2006_d3dx9_30",
+			L"Apr2006_XACT", L"Apr2006_xinput", L"APR2007_d3dx9_33", L"APR2007_d3dx10_33",
+			L"APR2007_XACT", L"APR2007_xinput", L"Aug2005_d3dx9_27", L"AUG2006_XACT",
+			L"AUG2006_xinput", L"AUG2007_d3dx9_35", L"AUG2007_d3dx10_35", L"AUG2007_XACT",
+			L"Aug2008_d3dx9_39", L"Aug2008_d3dx10_39", L"Aug2008_XACT", L"Aug2008_XAudio",
+			L"Aug2009_D3DCompiler_42", L"Aug2009_d3dcsx_42", L"Aug2009_d3dx9_42", L"Aug2009_d3dx10_42",
+			L"Aug2009_d3dx11_42", L"Aug2009_XACT", L"Aug2009_XAudio", L"Dec2005_d3dx9_28",
+			L"DEC2006_d3dx9_32", L"DEC2006_d3dx10_00", L"DEC2006_XACT", L"Feb2005_d3dx9_24",
+			L"Feb2006_d3dx9_29", L"Feb2006_XACT", L"FEB2007_XACT", L"Feb2010_X3DAudio",
+			L"Feb2010_XACT", L"Feb2010_XAudio", L"Jun2005_d3dx9_26", L"JUN2006_XACT",
+			L"JUN2007_d3dx9_34", L"JUN2007_d3dx10_34", L"JUN2007_XACT", L"JUN2008_d3dx9_38",
+			L"JUN2008_d3dx10_38", L"JUN2008_X3DAudio", L"JUN2008_XACT", L"JUN2008_XAudio",
+			L"Jun2010_D3DCompiler_43", L"Jun2010_d3dcsx_43", L"Jun2010_d3dx9_43", L"Jun2010_d3dx10_43",
+			L"Jun2010_d3dx11_43", L"Jun2010_XACT", L"Jun2010_XAudio", L"Mar2008_d3dx9_37",
+			L"Mar2008_d3dx10_37", L"Mar2008_X3DAudio", L"Mar2008_XACT", L"Mar2008_XAudio",
+			L"Mar2009_d3dx9_41", L"Mar2009_d3dx10_41", L"Mar2009_X3DAudio", L"Mar2009_XACT",
+			L"Mar2009_XAudio", L"Nov2007_d3dx9_36", L"Nov2007_d3dx10_36", L"NOV2007_X3DAudio",
+			L"NOV2007_XACT", L"Nov2008_d3dx9_40", L"Nov2008_d3dx10_40", L"Nov2008_X3DAudio",
+			L"Nov2008_XACT", L"Nov2008_XAudio", L"Oct2005_xinput", L"OCT2006_d3dx9_31",
+			L"OCT2006_XACT"
+		};
+
+		// Generate x86 and x64 file lists
+		std::vector<std::wstring> dxx86_cab = generateFiles(dates, L"_x86.cab");
+		std::vector<std::wstring> dxx64_cab = generateFiles(dates, L"_x64.cab");
+
+		// Misc setup files
+		const std::vector<std::wstring> dxsetup_files = {
+			L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab", L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_MDX1_x86.cab"
+		};
+
+		v[82].clear();
+		AppendPath(82, currentPath);
+		AppendPath(82, L"tmp");
+		fs::create_directory(v[82]);
+
+		auto download_files = [&](const std::vector<std::wstring>& files) {
+			for (size_t i = 0; i < files.size(); ++i) {
+				v[i].clear();
+				CombinePath(i, 82, files[i]);
+				dl(L"dx9/" + files[i], i, true);
+			}
+			};
+
+		download_files(dxx86_cab);
+		download_files(dxx64_cab);
+		download_files(dxsetup_files);
+
+		Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true); // Wait for finish
+		fs::remove_all(v[82]);
+
 		ManageService(L"W32Time", true);
 
 		executeCommands({
 			L"w32tm /resync",
 			L"powercfg -restoredefaultschemes",
 			L"powercfg /h off",
+			L"wsreset -i"
 			L"Clear-DnsClientCache",
 			L"Add-WindowsCapability -Online -Name NetFx3~~~~",
-			L"winget source update",
-			L"winget uninstall Valve.Steam --purge -h",
-			L"winget uninstall ElectronicArts.EADesktop --purge -h",
-			L"winget uninstall ElectronicArts.Origin --purge -h",
-			L"winget uninstall EpicGames.EpicGamesLauncher --purge -h",
-			L"winget uninstall Blizzard.BattleNet --purge -h",
-			L"winget uninstall Microsoft.WindowsTerminal --purge -h",
-			L"winget uninstall Microsoft.DirectX --purge -h",
-			L"winget uninstall Microsoft.PowerShell --purge -h",
-			L"winget uninstall Microsoft.EdgeWebView2Runtime --purge -h",
-			L"winget uninstall 9NQPSL29BFFF --purge -h",
-			L"winget uninstall 9PB0TRCNRHFX --purge -h",
-			L"winget uninstall 9N95Q1ZZPMH4 --purge -h",
-			L"winget uninstall 9NCTDW2W1BH8 --purge -h",
-			L"winget uninstall 9MVZQVXJBQ9V --purge -h",
-			L"winget uninstall 9PMMSR1CGPWG --purge -h",
-			L"winget uninstall 9N4D0MSMP0PT --purge -h",
-			L"winget uninstall 9PG2DK419DRG --purge -h",
-			L"winget uninstall 9N5TDP8VCMHS --purge -h",
-			L"winget uninstall 9PCSD6N03BKV --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2005.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2008.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2010.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2012.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2013.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2015+.x86 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2005.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2008.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2010.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2012.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2013.x64 --purge -h",
-			L"winget uninstall Microsoft.VCRedist.2015+.x64 --purge -h",
-			L"winget install Microsoft.WindowsTerminal --accept-package-agreements",
-			L"winget install Microsoft.PowerShell --accept-package-agreements",
-			L"winget install Microsoft.EdgeWebView2Runtime --accept-package-agreement",
-			L"winget install 9NQPSL29BFFF --accept-package-agreements",
-			L"winget install 9N95Q1ZZPMH4 --accept-package-agreements",
-			L"winget install 9NCTDW2W1BH8 --accept-package-agreements",
-			L"winget install 9MVZQVXJBQ9V --accept-package-agreements",
-			L"winget install 9PMMSR1CGPWG --accept-package-agreements",
-			L"winget install 9N4D0MSMP0PT --accept-package-agreements",
-			L"winget install 9PG2DK419DRG --accept-package-agreements",
-			L"winget install 9PB0TRCNRHFX --accept-package-agreements",
-			L"winget install 9N5TDP8VCMHS --accept-package-agreements",
-			L"winget install 9PCSD6N03BKV --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2005.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2008.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2010.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2012.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2013.x86 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2015+.x86 --accept-package-agreements",
-			L"winget install ElectronicArts.EADesktop --accept-package-agreements",
-			L"winget install EpicGames.EpicGamesLauncher --accept-package-agreements",
-			L"winget install Valve.Steam --accept-package-agreements",
-			L"winget install Blizzard.BattleNet --location \"C:\\Battle.Net\" --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2005.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2008.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2010.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2012.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2013.x64 --accept-package-agreements",
-			L"winget install Microsoft.VCRedist.2015+.x64 --accept-package-agreements"
+			L"Update-Help -Force -ErrorAction SilentlyContinue"
 			});
 
-		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
+		// Define common prefixes and suffixes
+		std::wstring uninstallCommand = L"winget uninstall ";
+		std::wstring installCommand = L"winget install ";
+		std::wstring optionsPurge = L" --purge -h";
+		std::wstring optionsAccept = L" --accept-package-agreements";
 
-		if (ShowYesNoMessageBox(L"Do you wish to install DirectX9", L"Confirmation") == IDYES)
-		{
-			const std::vector<std::wstring> dxx86_cab = {
-						L"Apr2005_d3dx9_25_x86.cab", L"Apr2006_d3dx9_30_x86.cab", L"Apr2006_MDX1_x86.cab", L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_XACT_x86.cab",
-						L"Apr2006_xinput_x86.cab", L"APR2007_d3dx9_33_x86.cab", L"APR2007_d3dx10_33_x86.cab", L"APR2007_XACT_x86.cab", L"APR2007_xinput_x86.cab",
-						L"Aug2005_d3dx9_27_x86.cab", L"AUG2006_XACT_x86.cab", L"AUG2006_xinput_x86.cab", L"AUG2007_d3dx9_35_x86.cab", L"AUG2007_d3dx10_35_x86.cab",
-						L"AUG2007_XACT_x86.cab", L"Aug2008_d3dx9_39_x86.cab", L"Aug2008_d3dx10_39_x86.cab", L"Aug2008_XACT_x86.cab", L"Aug2008_XAudio_x86.cab",
-						L"Aug2009_D3DCompiler_42_x86.cab", L"Aug2009_d3dcsx_42_x86.cab", L"Aug2009_d3dx9_42_x86.cab", L"Aug2009_d3dx10_42_x86.cab",
-						L"Aug2009_d3dx11_42_x86.cab", L"Aug2009_XACT_x86.cab", L"Aug2009_XAudio_x86.cab", L"Dec2005_d3dx9_28_x86.cab",
-						L"DEC2006_d3dx9_32_x86.cab", L"DEC2006_d3dx10_00_x86.cab", L"DEC2006_XACT_x86.cab", L"Feb2005_d3dx9_24_x86.cab", L"Feb2006_d3dx9_29_x86.cab",
-						L"Feb2006_XACT_x86.cab", L"FEB2007_XACT_x86.cab", L"Feb2010_X3DAudio_x86.cab", L"Feb2010_XACT_x86.cab", L"Feb2010_XAudio_x86.cab",
-						L"Jun2005_d3dx9_26_x86.cab", L"JUN2006_XACT_x86.cab", L"JUN2007_d3dx9_34_x86.cab", L"JUN2007_d3dx10_34_x86.cab", L"JUN2007_XACT_x86.cab",
-						L"JUN2008_d3dx9_38_x86.cab", L"JUN2008_d3dx10_38_x86.cab", L"JUN2008_X3DAudio_x86.cab", L"JUN2008_XACT_x86.cab", L"JUN2008_XAudio_x86.cab",
-						L"Jun2010_D3DCompiler_43_x86.cab", L"Jun2010_d3dcsx_43_x86.cab", L"Jun2010_d3dx9_43_x86.cab", L"Jun2010_d3dx10_43_x86.cab",
-						L"Jun2010_d3dx11_43_x86.cab", L"Jun2010_XACT_x86.cab", L"Jun2010_XAudio_x86.cab", L"Mar2008_d3dx9_37_x86.cab", L"Mar2008_d3dx10_37_x86.cab",
-						L"Mar2008_X3DAudio_x86.cab", L"Mar2008_XACT_x86.cab", L"Mar2008_XAudio_x86.cab", L"Mar2009_d3dx9_41_x86.cab", L"Mar2009_d3dx10_41_x86.cab",
-						L"Mar2009_X3DAudio_x86.cab", L"Mar2009_XACT_x86.cab", L"Mar2009_XAudio_x86.cab", L"Nov2007_d3dx9_36_x86.cab", L"Nov2007_d3dx10_36_x86.cab",
-						L"NOV2007_X3DAudio_x86.cab", L"NOV2007_XACT_x86.cab", L"Nov2008_d3dx9_40_x86.cab", L"Nov2008_d3dx10_40_x86.cab", L"Nov2008_X3DAudio_x86.cab",
-						L"Nov2008_XACT_x86.cab", L"Nov2008_XAudio_x86.cab", L"Oct2005_xinput_x86.cab", L"OCT2006_d3dx9_31_x86.cab", L"OCT2006_XACT_x86.cab"
-			};
+		// List of application IDs for uninstall
+		std::vector<std::wstring> uninstallApps = {
+			L"Valve.Steam", L"ElectronicArts.EADesktop", L"ElectronicArts.Origin", L"Microsoft.WindowsTerminal.Preview",
+			L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"Microsoft.WindowsTerminal", L"9N0DX20HK701"
+			L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3"
+			L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
+			L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
+			L"Microsoft.VCRedist.2005.x86", L"Microsoft.VCRedist.2008.x86", L"Microsoft.VCRedist.2010.x86",
+			L"Microsoft.VCRedist.2012.x86", L"Microsoft.VCRedist.2013.x86", L"Microsoft.VCRedist.2015+.x86",
+			L"Microsoft.VCRedist.2005.x64", L"Microsoft.VCRedist.2008.x64", L"Microsoft.VCRedist.2010.x64",
+			L"Microsoft.VCRedist.2012.x64", L"Microsoft.VCRedist.2013.x64", L"Microsoft.VCRedist.2015+.x64"
+		};
 
-			const std::vector<std::wstring> dxx64_cab = {
-				L"Apr2005_d3dx9_25_x64.cab", L"Apr2006_d3dx9_30_x64.cab", L"Apr2006_XACT_x64.cab", L"Apr2006_xinput_x64.cab",
-				L"APR2007_d3dx9_33_x64.cab", L"APR2007_d3dx10_33_x64.cab", L"APR2007_XACT_x64.cab", L"APR2007_xinput_x64.cab",
-				L"Aug2005_d3dx9_27_x64.cab", L"AUG2006_XACT_x64.cab", L"AUG2006_xinput_x64.cab", L"AUG2007_d3dx9_35_x64.cab",
-				L"AUG2007_d3dx10_35_x64.cab", L"AUG2007_XACT_x64.cab", L"Aug2008_d3dx9_39_x64.cab", L"Aug2008_d3dx10_39_x64.cab",
-				L"Aug2008_XACT_x64.cab", L"Aug2008_XAudio_x64.cab", L"Aug2009_D3DCompiler_42_x64.cab", L"Aug2009_d3dcsx_42_x64.cab",
-				L"Aug2009_d3dx9_42_x64.cab", L"Aug2009_d3dx10_42_x64.cab", L"Aug2009_d3dx11_42_x64.cab", L"Aug2009_XACT_x64.cab",
-				L"Aug2009_XAudio_x64.cab", L"Dec2005_d3dx9_28_x64.cab", L"DEC2006_d3dx9_32_x64.cab", L"DEC2006_d3dx10_00_x64.cab",
-				L"DEC2006_XACT_x64.cab", L"Feb2005_d3dx9_24_x64.cab", L"Feb2006_d3dx9_29_x64.cab", L"Feb2006_XACT_x64.cab",
-				L"FEB2007_XACT_x64.cab", L"Feb2010_X3DAudio_x64.cab", L"Feb2010_XACT_x64.cab", L"Feb2010_XAudio_x64.cab",
-				L"Jun2005_d3dx9_26_x64.cab", L"JUN2006_XACT_x64.cab", L"JUN2007_d3dx9_34_x64.cab", L"JUN2007_d3dx10_34_x64.cab",
-				L"JUN2007_XACT_x64.cab", L"JUN2008_d3dx9_38_x64.cab", L"JUN2008_d3dx10_38_x64.cab", L"JUN2008_X3DAudio_x64.cab",
-				L"JUN2008_XACT_x64.cab", L"JUN2008_XAudio_x64.cab", L"Jun2010_D3DCompiler_43_x64.cab", L"Jun2010_d3dcsx_43_x64.cab",
-				L"Jun2010_d3dx9_43_x64.cab", L"Jun2010_d3dx10_43_x64.cab", L"Jun2010_d3dx11_43_x64.cab", L"Jun2010_XACT_x64.cab",
-				L"Jun2010_XAudio_x64.cab", L"Mar2008_d3dx9_37_x64.cab", L"Mar2008_d3dx10_37_x64.cab", L"Mar2008_X3DAudio_x64.cab",
-				L"Mar2008_XACT_x64.cab", L"Mar2008_XAudio_x64.cab", L"Mar2009_d3dx9_41_x64.cab", L"Mar2009_d3dx10_41_x64.cab",
-				L"Mar2009_X3DAudio_x64.cab", L"Mar2009_XACT_x64.cab", L"Mar2009_XAudio_x64.cab", L"Nov2007_d3dx9_36_x64.cab",
-				L"Nov2007_d3dx10_36_x64.cab", L"NOV2007_X3DAudio_x64.cab", L"NOV2007_XACT_x64.cab", L"Nov2008_d3dx9_40_x64.cab",
-				L"Nov2008_d3dx10_40_x64.cab", L"Nov2008_X3DAudio_x64.cab", L"Nov2008_XACT_x64.cab", L"Nov2008_XAudio_x64.cab",
-				L"Oct2005_xinput_x64.cab", L"OCT2006_d3dx9_31_x64.cab", L"OCT2006_XACT_x64.cab"
-			};
+		// List of application IDs for install
+		std::vector<std::wstring> installApps = {
+			L"Microsoft.PowerShell", L"Microsoft.WindowsTerminal", L"Microsoft.EdgeWebView2Runtime",
+			L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
+			L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
+			L"Microsoft.VCRedist.2005.x86", L"Microsoft.VCRedist.2008.x86", L"Microsoft.VCRedist.2010.x86",
+			L"Microsoft.VCRedist.2012.x86", L"Microsoft.VCRedist.2013.x86", L"Microsoft.VCRedist.2015+.x86",
+			L"ElectronicArts.EADesktop", L"EpicGames.EpicGamesLauncher", L"Valve.Steam",
+			L"Blizzard.BattleNet", L"Microsoft.VCRedist.2005.x64", L"Microsoft.VCRedist.2008.x64",
+			L"Microsoft.VCRedist.2010.x64", L"Microsoft.VCRedist.2012.x64", L"Microsoft.VCRedist.2013.x64",
+			L"Microsoft.VCRedist.2015+.x64"
+		};
 
-			const std::vector<std::wstring> dxsetup_files = { L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab" };
-
-			v[82].clear();
-			AppendPath(82, currentPath);
-			AppendPath(82, L"tmp");
-			fs::create_directory(v[82]);
-
-			auto download_files = [&](const std::vector<std::wstring>& files) {
-				for (size_t i = 0; i < files.size(); ++i) {
-					v[i].clear();
-					CombinePath(i, 82, files[i]);
-					dl(L"dx9/" + files[i], i, true);
-				}
-				};
-
-			download_files(dxx86_cab);
-			download_files(dxx64_cab);
-			download_files(dxsetup_files);
-
-			Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true); // Wait for finish
-			fs::remove_all(v[82]);
+		// Generate uninstall commands
+		std::vector<std::wstring> commands;
+		for (const auto& app : uninstallApps) {
+			commands.push_back(uninstallCommand + app + optionsPurge);
 		}
+
+		// Generate install commands
+		for (const auto& app : installApps) {
+			std::wstring command = installCommand + app;
+			if (app == L"Blizzard.BattleNet") {
+				command += L" --location \"C:\\Battle.Net\""; // Special case for Blizzard
+			}
+			command += optionsAccept;
+			commands.push_back(command);
+		}
+
+		// Execute all commands
+		executeCommands(commands);
+		InvokePowerShellCommand(L"Get-AppxPackage -AllUsers | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\\AppxManifest.xml\" }");
+
+		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
 		if (ShowYesNoMessageBox(L"Do you wish to install Minecraft Launcher & Latest Java", L"Confirmation") == IDYES)
 		{
@@ -637,6 +667,7 @@ void ClearWindowsUpdateCache()
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+
 	switch (message)
 	{
 	case WM_COMMAND:
@@ -668,66 +699,121 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-int APIENTRY wWinMain(
-	_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance,
-	_In_ LPWSTR lpCmdLine,
-	_In_ int nShowCmd
-)
-{
-	LimitSingleInstance GUID(L"{3025d31f-c76e-435c-a4b48-9d084fa9f5ea}");
-	if (LimitSingleInstance::AnotherInstanceRunning())
-		return 0;
-
-	WCHAR szWindowClass[] = L"LoLSuite";
-
+bool RegisterWindowClass(HINSTANCE hInstance, LPCWSTR className, int iconId) {
 	WNDCLASSEXW wcex = {
 		sizeof(WNDCLASSEXW),
 		CS_HREDRAW | CS_VREDRAW,
 		WndProc,
-		0,
-		0,
+		0, 0,
 		hInstance,
-		LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON)),
+		LoadIconW(hInstance, MAKEINTRESOURCE(iconId)),
 		LoadCursorW(nullptr, IDC_ARROW),
-		reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1)),
+		reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
 		nullptr,
-		szWindowClass,
-		LoadIconW(hInstance, MAKEINTRESOURCE(IDI_ICON))
+		className,
+		LoadIconW(hInstance, MAKEINTRESOURCE(iconId))
 	};
-	RegisterClassEx(&wcex);
+	return RegisterClassExW(&wcex);
+}
 
-	HWND hWnd = CreateWindowExW(
-		0, szWindowClass, L"LoLSuite", WS_EX_LAYERED,
-		CW_USEDEFAULT, CW_USEDEFAULT, 400, 100,
-		nullptr, nullptr, hInstance, nullptr
+
+HWND CreateMainWindow(HINSTANCE hInstance, LPCWSTR className, int width, int height) {
+	return CreateWindowExW(
+		0,
+		className,
+		L"LoLSuite",
+		WS_EX_LAYERED,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		width, height,
+		nullptr,
+		nullptr,
+		hInstance,
+		nullptr
 	);
-	if (!hWnd) return FALSE;
+}
 
+
+void InitializeControls(HWND hWnd, HINSTANCE hInstance) {
 	std::vector<std::tuple<DWORD, LPCWSTR, LPCWSTR, DWORD, int, int, int, int, HMENU>> controls = {
 		{WS_EX_TOOLWINDOW, L"BUTTON", L"Patch", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10, 20, 60, 30, reinterpret_cast<HMENU>(1)},
 		{0, L"BUTTON", L"Restore", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 75, 20, 60, 30, reinterpret_cast<HMENU>(2)}
 	};
 
 	for (const auto& [dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hMenu] : controls) {
-		if (!CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWnd, hMenu, hInstance, nullptr))
-			return FALSE;
+		CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWnd, hMenu, hInstance, nullptr);
+	}
+}
+
+HWND CreateComboBox(HWND hWnd, HINSTANCE hInstance, int x, int y, int width, int height) {
+	// Create the ComboBox
+	return CreateWindowW(
+		L"COMBOBOX",
+		L"",
+		CBS_DROPDOWN | WS_CHILD | WS_VISIBLE,
+		x, y, width, height,
+		hWnd,
+		nullptr,
+		hInstance,
+		nullptr
+	);
+}
+
+void PopulateComboBox(HWND comboBox, const wchar_t* items[], size_t itemCount) {
+	for (size_t i = 0; i < itemCount; ++i) {
+		SendMessageW(comboBox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(items[i]));
+	}
+	// Set the first item as the default selected item
+	SendMessageW(comboBox, CB_SETCURSEL, 0, 0);
+}
+
+
+
+int APIENTRY wWinMain(
+	_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPWSTR lpCmdLine,
+	_In_ int nShowCmd
+) {
+	// Ensure only a single instance of the application is running
+	LimitSingleInstance GUID(L"{3025d31f-c76e-435c-a4b48-9d084fa9f5ea}");
+	if (LimitSingleInstance::AnotherInstanceRunning()) {
+		return 0;
 	}
 
-	HWND combobox = CreateWindow(L"COMBOBOX", L"", CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 150, 20, 200, 300, hWnd, NULL, hInstance, NULL);
-
-	for (const auto& str : box) {
-		SendMessage(combobox, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
+	// Register window class
+	if (!RegisterWindowClass(hInstance, L"LoLSuite", IDI_ICON)) {
+		return FALSE;
 	}
-	SendMessage(combobox, CB_SETCURSEL, 0, 0);
 
+	// Create the main window
+	HWND hWnd = CreateMainWindow(hInstance, L"LoLSuite", 400, 100); // Adjusted width and height
+	if (!hWnd) {
+		return FALSE;
+	}
+
+	// Initialize controls
+	InitializeControls(hWnd, hInstance);
+
+	const wchar_t* box[4] = {
+	L"League of Legends",
+	L"Dota 2",
+	L"SMITE 2",
+	L"WinTweaks"
+	};
+
+	// Create and populate the ComboBox
+	HWND combobox = CreateComboBox(hWnd, hInstance, 150, 20, 200, 300);
+	PopulateComboBox(combobox, box, std::size(box)); // Use std::size to calculate the number of items
+
+
+	// Clear Windows Update cache
 	ClearWindowsUpdateCache();
 
+	// Show and update the main window
 	ShowWindow(hWnd, nShowCmd);
 	UpdateWindow(hWnd);
 
-	while (GetMessage(&msg, nullptr, 0, 0))
-	{
+	while (GetMessage(&msg, nullptr, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
