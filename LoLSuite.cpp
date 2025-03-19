@@ -11,7 +11,6 @@
 #include <wininet.h>
 #include <filesystem>
 #include <urlmon.h>
-#include <fstream>
 #include <winsvc.h>
 #include <ShlObj.h>
 
@@ -53,23 +52,6 @@ public:
 		return (GetLastError() == ERROR_ALREADY_EXISTS);
 	}
 };
-
-
-std::wstring JoinPath(const int index, const std::wstring& add)
-{
-	return (fs::path(v[index]) / add).wstring();
-}
-
-void AppendPath(const int index, const std::wstring& add)
-{
-	v[index] = JoinPath(index, add);
-}
-
-void CombinePath(const int destIndex, const int srcIndex, const std::wstring& add)
-{
-	v[destIndex] = JoinPath(srcIndex, add);
-}
-
 
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 {
@@ -125,16 +107,24 @@ HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 
 	// Update the global variable and return the result
 	v[0] = pszFolderPath;
-
 	return hr;
 }
 
-// Not implemented
-void WriteToIni(const std::wstring& section, const std::wstring& key, const std::wstring& value) {
 
-	AppendPath(82, currentPath);
-	AppendPath(82, L"config.ini");
-	WritePrivateProfileStringW(section.c_str(), key.c_str(), value.c_str(), v[82].c_str());
+
+std::wstring JoinPath(const int index, const std::wstring& add)
+{
+	return (fs::path(v[index]) / add).wstring();
+}
+
+void AppendPath(const int index, const std::wstring& add)
+{
+	v[index] = JoinPath(index, add);
+}
+
+void CombinePath(const int destIndex, const int srcIndex, const std::wstring& add)
+{
+	v[destIndex] = JoinPath(srcIndex, add);
 }
 
 void Start(const std::wstring& lpFile, const std::wstring& lpParameters, bool wait, bool highPriority = true)
@@ -246,9 +236,7 @@ void manageGame(const std::wstring& game, bool restore)
 	if (game == L"leagueoflegends") {
 		MessageBoxEx(nullptr, L"Select: C:\\Riot Games", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
-		if (wcslen(szFolderPath) > 0) {
-			WriteToIni(L"Settings", L"LoLFolderPath", szFolderPath);
-		}
+
 		const std::vector<std::wstring> processes = {
 			L"LeagueClient.exe",
 			L"LeagueClientUx.exe",
@@ -301,9 +289,6 @@ void manageGame(const std::wstring& game, bool restore)
 	else if (game == L"dota2") {
 		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
-		if (wcslen(szFolderPath) > 0) {
-			WriteToIni(L"Settings", L"DOTA2FolderPath", szFolderPath);
-		}
 		Term(L"dota2.exe");
 
 		AppendPath(0, L"game\\bin\\win64");
@@ -316,9 +301,6 @@ void manageGame(const std::wstring& game, bool restore)
 	}
 	else if (game == L"smite2") {
 		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2", L"LoLSuite", MB_OK, 0);
-		if (wcslen(szFolderPath) > 0) {
-			WriteToIni(L"Settings", L"SMITE2FolderPath", szFolderPath);
-		}
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		Term(L"Hemingway.exe");
 		Term(L"Hemingway-Win64-Shipping.exe");
@@ -572,7 +554,7 @@ void manageTasks(const std::wstring& task)
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
 		if (ShowYesNoMessageBox(L"Do you wish to install Minecraft Launcher & Latest Java", L"Confirmation") == IDYES) {
-			const std::vector<std::wstring> processes = { L"Minecraft.exe", L"MinecraftLauncher.exe", L"javaw.exe", L"MinecraftServer.exe", L"java.exe", L"Minecraft.Windows.exe" };
+			const std::vector<std::wstring> processes = { L"Minecraft.exe", L"MinecraftLauncher.exe", L"javaw.exe", L"MinecraftServer.exe", L"java.exe", L"Minecraft.Windows.exe"};
 			for (const auto& process : processes) Term(process);
 
 			executeCommands({
@@ -601,7 +583,7 @@ void handleCommand(int cb, bool flag)
 		{1, [flag]() { manageGame(L"dota2", flag); }},
 		{2, [flag]() { manageGame(L"smite2", flag); }},
 		{3, []() { manageTasks(L"support"); }}
-	};
+  };
 
 	auto it = commandMap.find(cb);
 	if (it != commandMap.end())
@@ -778,51 +760,7 @@ void PopulateComboBox(HWND comboBox, const wchar_t* items[], size_t itemCount) {
 	SendMessageW(comboBox, CB_SETCURSEL, 0, 0);
 }
 
-// Function to create and write to an .ini file with the version number
-void CreateIniFile(const std::wstring& filePath, const std::wstring& versionNumber) {
-	std::wofstream iniFile(filePath, std::ios::out);
 
-	if (!iniFile) {
-		throw std::runtime_error("Failed to open the file for writing.");
-	}
-
-	iniFile << L"[Version]" << std::endl;
-	iniFile << L"CurrentVersion=" << versionNumber << std::endl;
-
-	iniFile.close();
-}
-
-
-// Function to read the current version from the .ini file
-std::wstring ReadVersionFromIni(const std::wstring& filePath) {
-	wchar_t buffer[256];
-	GetPrivateProfileStringW(L"Version", L"CurrentVersion", L"0.0.0", buffer, sizeof(buffer) / sizeof(wchar_t), filePath.c_str());
-	return std::wstring(buffer);
-}
-
-// Function to get the latest version from the web
-bool GetLatestVersionFromWeb(const std::wstring& url, std::wstring& latestVersion) {
-	wchar_t buffer[256];
-	HINTERNET hInternet = InternetOpenW(L"AutoUpdater", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
-	if (hInternet) {
-		HINTERNET hConnection = InternetOpenUrlW(hInternet, url.c_str(), NULL, 0, INTERNET_FLAG_RELOAD, 0);
-		if (hConnection) {
-			DWORD bytesRead = 0;
-			InternetReadFile(hConnection, buffer, sizeof(buffer) - sizeof(wchar_t), &bytesRead);
-			buffer[bytesRead / sizeof(wchar_t)] = L'\0';
-			latestVersion = std::wstring(buffer);
-			InternetCloseHandle(hConnection);
-		}
-		InternetCloseHandle(hInternet);
-	}
-	return !latestVersion.empty();
-}
-
-// Function to download the update
-bool DownloadUpdate(const std::wstring& updateUrl, const std::wstring& outputPath) {
-	HRESULT hr = URLDownloadToFileW(NULL, updateUrl.c_str(), outputPath.c_str(), 0, NULL);
-	return SUCCEEDED(hr);
-}
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
@@ -865,24 +803,6 @@ int APIENTRY wWinMain(
 	// Clear Windows Update cache
 	ClearWindowsUpdateCache();
 	SHEmptyRecycleBinW(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
-
-	const std::wstring iniFilePath = L"config.ini";
-	const std::wstring versionUrl = L"https://lolsuite.org/version.txt";
-	const std::wstring updateUrl = L"https://lolsuite.org/update/LoLSuite.exe";
-	const std::wstring updateOutputPath = L"LoLSuite_update.exe";
-
-	// Generate the .ini file with version "0.4.0"
-	CreateIniFile(iniFilePath, L"0.4.0");
-
-	// Read the current version from the .ini file
-	std::wstring currentVersion = ReadVersionFromIni(iniFilePath);
-
-	// Check for the latest version online
-	std::wstring latestVersion;
-	if (GetLatestVersionFromWeb(versionUrl, latestVersion)) {
-
-		DownloadUpdate(updateUrl, updateOutputPath);
-	}
 
 	// Show and update the main window
 	ShowWindow(hWnd, nShowCmd);
