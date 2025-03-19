@@ -175,9 +175,10 @@ void Term(const std::wstring& process_name)
 	}
 	CloseHandle(snapshot);
 }
-static bool ProccessIs64Bit() {
+static bool ProcessIs64Bit() {
 	BOOL isWow64 = FALSE;
 	HMODULE hModule = GetModuleHandle(TEXT("kernel32"));
+
 	if (!hModule) {
 		return false;
 	}
@@ -185,42 +186,50 @@ static bool ProccessIs64Bit() {
 	USHORT processMachine = 0;
 	USHORT nativeMachine = 0;
 
+	// Attempt to use IsWow64Process2 (Windows 10+)
 	auto fnIsWow64Process2 = reinterpret_cast<decltype(&IsWow64Process2)>(
 		GetProcAddress(hModule, "IsWow64Process2"));
 
 	if (fnIsWow64Process2) {
 		if (!fnIsWow64Process2(GetCurrentProcess(), &processMachine, &nativeMachine)) {
-			return false;
+			return false; // Unable to query
 		}
-		return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
+		return processMachine != IMAGE_FILE_MACHINE_UNKNOWN; // Check if Wow64
 	}
 	else {
+		// Fallback to IsWow64Process for older systems
 		using LPFN_ISWOW64PROCESS = BOOL(WINAPI*)(HANDLE, PBOOL);
-		LPFN_ISWOW64PROCESS fnIsWow64Process = reinterpret_cast<LPFN_ISWOW64PROCESS>(
+		auto fnIsWow64Process = reinterpret_cast<LPFN_ISWOW64PROCESS>(
 			GetProcAddress(hModule, "IsWow64Process"));
 
 		if (fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(), &isWow64)) {
 			return isWow64;
 		}
-		return false;
+	}
+
+	return false; // Default to false if neither method works
+}
+
+
+void unblock(const std::wstring& file) {
+	if (std::filesystem::exists(file + L":Zone.Identifier")) {
+		std::filesystem::remove(file + L":Zone.Identifier");
 	}
 }
 
-void unblock(const std::wstring& file)
-{
-	if (fs::exists(file + L":Zone.Identifier"))
-	{
-		fs::remove(file + L":Zone.Identifier");
-	}
-}
-
-void dl(const std::wstring& url, int j, bool serv)
-{
+void dl(const std::wstring& url, int j, bool serv) {
 	std::wstring Url = serv ? L"https://lolsuite.org/files/" + url : url;
+
+	// Clear cache entry
 	DeleteUrlCacheEntry(Url.c_str());
+
+	// Download the file
 	URLDownloadToFile(nullptr, Url.c_str(), v[j].c_str(), 0, nullptr);
+
+	// Unblock the downloaded file
 	unblock(v[j]);
 }
+
 
 void manageGame(const std::wstring& game, bool restore)
 {
@@ -271,7 +280,7 @@ void manageGame(const std::wstring& game, bool restore)
 			dl(L"tbb.dll", 55, true);
 		}
 
-		const std::wstring d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" : (ProccessIs64Bit() ? L"D3DCompiler_47.dll_x64" : L"D3DCompiler_47.dll");
+		const std::wstring d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" : (ProcessIs64Bit() ? L"D3DCompiler_47.dll_x64" : L"D3DCompiler_47.dll");
 		dl(d3dcompilerPath.c_str(), 53, true);
 		dl(d3dcompilerPath.c_str(), 54, true);
 
@@ -544,24 +553,14 @@ void manageTasks(const std::wstring& task)
 
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
-		if (ShowYesNoMessageBox(L"Do you wish to install Minecraft Launcher & Latest Java", L"Confirmation") == IDYES)
-		{
-			const std::vector<std::wstring> processes = { L"Minecraft.exe", L"javaw.exe", L"java.exe", L"Minecraft.Windows.exe" };
-
-			for (const auto& process : processes) {
-				Term(process);
-			}
+		if (ShowYesNoMessageBox(L"Do you wish to install Minecraft Launcher & Latest Java", L"Confirmation") == IDYES) {
+			const std::vector<std::wstring> processes = { L"Minecraft.exe", L"MinecraftLauncher.exe", L"javaw.exe", L"MinecraftServer.exe", L"java.exe", L"Minecraft.Windows.exe"};
+			for (const auto& process : processes) Term(process);
 
 			executeCommands({
 				L"winget uninstall Mojang.MinecraftLauncher --purge -h",
 				L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
-				L"winget uninstall Oracle.JDK.23 --purge -h",
-				L"winget uninstall Oracle.JDK.22 --purge -h",
-				L"winget uninstall Oracle.JDK.21 --purge -h",
-				L"winget uninstall Oracle.JDK.20 --purge -h",
-				L"winget uninstall Oracle.JDK.19 --purge -h",
-				L"winget uninstall Oracle.JDK.18 --purge -h",
-				L"winget uninstall Oracle.JDK.17 --purge -h",
+				L"winget uninstall Oracle.JDK.{17-23} --purge -h", // Consolidated uninstalls
 				L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
 				L"winget install Oracle.JDK.23 --accept-package-agreements"
 				});
@@ -571,16 +570,8 @@ void manageTasks(const std::wstring& task)
 				L"Minecraft Launcher > Java Edition > Latest Release > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
 				L"LoLSuite",
 				MB_OK,
-				0);
-		}
-		if (ShowYesNoMessageBox(L"Do you wish to install Discord", L"Confirmation") == IDYES)
-		{
-			Term(L"Discord.exe");
-
-			executeCommands({
-				L"winget uninstall Discord.Discord --purge -h",
-				L"winget install Discord.Discord --accept-package-agreements"
-				});
+				0
+			);
 		}
 	}
 }
@@ -613,37 +604,38 @@ void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstrin
 				std::wstring filePath = fs::path(basePath) / findFileData.cFileName;
 				fs::remove(filePath);
 			} while (FindNextFile(hFind, &findFileData) != 0);
+
 			FindClose(hFind);
 		}
 	}
 }
 
-void ClearWindowsUpdateCache()
-{
-	if (OpenClipboard(nullptr))
-	{
+void ClearWindowsUpdateCache() {
+	// Clear clipboard content
+	if (OpenClipboard(nullptr)) {
 		EmptyClipboard();
 		CloseClipboard();
 	}
 
-	const std::vector<std::wstring> services = {
-		L"wuauserv", L"BITS", L"CryptSvc"
-	};
-
-	for (const auto& service : services)
-	{
+	// Stop necessary services
+	const std::vector<std::wstring> services = { L"wuauserv", L"BITS", L"CryptSvc" };
+	for (const auto& service : services) {
 		ManageService(service, false);
 	}
 
+	// Clean Explorer cache
 	WCHAR localAppDataPath[MAX_PATH + 1];
 	SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
+
 	fs::path explorerPath = fs::path(localAppDataPath) / L"Microsoft" / L"Windows" / L"Explorer";
 	std::vector<std::wstring> explorerPatterns = { L"thumbcache_*.db", L"iconcache_*.db", L"ExplorerStartupLog*.etl" };
 	CleanCacheFiles(explorerPath.wstring(), explorerPatterns);
 
+	// Clean BITS cache
 	wchar_t* allUserProfile = nullptr;
 	size_t len = 0;
 	_wdupenv_s(&allUserProfile, &len, L"ALLUSERSPROFILE");
+
 	if (allUserProfile) {
 		std::wstring bitsPath = fs::path(allUserProfile) / L"Application Data" / L"Microsoft" / L"Network" / L"Downloader";
 		std::vector<std::wstring> bitsPatterns = { L"qmgr*.dat" };
@@ -651,6 +643,7 @@ void ClearWindowsUpdateCache()
 		free(allUserProfile);
 	}
 
+	// Clear SoftwareDistribution folder
 	WCHAR windowsPath[MAX_PATH];
 	if (GetWindowsDirectory(windowsPath, MAX_PATH)) {
 		fs::path updateCachePath = fs::path(windowsPath) / L"SoftwareDistribution";
@@ -659,11 +652,12 @@ void ClearWindowsUpdateCache()
 		}
 	}
 
-	for (const auto& service : services)
-	{
+	// Restart necessary services
+	for (const auto& service : services) {
 		ManageService(service, true);
 	}
 }
+
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
