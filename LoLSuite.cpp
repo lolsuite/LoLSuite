@@ -520,7 +520,7 @@ void manageTasks(const std::wstring& task)
 
 		// List of application IDs for install
 		std::vector<std::wstring> installApps = {
-			L"Microsoft.PowerShell", L"Microsoft.WindowsTerminal", L"Microsoft.EdgeWebView2Runtime",
+			L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime",
 			L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
 			L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
 			L"Microsoft.VCRedist.2005.x86", L"Microsoft.VCRedist.2008.x86", L"Microsoft.VCRedist.2010.x86",
@@ -528,7 +528,7 @@ void manageTasks(const std::wstring& task)
 			L"ElectronicArts.EADesktop", L"EpicGames.EpicGamesLauncher", L"Valve.Steam",
 			L"Blizzard.BattleNet", L"Microsoft.VCRedist.2005.x64", L"Microsoft.VCRedist.2008.x64",
 			L"Microsoft.VCRedist.2010.x64", L"Microsoft.VCRedist.2012.x64", L"Microsoft.VCRedist.2013.x64",
-			L"Microsoft.VCRedist.2015+.x64"
+			L"Microsoft.VCRedist.2015+.x64", L"9N0DX20HK701",
 		};
 
 		// Generate uninstall commands
