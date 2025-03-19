@@ -213,32 +213,30 @@ void manageGame(const std::wstring& game, bool restore) {
 		Start(L"steam://rungameid/570//-high/", L"", false);
 	}
 	else if (game == L"smite2") {
-		// Prompt the user to select the SMITE 2 directory
 		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
-
 		// Terminate running SMITE 2 processes
 		std::vector<std::wstring> processes = { L"Hemingway.exe", L"Hemingway-Win64-Shipping.exe" };
 		for (const auto& process : processes) {
 			Terminate(process);
 		}
 
-		// Prepare paths for SMITE 2 binaries
 		CombinePath(8, 0, L"Windows\\Engine\\Binaries\\Win64");
 		CombinePath(7, 0, L"Windows\\Hemingway\\Binaries\\Win64");
 
-		// Handle required files with optimized iteration
-		std::vector<std::pair<int, std::wstring>> files = {
-			{1, L"tbb.dll"}, {2, L"tbbmalloc.dll"},
-			{4, L"tbb.dll"}, {5, L"tbb12.dll"}, {6, L"tbbmalloc.dll"}
-		};
+		CombinePath(1, 8, L"tbb.dll");
+		DownloadFile(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 1, true);
 
-		for (const auto& [index, file] : files) {
-			CombinePath(index, index < 4 ? 8 : 7, file);
-			DownloadFile(restore ? L"r/smite2/" + file : file, index, true);
-		}
+		CombinePath(2, 8, L"tbbmalloc.dll");
+		DownloadFile(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 2, true);
 
-		// Launch SMITE 2 via Steam
+		CombinePath(4, 7, L"tbb.dll");
+		CombinePath(5, 7, L"tbb12.dll");
+		CombinePath(6, 7, L"tbbmalloc.dll");
+		DownloadFile(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 4, true);
+		DownloadFile(restore ? L"r/smite2/tbb12.dll" : L"tbb.dll", 5, true);
+		DownloadFile(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 6, true);
+
 		Start(L"steam://rungameid/2437170", L"", false);
 	}
 
