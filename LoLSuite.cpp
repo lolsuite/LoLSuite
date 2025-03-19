@@ -808,6 +808,7 @@ int APIENTRY wWinMain(
 
 	// Clear Windows Update cache
 	ClearWindowsUpdateCache();
+	SHEmptyRecycleBinW(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
 
 	// Show and update the main window
 	ShowWindow(hWnd, nShowCmd);
