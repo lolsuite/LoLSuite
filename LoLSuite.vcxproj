@@ -93,6 +93,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="LoLSuite.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
