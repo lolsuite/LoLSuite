@@ -213,7 +213,7 @@ void manageGame(const std::wstring& game, bool restore) {
 		Start(L"steam://rungameid/570//-high/", L"", false);
 	}
 	else if (game == L"smite2") {
-		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2", L"LoLSuite", MB_OK, 0);
+		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2\\Windows", L"LoLSuite", MB_OK, 0);
 		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		// Terminate running SMITE 2 processes
 		std::vector<std::wstring> processes = { L"Hemingway.exe", L"Hemingway-Win64-Shipping.exe" };
@@ -222,8 +222,8 @@ void manageGame(const std::wstring& game, bool restore) {
 		}
 		Unblock(JoinPath(0, L"Hemingway.exe"));
 
-		CombinePath(8, 0, L"Windows\\Engine\\Binaries\\Win64");
-		CombinePath(7, 0, L"Windows\\Hemingway\\Binaries\\Win64");
+		CombinePath(8, 0, L"Engine\\Binaries\\Win64");
+		CombinePath(7, 0, L"Hemingway\\Binaries\\Win64");
 
 		Unblock(JoinPath(7, L"Hemingway-Win64-Shipping.exe"));
 
