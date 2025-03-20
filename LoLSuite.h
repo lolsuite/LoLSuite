@@ -1,0 +1,15 @@
+#define UNICODE
+#define WIN32_LEAN_AND_MEAN
+#include "resource.h"
+#include <ShObjIdl_core.h>
+#include <TlHelp32.h>
+#include <vector>
+#include <shellapi.h>
+#include <windows.h>
+#include <functional>
+#include <wininet.h>
+#include <filesystem>
+#include <urlmon.h>
+#include <ShlObj.h>
+#include <thread>
+#include <future>

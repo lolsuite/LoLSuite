@@ -1,16 +1,4 @@
-#define UNICODE
-#define WIN32_LEAN_AND_MEAN
-#include "resource.h"
-#include <ShObjIdl_core.h>
-#include <TlHelp32.h>
-#include <vector>
-#include <shellapi.h>
-#include <windows.h>
-#include <functional>
-#include <wininet.h>
-#include <filesystem>
-#include <urlmon.h>
-#include <ShlObj.h>
+#include "LoLSuite.h"
 
 int cb = 0;
 namespace fs = std::filesystem;
@@ -84,14 +72,14 @@ void CombinePath(const int destIndex, const int srcIndex, const std::wstring& ad
 }
 
 // Start a Process
-void Start(const std::wstring& file, const std::wstring& params, bool wait, bool highPriority = true) {
+void Start(const std::wstring& file, const std::wstring& params, bool wait) {
 	SHELLEXECUTEINFO info = { sizeof(SHELLEXECUTEINFO) };
 	info.fMask = SEE_MASK_NOCLOSEPROCESS;
 	info.nShow = SW_SHOWNORMAL;
 	info.lpFile = file.c_str();
 	info.lpParameters = params.c_str();
 	if (ShellExecuteEx(&info) && wait && info.hProcess) {
-		if (highPriority) SetPriorityClass(info.hProcess, HIGH_PRIORITY_CLASS);
+		SetPriorityClass(info.hProcess, HIGH_PRIORITY_CLASS);
 		WaitForSingleObject(info.hProcess, INFINITE);
 		CloseHandle(info.hProcess);
 	}
@@ -120,16 +108,20 @@ void Terminate(const std::wstring& processName) {
 bool IsProcess64Bit() {
 	BOOL isWow64 = FALSE;
 	USHORT processMachine, nativeMachine;
+
 	auto fnIsWow64Process2 = reinterpret_cast<decltype(&IsWow64Process2)>(
-		GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process2"));
+		GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process2"));
 
 	if (fnIsWow64Process2 && fnIsWow64Process2(GetCurrentProcess(), &processMachine, &nativeMachine)) {
 		return processMachine != IMAGE_FILE_MACHINE_UNKNOWN;
 	}
+
 	auto fnIsWow64Process = reinterpret_cast<BOOL(WINAPI*)(HANDLE, PBOOL)>(
-		GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process"));
+		GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process"));
+
 	return fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(), &isWow64) && isWow64;
 }
+
 
 // Remove Zone Identifier
 void Unblock(const std::wstring& file) {
@@ -244,8 +236,6 @@ void manageGame(const std::wstring& game, bool restore) {
 	}
 
 }
-
-
 // Execute a single PowerShell command
 void InvokePowerShellCommand(const std::wstring& command) {
 	std::wstring fullCommand = L"powershell.exe -Command \"" + command + L"\"";
@@ -318,6 +308,35 @@ std::vector<std::wstring> generateFiles(const std::vector<std::wstring>& prefixe
 		files.push_back(prefix + suffix);
 	}
 	return files;
+}
+
+// Multithreaded function for executing a series of PowerShell commands
+void executeCommandsMultithreaded(const std::vector<std::wstring>& commands) {
+	std::vector<std::future<void>> futures;
+
+	// Launch each command in a separate thread
+	for (const auto& command : commands) {
+		futures.push_back(std::async(std::launch::async, InvokePowerShellCommand, command));
+	}
+
+	// Wait for all commands to complete
+	for (auto& future : futures) {
+		future.get();
+	}
+}
+
+void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstring>& patterns) {
+	for (const auto& pattern : patterns) {
+		WIN32_FIND_DATA findFileData;
+		HANDLE hFind = FindFirstFile((fs::path(basePath) / pattern).c_str(), &findFileData);
+
+		if (hFind != INVALID_HANDLE_VALUE) {
+			do {
+				fs::remove(fs::path(basePath) / findFileData.cFileName);
+			} while (FindNextFile(hFind, &findFileData) != 0);
+			FindClose(hFind);
+		}
+	}
 }
 
 void manageTasks(const std::wstring& task)
@@ -397,17 +416,6 @@ void manageTasks(const std::wstring& task)
 		Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true); // Wait for finish
 		fs::remove_all(fileBuffer[82]);
 
-		ManageService(L"W32Time", true);
-
-		executeCommands({
-			L"w32tm /resync",
-			L"powercfg -restoredefaultschemes",
-			L"powercfg /h off",
-			L"wsreset -i"
-			L"Clear-DnsClientCache",
-			L"Add-WindowsCapability -Online -Name NetFx3~~~~",
-			L"Update-Help -Force -ErrorAction SilentlyContinue"
-			});
 
 		// Define common prefixes and suffixes
 		std::wstring uninstallCommand = L"winget uninstall ";
@@ -418,8 +426,8 @@ void manageTasks(const std::wstring& task)
 		// List of application IDs for uninstall
 		std::vector<std::wstring> uninstallApps = {
 			L"Valve.Steam", L"ElectronicArts.EADesktop", L"ElectronicArts.Origin", L"Microsoft.WindowsTerminal.Preview",
-			L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"Microsoft.WindowsTerminal", L"9N0DX20HK701"
-			L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3"
+			L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"Microsoft.WindowsTerminal", L"9N0DX20HK701",
+			L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3",
 			L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
 			L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
 			L"Microsoft.VCRedist.2005.x86", L"Microsoft.VCRedist.2008.x86", L"Microsoft.VCRedist.2010.x86",
@@ -457,9 +465,23 @@ void manageTasks(const std::wstring& task)
 			commands.push_back(command);
 		}
 
-		// Execute all commands
-		executeCommands(commands);
-		InvokePowerShellCommand(L"Get-AppxPackage -AllUsers | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\\AppxManifest.xml\" }");
+		// Execute all commands using multithreaded function
+		executeCommandsMultithreaded(commands);
+
+		ManageService(L"W32Time", true);
+
+		std::vector<std::wstring> firstcommands = {
+		L"w32tm /resync",
+		L"powercfg -restoredefaultschemes",
+		L"powercfg /h off",
+		L"wsreset -i",
+		L"Clear-DnsClientCache",
+		L"Add-WindowsCapability -Online -Name NetFx3~~~~",
+		L"Update-Help -Force -ErrorAction SilentlyContinue",
+		L"Get-AppxPackage -AllUsers | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\\AppxManifest.xml\" }"
+		};
+
+		executeCommandsMultithreaded(firstcommands);
 
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
@@ -467,13 +489,14 @@ void manageTasks(const std::wstring& task)
 			const std::vector<std::wstring> processes = { L"Minecraft.exe", L"MinecraftLauncher.exe", L"javaw.exe", L"MinecraftServer.exe", L"java.exe", L"Minecraft.Windows.exe"};
 			for (const auto& process : processes) Terminate(process);
 
-			executeCommands({
+			std::vector<std::wstring> lastcommands = {
 				L"winget uninstall Mojang.MinecraftLauncher --purge -h",
 				L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
 				L"winget uninstall Oracle.JDK.{17-23} --purge -h", // Consolidated uninstalls
 				L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
 				L"winget install Oracle.JDK.23 --accept-package-agreements"
-				});
+				};
+			executeCommandsMultithreaded(lastcommands);
 
 			MessageBoxEx(
 				nullptr,
@@ -482,6 +505,41 @@ void manageTasks(const std::wstring& task)
 				MB_OK,
 				0
 			);
+		}
+
+		SHEmptyRecycleBinW(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
+
+		// Clear clipboard content
+		if (OpenClipboard(nullptr)) {
+			EmptyClipboard();
+			CloseClipboard();
+		}
+
+		// Stop services
+		const std::vector<std::wstring> services = { L"wuauserv", L"BITS", L"CryptSvc" };
+		for (const auto& service : services) {
+			ManageService(service, false);
+		}
+
+		// Clean Explorer cache
+		WCHAR localAppDataPath[MAX_PATH + 1];
+		SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
+
+		std::vector<std::wstring> explorerPatterns = { L"thumbcache_*.db", L"iconcache_*.db", L"ExplorerStartupLog*.etl" };
+		CleanCacheFiles((fs::path(localAppDataPath) / L"Microsoft/Windows/Explorer").wstring(), explorerPatterns);
+
+		// Clear SoftwareDistribution folder
+		WCHAR windowsPath[MAX_PATH];
+		if (GetWindowsDirectory(windowsPath, MAX_PATH)) {
+			fs::path updateCachePath = fs::path(windowsPath) / L"SoftwareDistribution";
+			if (fs::exists(updateCachePath)) {
+				fs::remove_all(updateCachePath);
+			}
+		}
+
+		// Restart services
+		for (const auto& service : services) {
+			ManageService(service, true);
 		}
 	}
 }
@@ -497,56 +555,6 @@ void handleCommand(int cb, bool flag) {
 	if (auto it = commandMap.find(cb); it != commandMap.end()) {
 		it->second();
 		exit(0);
-	}
-}
-
-void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstring>& patterns) {
-	for (const auto& pattern : patterns) {
-		WIN32_FIND_DATA findFileData;
-		HANDLE hFind = FindFirstFile((fs::path(basePath) / pattern).c_str(), &findFileData);
-
-		if (hFind != INVALID_HANDLE_VALUE) {
-			do {
-				fs::remove(fs::path(basePath) / findFileData.cFileName);
-			} while (FindNextFile(hFind, &findFileData) != 0);
-			FindClose(hFind);
-		}
-	}
-}
-
-
-void ClearWindowsUpdateCache() {
-	// Clear clipboard content
-	if (OpenClipboard(nullptr)) {
-		EmptyClipboard();
-		CloseClipboard();
-	}
-
-	// Stop services
-	const std::vector<std::wstring> services = { L"wuauserv", L"BITS", L"CryptSvc" };
-	for (const auto& service : services) {
-		ManageService(service, false);
-	}
-
-	// Clean Explorer cache
-	WCHAR localAppDataPath[MAX_PATH + 1];
-	SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
-
-	std::vector<std::wstring> explorerPatterns = { L"thumbcache_*.db", L"iconcache_*.db", L"ExplorerStartupLog*.etl" };
-	CleanCacheFiles((fs::path(localAppDataPath) / L"Microsoft/Windows/Explorer").wstring(), explorerPatterns);
-
-	// Clear SoftwareDistribution folder
-	WCHAR windowsPath[MAX_PATH];
-	if (GetWindowsDirectory(windowsPath, MAX_PATH)) {
-		fs::path updateCachePath = fs::path(windowsPath) / L"SoftwareDistribution";
-		if (fs::exists(updateCachePath)) {
-			fs::remove_all(updateCachePath);
-		}
-	}
-
-	// Restart services
-	for (const auto& service : services) {
-		ManageService(service, true);
 	}
 }
 
@@ -688,11 +696,6 @@ int APIENTRY wWinMain(
 	// Create and populate the ComboBox
 	HWND combobox = CreateComboBox(hWnd, hInstance, 150, 20, 200, 300);
 	PopulateComboBox(combobox, box, std::size(box)); // Use std::size to calculate the number of items
-
-
-	// Clear Windows Update cache
-	ClearWindowsUpdateCache();
-	SHEmptyRecycleBinW(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
 
 	// Show and update the main window
 	ShowWindow(hWnd, nShowCmd);
