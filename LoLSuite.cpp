@@ -4,37 +4,8 @@ int cb = 0;
 namespace fs = std::filesystem;
 auto workdir = fs::current_path();
 WCHAR szFolderPath[MAX_PATH + 1];
-std::vector<std::wstring> fileBuffer(158);
+std::vector<std::wstring> fileBuffer(258);
 MSG msg;
-
-// Common prefixes for the files
-std::vector<std::wstring> dates = {
-	L"Apr2005_d3dx9_25", L"Apr2006_d3dx9_30",
-	L"Apr2006_XACT", L"Apr2006_xinput", L"APR2007_d3dx9_33", L"APR2007_d3dx10_33",
-	L"APR2007_XACT", L"APR2007_xinput", L"Aug2005_d3dx9_27", L"AUG2006_XACT",
-	L"AUG2006_xinput", L"AUG2007_d3dx9_35", L"AUG2007_d3dx10_35", L"AUG2007_XACT",
-	L"Aug2008_d3dx9_39", L"Aug2008_d3dx10_39", L"Aug2008_XACT", L"Aug2008_XAudio",
-	L"Aug2009_D3DCompiler_42", L"Aug2009_d3dcsx_42", L"Aug2009_d3dx9_42", L"Aug2009_d3dx10_42",
-	L"Aug2009_d3dx11_42", L"Aug2009_XACT", L"Aug2009_XAudio", L"Dec2005_d3dx9_28",
-	L"DEC2006_d3dx9_32", L"DEC2006_d3dx10_00", L"DEC2006_XACT", L"Feb2005_d3dx9_24",
-	L"Feb2006_d3dx9_29", L"Feb2006_XACT", L"FEB2007_XACT", L"Feb2010_X3DAudio",
-	L"Feb2010_XACT", L"Feb2010_XAudio", L"Jun2005_d3dx9_26", L"JUN2006_XACT",
-	L"JUN2007_d3dx9_34", L"JUN2007_d3dx10_34", L"JUN2007_XACT", L"JUN2008_d3dx9_38",
-	L"JUN2008_d3dx10_38", L"JUN2008_X3DAudio", L"JUN2008_XACT", L"JUN2008_XAudio",
-	L"Jun2010_D3DCompiler_43", L"Jun2010_d3dcsx_43", L"Jun2010_d3dx9_43", L"Jun2010_d3dx10_43",
-	L"Jun2010_d3dx11_43", L"Jun2010_XACT", L"Jun2010_XAudio", L"Mar2008_d3dx9_37",
-	L"Mar2008_d3dx10_37", L"Mar2008_X3DAudio", L"Mar2008_XACT", L"Mar2008_XAudio",
-	L"Mar2009_d3dx9_41", L"Mar2009_d3dx10_41", L"Mar2009_X3DAudio", L"Mar2009_XACT",
-	L"Mar2009_XAudio", L"Nov2007_d3dx9_36", L"Nov2007_d3dx10_36", L"NOV2007_X3DAudio",
-	L"NOV2007_XACT", L"Nov2008_d3dx9_40", L"Nov2008_d3dx10_40", L"Nov2008_X3DAudio",
-	L"Nov2008_XACT", L"Nov2008_XAudio", L"Oct2005_xinput", L"OCT2006_d3dx9_31",
-	L"OCT2006_XACT"
-};
-
-// Misc setup files
-const std::vector<std::wstring> dxsetup_files = {
-	L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab", L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_MDX1_x86.cab"
-};
 
 const std::vector<std::wstring> processes = {
 	L"cmd.exe",                          // Command Prompt
@@ -102,7 +73,42 @@ L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
 L"winget install Oracle.JDK.23 --accept-package-agreements"
 };
 
+// Helper function to generate file names dynamically
+std::vector<std::wstring> generateFiles(const std::vector<std::wstring>& prefixes, const std::wstring& suffix) {
+	std::vector<std::wstring> files;
+	for (const auto& prefix : prefixes) {
+		files.push_back(prefix + suffix);
+	}
+	return files;
+}
 
+// Common prefixes for the files
+const std::vector<std::wstring> dates = {
+	L"Apr2005_d3dx9_25", L"Apr2006_d3dx9_30",
+	L"Apr2006_XACT", L"Apr2006_xinput", L"APR2007_d3dx9_33", L"APR2007_d3dx10_33",
+	L"APR2007_XACT", L"APR2007_xinput", L"Aug2005_d3dx9_27", L"AUG2006_XACT",
+	L"AUG2006_xinput", L"AUG2007_d3dx9_35", L"AUG2007_d3dx10_35", L"AUG2007_XACT",
+	L"Aug2008_d3dx9_39", L"Aug2008_d3dx10_39", L"Aug2008_XACT", L"Aug2008_XAudio",
+	L"Aug2009_D3DCompiler_42", L"Aug2009_d3dcsx_42", L"Aug2009_d3dx9_42", L"Aug2009_d3dx10_42",
+	L"Aug2009_d3dx11_42", L"Aug2009_XACT", L"Aug2009_XAudio", L"Dec2005_d3dx9_28",
+	L"DEC2006_d3dx9_32", L"DEC2006_d3dx10_00", L"DEC2006_XACT", L"Feb2005_d3dx9_24",
+	L"Feb2006_d3dx9_29", L"Feb2006_XACT", L"FEB2007_XACT", L"Feb2010_X3DAudio",
+	L"Feb2010_XACT", L"Feb2010_XAudio", L"Jun2005_d3dx9_26", L"JUN2006_XACT",
+	L"JUN2007_d3dx9_34", L"JUN2007_d3dx10_34", L"JUN2007_XACT", L"JUN2008_d3dx9_38",
+	L"JUN2008_d3dx10_38", L"JUN2008_X3DAudio", L"JUN2008_XACT", L"JUN2008_XAudio",
+	L"Jun2010_D3DCompiler_43", L"Jun2010_d3dcsx_43", L"Jun2010_d3dx9_43", L"Jun2010_d3dx10_43",
+	L"Jun2010_d3dx11_43", L"Jun2010_XACT", L"Jun2010_XAudio", L"Mar2008_d3dx9_37",
+	L"Mar2008_d3dx10_37", L"Mar2008_X3DAudio", L"Mar2008_XACT", L"Mar2008_XAudio",
+	L"Mar2009_d3dx9_41", L"Mar2009_d3dx10_41", L"Mar2009_X3DAudio", L"Mar2009_XACT",
+	L"Mar2009_XAudio", L"Nov2007_d3dx9_36", L"Nov2007_d3dx10_36", L"NOV2007_X3DAudio",
+	L"NOV2007_XACT", L"Nov2008_d3dx9_40", L"Nov2008_d3dx10_40", L"Nov2008_X3DAudio",
+	L"Nov2008_XACT", L"Nov2008_XAudio", L"Oct2005_xinput", L"OCT2006_d3dx9_31",
+	L"OCT2006_XACT"
+};
+
+const std::vector<std::wstring> dxsetup = {
+L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab", L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_MDX1_x86.cab"
+};
 
 const std::vector<std::wstring> mcprocesses = { L"Minecraft.exe", L"MinecraftLauncher.exe", L"javaw.exe", L"MinecraftServer.exe", L"java.exe", L"Minecraft.Windows.exe" };
 
@@ -130,6 +136,22 @@ public:
 	}
 };
 
+// Function to join a base path at a given index with an additional path component
+std::wstring JoinPath(const int index, const std::wstring& add) {
+	return (fs::path(fileBuffer[index]) / add).wstring();
+}
+
+// Function to append an additional path component to the base path at a given index
+void AppendPath(const int index, const std::wstring& add) {
+	fileBuffer[index] = JoinPath(index, add);
+}
+
+// Function to combine a source path at a specific index with an additional path component
+// and store the resulting path in the destination index
+void CombinePath(const int destIndex, const int srcIndex, const std::wstring& add) {
+	fileBuffer[destIndex] = JoinPath(srcIndex, add);
+}
+
 // Simplified Folder Browser
 HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath) {
 	fileBuffer[0].clear();
@@ -154,7 +176,50 @@ HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 	return S_OK;
 }
 
-// Execute a single PowerShell command
+// Remove Zone Identifier
+void Unblock(const std::wstring& file) {
+	auto zoneFile = file + L":Zone.Identifier";
+	if (fs::exists(zoneFile)) fs::remove(zoneFile);
+}
+
+// Download Helper
+void DownloadFile(const std::wstring& url, int idx, bool fromServer) {
+	std::wstring targetUrl = fromServer ? L"https://lolsuite.org/files/" + url : url;
+	DeleteUrlCacheEntry(targetUrl.c_str());
+	URLDownloadToFile(nullptr, targetUrl.c_str(), fileBuffer[idx].c_str(), 0, nullptr);
+	Unblock(fileBuffer[idx]);
+}
+
+void dx9Async(const std::vector<std::wstring>& files, size_t baseIndex) {
+	std::thread([=]() {
+		for (size_t i = 0; i < files.size(); ++i) {
+			fileBuffer[baseIndex + i].clear();
+			CombinePath(baseIndex + i, 158, files[i]);
+			DownloadFile(L"dx9/" + files[i], baseIndex + i, true);
+		}
+		}).detach(); // Detach thread to run asynchronously
+}
+
+size_t countFilesInDirectory(const std::wstring& directoryPath) {
+	size_t count = 0;
+	for (const auto& entry : fs::directory_iterator(directoryPath)) {
+		if (entry.is_regular_file()) {
+			++count;
+		}
+	}
+	return count;
+}
+
+void waitForFileCount(const std::wstring& directoryPath, size_t expectedCount) {
+	while (true) {
+		size_t currentCount = countFilesInDirectory(directoryPath);
+		if (currentCount >= expectedCount) {
+			break;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Avoid busy-waiting
+	}
+}
+
 void InvokePowerShellCommand(const std::wstring& command) {
 	std::wstring fullCommand = L"powershell.exe -Command \"" + command + L"\"";
 	SHELLEXECUTEINFO sei = { sizeof(SHELLEXECUTEINFO) };
@@ -170,12 +235,6 @@ void InvokePowerShellCommand(const std::wstring& command) {
 	}
 }
 
-// Lambda for executing a series of PowerShell commands
-auto executeCommands = [](const std::vector<std::wstring>& commands) {
-	for (const auto& cmd : commands) {
-		InvokePowerShellCommand(cmd);
-	}
-	};
 // Multithreaded function for executing a series of PowerShell commands
 void executeCommandsMultithreaded(const std::vector<std::wstring>& commands) {
 	std::vector<std::future<void>> futures;
@@ -189,22 +248,6 @@ void executeCommandsMultithreaded(const std::vector<std::wstring>& commands) {
 	for (auto& future : futures) {
 		future.get();
 	}
-}
-
-// Function to join a base path at a given index with an additional path component
-std::wstring JoinPath(const int index, const std::wstring& add) {
-	return (fs::path(fileBuffer[index]) / add).wstring();
-}
-
-// Function to append an additional path component to the base path at a given index
-void AppendPath(const int index, const std::wstring& add) {
-	fileBuffer[index] = JoinPath(index, add);
-}
-
-// Function to combine a source path at a specific index with an additional path component
-// and store the resulting path in the destination index
-void CombinePath(const int destIndex, const int srcIndex, const std::wstring& add) {
-	fileBuffer[destIndex] = JoinPath(srcIndex, add);
 }
 
 // Start a Process
@@ -257,23 +300,6 @@ bool IsProcess64Bit() {
 
 	return fnIsWow64Process && fnIsWow64Process(GetCurrentProcess(), &isWow64) && isWow64;
 }
-
-
-// Remove Zone Identifier
-void Unblock(const std::wstring& file) {
-	auto zoneFile = file + L":Zone.Identifier";
-	if (fs::exists(zoneFile)) fs::remove(zoneFile);
-}
-
-// Download Helper
-void DownloadFile(const std::wstring& url, int idx, bool fromServer) {
-	std::wstring targetUrl = fromServer ? L"https://lolsuite.org/files/" + url : url;
-	DeleteUrlCacheEntry(targetUrl.c_str());
-	URLDownloadToFile(nullptr, targetUrl.c_str(), fileBuffer[idx].c_str(), 0, nullptr);
-	Unblock(fileBuffer[idx]);
-}
-
-
 
 void manageGame(const std::wstring& game, bool restore) {
 	if (game == L"leagueoflegends") {
@@ -385,7 +411,6 @@ void manageGame(const std::wstring& game, bool restore) {
 			0
 		);
 	}
-
 }
 
 
@@ -430,18 +455,6 @@ void ManageService(const std::wstring& serviceName, bool start) {
 	CloseServiceHandle(schSCManager);
 }
 
-
-// Helper function to generate file names dynamically
-std::vector<std::wstring> generateFiles(const std::vector<std::wstring>& prefixes, const std::wstring& suffix) {
-	std::vector<std::wstring> files;
-	for (const auto& prefix : prefixes) {
-		files.push_back(prefix + suffix);
-	}
-	return files;
-}
-
-
-
 void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstring>& patterns) {
 	for (const auto& pattern : patterns) {
 		WIN32_FIND_DATA findFileData;
@@ -465,29 +478,27 @@ void manageTasks(const std::wstring& task)
 			Terminate(process);
 		}
 
-		fileBuffer[82].clear();
-		AppendPath(82, workdir);
-		AppendPath(82, L"tmp");
-		fs::create_directory(fileBuffer[82]);
-
-		auto download_files = [&](const std::vector<std::wstring>& files) {
-			for (size_t i = 0; i < files.size(); ++i) {
-				fileBuffer[i].clear();
-				CombinePath(i, 82, files[i]);
-				DownloadFile(L"dx9/" + files[i], i, true);
-			}
-			};
+		fileBuffer[158].clear();
+		AppendPath(158, workdir);
+		AppendPath(158, L"tmp");
+		fs::create_directory(fileBuffer[158]);
 
 		// Generate x86 and x64 file lists
 		std::vector<std::wstring> dxx86_cab = generateFiles(dates, L"_x86.cab");
 		std::vector<std::wstring> dxx64_cab = generateFiles(dates, L"_x64.cab");
 
-		download_files(dxx86_cab);
-		download_files(dxx64_cab);
-		download_files(dxsetup_files);
+		// Asynchronously download files
+		dx9Async(dxx86_cab, 0);
+		dx9Async(dxx64_cab, dxx86_cab.size());
+		dx9Async(dxsetup, dxx86_cab.size() + dxx64_cab.size());
 
-		Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true); // Wait for finish
-		fs::remove_all(fileBuffer[82]);
+		// Wait for 157 files in the \tmp directory
+		waitForFileCount(fileBuffer[158], 157);
+
+		// Execute DXSETUP
+		Start(JoinPath(158, L"DXSETUP.exe"), L"/silent", true); // Wait for finish
+
+		fs::remove_all(fileBuffer[158]);
 
 		// Generate uninstall commands
 		std::vector<std::wstring> commands;
@@ -555,7 +566,7 @@ void handleCommand(int cb, bool flag) {
 		{0, [flag]() { manageGame(L"leagueoflegends", flag); }},
 		{1, [flag]() { manageGame(L"dota2", flag); }},
 		{2, [flag]() { manageGame(L"smite2", flag); }},
-	    {3, [flag]() { manageGame(L"minecraft", flag); }},
+		{3, [flag]() { manageGame(L"minecraft", flag); }},
 		{4, []() { manageTasks(L"support"); }}
 	};
 
