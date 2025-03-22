@@ -7,6 +7,105 @@ WCHAR szFolderPath[MAX_PATH + 1];
 std::vector<std::wstring> fileBuffer(158);
 MSG msg;
 
+// Common prefixes for the files
+std::vector<std::wstring> dates = {
+	L"Apr2005_d3dx9_25", L"Apr2006_d3dx9_30",
+	L"Apr2006_XACT", L"Apr2006_xinput", L"APR2007_d3dx9_33", L"APR2007_d3dx10_33",
+	L"APR2007_XACT", L"APR2007_xinput", L"Aug2005_d3dx9_27", L"AUG2006_XACT",
+	L"AUG2006_xinput", L"AUG2007_d3dx9_35", L"AUG2007_d3dx10_35", L"AUG2007_XACT",
+	L"Aug2008_d3dx9_39", L"Aug2008_d3dx10_39", L"Aug2008_XACT", L"Aug2008_XAudio",
+	L"Aug2009_D3DCompiler_42", L"Aug2009_d3dcsx_42", L"Aug2009_d3dx9_42", L"Aug2009_d3dx10_42",
+	L"Aug2009_d3dx11_42", L"Aug2009_XACT", L"Aug2009_XAudio", L"Dec2005_d3dx9_28",
+	L"DEC2006_d3dx9_32", L"DEC2006_d3dx10_00", L"DEC2006_XACT", L"Feb2005_d3dx9_24",
+	L"Feb2006_d3dx9_29", L"Feb2006_XACT", L"FEB2007_XACT", L"Feb2010_X3DAudio",
+	L"Feb2010_XACT", L"Feb2010_XAudio", L"Jun2005_d3dx9_26", L"JUN2006_XACT",
+	L"JUN2007_d3dx9_34", L"JUN2007_d3dx10_34", L"JUN2007_XACT", L"JUN2008_d3dx9_38",
+	L"JUN2008_d3dx10_38", L"JUN2008_X3DAudio", L"JUN2008_XACT", L"JUN2008_XAudio",
+	L"Jun2010_D3DCompiler_43", L"Jun2010_d3dcsx_43", L"Jun2010_d3dx9_43", L"Jun2010_d3dx10_43",
+	L"Jun2010_d3dx11_43", L"Jun2010_XACT", L"Jun2010_XAudio", L"Mar2008_d3dx9_37",
+	L"Mar2008_d3dx10_37", L"Mar2008_X3DAudio", L"Mar2008_XACT", L"Mar2008_XAudio",
+	L"Mar2009_d3dx9_41", L"Mar2009_d3dx10_41", L"Mar2009_X3DAudio", L"Mar2009_XACT",
+	L"Mar2009_XAudio", L"Nov2007_d3dx9_36", L"Nov2007_d3dx10_36", L"NOV2007_X3DAudio",
+	L"NOV2007_XACT", L"Nov2008_d3dx9_40", L"Nov2008_d3dx10_40", L"Nov2008_X3DAudio",
+	L"Nov2008_XACT", L"Nov2008_XAudio", L"Oct2005_xinput", L"OCT2006_d3dx9_31",
+	L"OCT2006_XACT"
+};
+
+// Misc setup files
+const std::vector<std::wstring> dxsetup_files = {
+	L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab", L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_MDX1_x86.cab"
+};
+
+const std::vector<std::wstring> processes = {
+	L"cmd.exe",                          // Command Prompt
+	L"pwsh.exe",                         // PowerShell Core/Modern
+	L"powershell.exe",                   // Windows PowerShell
+	L"WindowsTerminal.exe",              // Windows Terminal
+	L"OpenConsole.exe",                  // Legacy console processor used by Windows Terminal
+	L"wt.exe",                           // Shortcut for Windows Terminal
+	L"DXSETUP.exe",                      // DirectX Setup
+	L"Battle.net.exe",                   // Blizzard Battle.net Launcher
+	L"steam.exe",                        // Steam Launcher
+	L"Origin.exe",                       // EA's Legacy Origin Launcher
+	L"EADesktop.exe",                    // EA Desktop App
+	L"EpicGamesLauncher.exe"             // Epic Games Launcher
+};
+
+// Define common prefixes and suffixes
+std::wstring uninstallCommand = L"winget uninstall ";
+std::wstring installCommand = L"winget install ";
+std::wstring optionsPurge = L" --purge -h";
+std::wstring optionsAccept = L" --accept-package-agreements";
+
+// List of application IDs for uninstall
+std::vector<std::wstring> uninstallApps = {
+	L"Valve.Steam", L"ElectronicArts.EADesktop", L"ElectronicArts.Origin", L"Microsoft.WindowsTerminal.Preview",
+	L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"Microsoft.WindowsTerminal", L"9N0DX20HK701",
+	L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3",
+	L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
+	L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
+	L"Microsoft.VCRedist.2005.x86", L"Microsoft.VCRedist.2008.x86", L"Microsoft.VCRedist.2010.x86",
+	L"Microsoft.VCRedist.2012.x86", L"Microsoft.VCRedist.2013.x86", L"Microsoft.VCRedist.2015+.x86",
+	L"Microsoft.VCRedist.2005.x64", L"Microsoft.VCRedist.2008.x64", L"Microsoft.VCRedist.2010.x64",
+	L"Microsoft.VCRedist.2012.x64", L"Microsoft.VCRedist.2013.x64", L"Microsoft.VCRedist.2015+.x64"
+};
+
+// List of application IDs for install
+std::vector<std::wstring> installApps = {
+	L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime",
+	L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
+	L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
+	L"Microsoft.VCRedist.2005.x86", L"Microsoft.VCRedist.2008.x86", L"Microsoft.VCRedist.2010.x86",
+	L"Microsoft.VCRedist.2012.x86", L"Microsoft.VCRedist.2013.x86", L"Microsoft.VCRedist.2015+.x86",
+	L"ElectronicArts.EADesktop", L"EpicGames.EpicGamesLauncher", L"Valve.Steam",
+	L"Blizzard.BattleNet", L"Microsoft.VCRedist.2005.x64", L"Microsoft.VCRedist.2008.x64",
+	L"Microsoft.VCRedist.2010.x64", L"Microsoft.VCRedist.2012.x64", L"Microsoft.VCRedist.2013.x64",
+	L"Microsoft.VCRedist.2015+.x64", L"9N0DX20HK701",
+};
+
+std::vector<std::wstring> firstcommands = {
+L"w32tm /resync",
+L"powercfg -restoredefaultschemes",
+L"powercfg /h off",
+L"wsreset -i",
+L"Clear-DnsClientCache",
+L"Add-WindowsCapability -Online -Name NetFx3~~~~",
+L"Update-Help -Force -ErrorAction SilentlyContinue",
+L"Get-AppxPackage -AllUsers | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\\AppxManifest.xml\" }"
+};
+
+std::vector<std::wstring> lastcommands = {
+L"winget uninstall Mojang.MinecraftLauncher --purge -h",
+L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
+L"winget uninstall Oracle.JDK.{17-23} --purge -h", // Consolidated uninstalls
+L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
+L"winget install Oracle.JDK.23 --accept-package-agreements"
+};
+
+
+
+const std::vector<std::wstring> mcprocesses = { L"Minecraft.exe", L"MinecraftLauncher.exe", L"javaw.exe", L"MinecraftServer.exe", L"java.exe", L"Minecraft.Windows.exe" };
+
 // LimitSingleInstance Class
 class LimitSingleInstance {
 	HANDLE Mutex;
@@ -53,6 +152,43 @@ HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 	}
 	pfd->Release();
 	return S_OK;
+}
+
+// Execute a single PowerShell command
+void InvokePowerShellCommand(const std::wstring& command) {
+	std::wstring fullCommand = L"powershell.exe -Command \"" + command + L"\"";
+	SHELLEXECUTEINFO sei = { sizeof(SHELLEXECUTEINFO) };
+	sei.lpVerb = L"open";
+	sei.lpFile = L"powershell.exe";
+	sei.lpParameters = fullCommand.c_str();
+	sei.nShow = SW_HIDE;
+	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+
+	if (ShellExecuteEx(&sei)) {
+		WaitForSingleObject(sei.hProcess, INFINITE);
+		CloseHandle(sei.hProcess);
+	}
+}
+
+// Lambda for executing a series of PowerShell commands
+auto executeCommands = [](const std::vector<std::wstring>& commands) {
+	for (const auto& cmd : commands) {
+		InvokePowerShellCommand(cmd);
+	}
+	};
+// Multithreaded function for executing a series of PowerShell commands
+void executeCommandsMultithreaded(const std::vector<std::wstring>& commands) {
+	std::vector<std::future<void>> futures;
+
+	// Launch each command in a separate thread
+	for (const auto& command : commands) {
+		futures.push_back(std::async(std::launch::async, InvokePowerShellCommand, command));
+	}
+
+	// Wait for all commands to complete
+	for (auto& future : futures) {
+		future.get();
+	}
 }
 
 // Function to join a base path at a given index with an additional path component
@@ -234,30 +370,24 @@ void manageGame(const std::wstring& game, bool restore) {
 
 		Start(L"steam://rungameid/2437170", L"", false);
 	}
+	else if (game == L"minecraft")
+	{
+		for (const auto& process : mcprocesses)
+			Terminate(process);
+
+		executeCommandsMultithreaded(lastcommands);
+
+		MessageBoxEx(
+			nullptr,
+			L"Minecraft Launcher > Java Edition > Latest Release > More Options > Java Executable > Browse > C:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
+			L"LoLSuite",
+			MB_OK,
+			0
+		);
+	}
 
 }
-// Execute a single PowerShell command
-void InvokePowerShellCommand(const std::wstring& command) {
-	std::wstring fullCommand = L"powershell.exe -Command \"" + command + L"\"";
-	SHELLEXECUTEINFO sei = { sizeof(SHELLEXECUTEINFO) };
-	sei.lpVerb = L"open";
-	sei.lpFile = L"powershell.exe";
-	sei.lpParameters = fullCommand.c_str();
-	sei.nShow = SW_HIDE;
-	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
 
-	if (ShellExecuteEx(&sei)) {
-		WaitForSingleObject(sei.hProcess, INFINITE);
-		CloseHandle(sei.hProcess);
-	}
-}
-
-// Lambda for executing a series of PowerShell commands
-auto executeCommands = [](const std::vector<std::wstring>& commands) {
-	for (const auto& cmd : commands) {
-		InvokePowerShellCommand(cmd);
-	}
-	};
 
 // Add a command to the Windows RunOnce registry key
 void AddCommandToRunOnce(const std::wstring& commandName, const std::wstring& command) {
@@ -310,20 +440,7 @@ std::vector<std::wstring> generateFiles(const std::vector<std::wstring>& prefixe
 	return files;
 }
 
-// Multithreaded function for executing a series of PowerShell commands
-void executeCommandsMultithreaded(const std::vector<std::wstring>& commands) {
-	std::vector<std::future<void>> futures;
 
-	// Launch each command in a separate thread
-	for (const auto& command : commands) {
-		futures.push_back(std::async(std::launch::async, InvokePowerShellCommand, command));
-	}
-
-	// Wait for all commands to complete
-	for (auto& future : futures) {
-		future.get();
-	}
-}
 
 void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstring>& patterns) {
 	for (const auto& pattern : patterns) {
@@ -341,60 +458,12 @@ void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstrin
 
 void manageTasks(const std::wstring& task)
 {
-
 	if (task == L"support")
 	{
-		const std::vector<std::wstring> processes = {
-			L"cmd.exe",                          // Command Prompt
-			L"pwsh.exe",                         // PowerShell Core/Modern
-			L"powershell.exe",                   // Windows PowerShell
-			L"WindowsTerminal.exe",              // Windows Terminal
-			L"OpenConsole.exe",                  // Legacy console processor used by Windows Terminal
-			L"wt.exe",                           // Shortcut for Windows Terminal
-			L"DXSETUP.exe",                      // DirectX Setup
-			L"Battle.net.exe",                   // Blizzard Battle.net Launcher
-			L"steam.exe",                        // Steam Launcher
-			L"Origin.exe",                       // EA's Legacy Origin Launcher
-			L"EADesktop.exe",                    // EA Desktop App
-			L"EpicGamesLauncher.exe"             // Epic Games Launcher
-		};
 
 		for (const auto& process : processes) {
 			Terminate(process);
 		}
-
-		// Common prefixes for the files
-		std::vector<std::wstring> dates = {
-			L"Apr2005_d3dx9_25", L"Apr2006_d3dx9_30",
-			L"Apr2006_XACT", L"Apr2006_xinput", L"APR2007_d3dx9_33", L"APR2007_d3dx10_33",
-			L"APR2007_XACT", L"APR2007_xinput", L"Aug2005_d3dx9_27", L"AUG2006_XACT",
-			L"AUG2006_xinput", L"AUG2007_d3dx9_35", L"AUG2007_d3dx10_35", L"AUG2007_XACT",
-			L"Aug2008_d3dx9_39", L"Aug2008_d3dx10_39", L"Aug2008_XACT", L"Aug2008_XAudio",
-			L"Aug2009_D3DCompiler_42", L"Aug2009_d3dcsx_42", L"Aug2009_d3dx9_42", L"Aug2009_d3dx10_42",
-			L"Aug2009_d3dx11_42", L"Aug2009_XACT", L"Aug2009_XAudio", L"Dec2005_d3dx9_28",
-			L"DEC2006_d3dx9_32", L"DEC2006_d3dx10_00", L"DEC2006_XACT", L"Feb2005_d3dx9_24",
-			L"Feb2006_d3dx9_29", L"Feb2006_XACT", L"FEB2007_XACT", L"Feb2010_X3DAudio",
-			L"Feb2010_XACT", L"Feb2010_XAudio", L"Jun2005_d3dx9_26", L"JUN2006_XACT",
-			L"JUN2007_d3dx9_34", L"JUN2007_d3dx10_34", L"JUN2007_XACT", L"JUN2008_d3dx9_38",
-			L"JUN2008_d3dx10_38", L"JUN2008_X3DAudio", L"JUN2008_XACT", L"JUN2008_XAudio",
-			L"Jun2010_D3DCompiler_43", L"Jun2010_d3dcsx_43", L"Jun2010_d3dx9_43", L"Jun2010_d3dx10_43",
-			L"Jun2010_d3dx11_43", L"Jun2010_XACT", L"Jun2010_XAudio", L"Mar2008_d3dx9_37",
-			L"Mar2008_d3dx10_37", L"Mar2008_X3DAudio", L"Mar2008_XACT", L"Mar2008_XAudio",
-			L"Mar2009_d3dx9_41", L"Mar2009_d3dx10_41", L"Mar2009_X3DAudio", L"Mar2009_XACT",
-			L"Mar2009_XAudio", L"Nov2007_d3dx9_36", L"Nov2007_d3dx10_36", L"NOV2007_X3DAudio",
-			L"NOV2007_XACT", L"Nov2008_d3dx9_40", L"Nov2008_d3dx10_40", L"Nov2008_X3DAudio",
-			L"Nov2008_XACT", L"Nov2008_XAudio", L"Oct2005_xinput", L"OCT2006_d3dx9_31",
-			L"OCT2006_XACT"
-		};
-
-		// Generate x86 and x64 file lists
-		std::vector<std::wstring> dxx86_cab = generateFiles(dates, L"_x86.cab");
-		std::vector<std::wstring> dxx64_cab = generateFiles(dates, L"_x64.cab");
-
-		// Misc setup files
-		const std::vector<std::wstring> dxsetup_files = {
-			L"DSETUP.dll", L"dsetup32.dll", L"dxdllreg_x86.cab", L"DXSETUP.exe", L"dxupdate.cab", L"Apr2006_MDX1_x86_Archive.cab", L"Apr2006_MDX1_x86.cab"
-		};
 
 		fileBuffer[82].clear();
 		AppendPath(82, workdir);
@@ -409,45 +478,16 @@ void manageTasks(const std::wstring& task)
 			}
 			};
 
+		// Generate x86 and x64 file lists
+		std::vector<std::wstring> dxx86_cab = generateFiles(dates, L"_x86.cab");
+		std::vector<std::wstring> dxx64_cab = generateFiles(dates, L"_x64.cab");
+
 		download_files(dxx86_cab);
 		download_files(dxx64_cab);
 		download_files(dxsetup_files);
 
 		Start(JoinPath(82, L"DXSETUP.exe"), L"/silent", true); // Wait for finish
 		fs::remove_all(fileBuffer[82]);
-
-
-		// Define common prefixes and suffixes
-		std::wstring uninstallCommand = L"winget uninstall ";
-		std::wstring installCommand = L"winget install ";
-		std::wstring optionsPurge = L" --purge -h";
-		std::wstring optionsAccept = L" --accept-package-agreements";
-
-		// List of application IDs for uninstall
-		std::vector<std::wstring> uninstallApps = {
-			L"Valve.Steam", L"ElectronicArts.EADesktop", L"ElectronicArts.Origin", L"Microsoft.WindowsTerminal.Preview",
-			L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"Microsoft.WindowsTerminal", L"9N0DX20HK701",
-			L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3",
-			L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
-			L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
-			L"Microsoft.VCRedist.2005.x86", L"Microsoft.VCRedist.2008.x86", L"Microsoft.VCRedist.2010.x86",
-			L"Microsoft.VCRedist.2012.x86", L"Microsoft.VCRedist.2013.x86", L"Microsoft.VCRedist.2015+.x86",
-			L"Microsoft.VCRedist.2005.x64", L"Microsoft.VCRedist.2008.x64", L"Microsoft.VCRedist.2010.x64",
-			L"Microsoft.VCRedist.2012.x64", L"Microsoft.VCRedist.2013.x64", L"Microsoft.VCRedist.2015+.x64"
-		};
-
-		// List of application IDs for install
-		std::vector<std::wstring> installApps = {
-			L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime",
-			L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
-			L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
-			L"Microsoft.VCRedist.2005.x86", L"Microsoft.VCRedist.2008.x86", L"Microsoft.VCRedist.2010.x86",
-			L"Microsoft.VCRedist.2012.x86", L"Microsoft.VCRedist.2013.x86", L"Microsoft.VCRedist.2015+.x86",
-			L"ElectronicArts.EADesktop", L"EpicGames.EpicGamesLauncher", L"Valve.Steam",
-			L"Blizzard.BattleNet", L"Microsoft.VCRedist.2005.x64", L"Microsoft.VCRedist.2008.x64",
-			L"Microsoft.VCRedist.2010.x64", L"Microsoft.VCRedist.2012.x64", L"Microsoft.VCRedist.2013.x64",
-			L"Microsoft.VCRedist.2015+.x64", L"9N0DX20HK701",
-		};
 
 		// Generate uninstall commands
 		std::vector<std::wstring> commands;
@@ -469,43 +509,9 @@ void manageTasks(const std::wstring& task)
 		executeCommandsMultithreaded(commands);
 
 		ManageService(L"W32Time", true);
-
-		std::vector<std::wstring> firstcommands = {
-		L"w32tm /resync",
-		L"powercfg -restoredefaultschemes",
-		L"powercfg /h off",
-		L"wsreset -i",
-		L"Clear-DnsClientCache",
-		L"Add-WindowsCapability -Online -Name NetFx3~~~~",
-		L"Update-Help -Force -ErrorAction SilentlyContinue",
-		L"Get-AppxPackage -AllUsers | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\\AppxManifest.xml\" }"
-		};
-
 		executeCommandsMultithreaded(firstcommands);
 
 		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
-
-		if (ShowYesNoMessageBox(L"Do you wish to install Minecraft Launcher & Latest Java", L"Confirmation") == IDYES) {
-			const std::vector<std::wstring> processes = { L"Minecraft.exe", L"MinecraftLauncher.exe", L"javaw.exe", L"MinecraftServer.exe", L"java.exe", L"Minecraft.Windows.exe"};
-			for (const auto& process : processes) Terminate(process);
-
-			std::vector<std::wstring> lastcommands = {
-				L"winget uninstall Mojang.MinecraftLauncher --purge -h",
-				L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
-				L"winget uninstall Oracle.JDK.{17-23} --purge -h", // Consolidated uninstalls
-				L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
-				L"winget install Oracle.JDK.23 --accept-package-agreements"
-				};
-			executeCommandsMultithreaded(lastcommands);
-
-			MessageBoxEx(
-				nullptr,
-				L"Minecraft Launcher > Java Edition > Latest Release > More Options > Java Executable > Browse > <drive>:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
-				L"LoLSuite",
-				MB_OK,
-				0
-			);
-		}
 
 		SHEmptyRecycleBinW(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
 
@@ -549,7 +555,8 @@ void handleCommand(int cb, bool flag) {
 		{0, [flag]() { manageGame(L"leagueoflegends", flag); }},
 		{1, [flag]() { manageGame(L"dota2", flag); }},
 		{2, [flag]() { manageGame(L"smite2", flag); }},
-		{3, []() { manageTasks(L"support"); }}
+	    {3, [flag]() { manageGame(L"minecraft", flag); }},
+		{4, []() { manageTasks(L"support"); }}
 	};
 
 	if (auto it = commandMap.find(cb); it != commandMap.end()) {
@@ -686,10 +693,11 @@ int APIENTRY wWinMain(
 	// Initialize controls
 	InitializeControls(hWnd, hInstance);
 
-	const wchar_t* box[4] = {
+	const wchar_t* box[5] = {
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
+	L"Minecraft",
 	L"WinTweaks"
 	};
 
