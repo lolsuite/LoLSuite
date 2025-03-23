@@ -154,7 +154,7 @@ void CombinePath(const int destIndex, const int srcIndex, const std::wstring& ad
 }
 
 // Simplified Folder Browser
-HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath) {
+HRESULT BrowseFolder(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath) {
 	fileBuffer[0].clear();
 
 	IFileDialog* pfd = nullptr;
@@ -177,18 +177,13 @@ HRESULT FolderBrowser(HWND hwndOwner, LPWSTR pszFolderPath, DWORD cchFolderPath)
 	return S_OK;
 }
 
-// Remove Zone Identifier
-void Unblock(const std::wstring& file) {
-	auto zoneFile = file + L":Zone.Identifier";
-	if (fs::exists(zoneFile)) fs::remove(zoneFile);
-}
-
 // Download Helper
-void DownloadFile(const std::wstring& url, int idx, bool fromServer) {
-	std::wstring targetUrl = fromServer ? L"https://lolsuite.org/files/" + url : url;
+void URLDownload(const std::wstring& url, int idx, bool fromServer) {
+	std::wstring targetUrl = fromServer ? L"https://lolsuite.org/repo/" + url : url;
 	DeleteUrlCacheEntry(targetUrl.c_str());
 	URLDownloadToFile(nullptr, targetUrl.c_str(), fileBuffer[idx].c_str(), 0, nullptr);
-	Unblock(fileBuffer[idx]);
+	auto zoneFile = fileBuffer[idx] + L":Zone.Identifier";
+	if (fs::exists(zoneFile)) fs::remove(zoneFile);
 }
 
 void dx9Async(const std::vector<std::wstring>& files, size_t baseIndex) {
@@ -196,7 +191,7 @@ void dx9Async(const std::vector<std::wstring>& files, size_t baseIndex) {
 		for (size_t i = 0; i < files.size(); ++i) {
 			fileBuffer[baseIndex + i].clear();
 			CombinePath(baseIndex + i, 158, files[i]);
-			DownloadFile(L"dx9/" + files[i], baseIndex + i, true);
+			URLDownload(L"dx9/" + files[i], baseIndex + i, true);
 		}
 		}).detach(); // Detach thread to run asynchronously
 }
@@ -221,7 +216,7 @@ void waitForFileCount(const std::wstring& directoryPath, size_t expectedCount) {
 	}
 }
 
-void InvokePowerShellCommand(const std::wstring& command) {
+void InvokePWSHCommand(const std::wstring& command) {
 	std::wstring fullCommand = L"powershell.exe -Command \"" + command + L"\"";
 	SHELLEXECUTEINFO sei = { sizeof(SHELLEXECUTEINFO) };
 	sei.lpVerb = L"open";
@@ -237,12 +232,12 @@ void InvokePowerShellCommand(const std::wstring& command) {
 }
 
 // Multithreaded function for executing a series of PowerShell commands
-void executeCommandsMultithreaded(const std::vector<std::wstring>& commands) {
+void CommandExecute(const std::vector<std::wstring>& commands) {
 	std::vector<std::future<void>> futures;
 
 	// Launch each command in a separate thread
 	for (const auto& command : commands) {
-		futures.push_back(std::async(std::launch::async, InvokePowerShellCommand, command));
+		futures.push_back(std::async(std::launch::async, InvokePWSHCommand, command));
 	}
 
 	// Wait for all commands to complete
@@ -305,7 +300,7 @@ bool IsProcess64Bit() {
 void manageGame(const std::wstring& game, bool restore) {
 	if (game == L"leagueoflegends") {
 		MessageBoxEx(nullptr, L"Select: C:\\Riot Games", L"LoLSuite", MB_OK, 0);
-		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
+		BrowseFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 
 		const std::vector<std::wstring> processes = {
 			L"LeagueClient.exe", L"LeagueClientUx.exe", L"LeagueClientUxRender.exe",
@@ -326,32 +321,30 @@ void manageGame(const std::wstring& game, bool restore) {
 
 		for (const auto& [index, file] : baseFiles) {
 			CombinePath(index, 0, file);
-			DownloadFile(restore ? L"r/lol/" + file : file, index, true);
+			URLDownload(restore ? L"r/lol/" + file : file, index, true);
 		}
 
 		CombinePath(51, 0, L"Game");
-		Unblock(JoinPath(51, L"League of Legends.exe"));
-		Unblock(JoinPath(56, L"Riot Client.exe"));
 
 		CombinePath(53, 51, L"D3DCompiler_47.dll");
 		CombinePath(55, 51, L"tbb.dll");
 		CombinePath(54, 0, L"d3dcompiler_47.dll");
 
 		if (restore) fs::remove(fileBuffer[55]);
-		else DownloadFile(L"tbb.dll", 55, true);
+		else URLDownload(L"tbb.dll", 55, true);
 
 		const auto d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" :
 			(IsProcess64Bit() ? L"D3DCompiler_47.dll_x64" : L"D3DCompiler_47.dll");
 
-		DownloadFile(d3dcompilerPath, 53, true);
-		DownloadFile(d3dcompilerPath, 54, true);
+		URLDownload(d3dcompilerPath, 53, true);
+		URLDownload(d3dcompilerPath, 54, true);
 
 		Start(JoinPath(56, L"Riot Client.exe"), L"", false);
 	}
 	else if (game == L"dota2") {
 		// Prompt the user to select the Dota 2 directory
 		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta", L"LoLSuite", MB_OK, 0);
-		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
+		BrowseFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 
 		// Terminate any running Dota 2 process
 		Terminate(L"dota2.exe");
@@ -359,41 +352,35 @@ void manageGame(const std::wstring& game, bool restore) {
 		// Prepare paths and handle required files
 		AppendPath(0, L"game\\bin\\win64");
 		CombinePath(1, 0, L"embree3.dll");
-
-		// Unblock and download files
-		Unblock(JoinPath(0, L"dota2.exe"));
-		DownloadFile(restore ? L"r/dota2/embree3.dll" : L"embree4.dll", 1, true);
+		URLDownload(restore ? L"r/dota2/embree3.dll" : L"embree4.dll", 1, true);
 
 		// Launch Dota 2 via Steam
 		Start(L"steam://rungameid/570//-high -dx11 -fullscreen/", L"", false);
 	}
 	else if (game == L"smite2") {
 		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2\\Windows", L"LoLSuite", MB_OK, 0);
-		FolderBrowser(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
+		BrowseFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 		// Terminate running SMITE 2 processes
 		std::vector<std::wstring> processes = { L"Hemingway.exe", L"Hemingway-Win64-Shipping.exe" };
 		for (const auto& process : processes) {
 			Terminate(process);
 		}
-		Unblock(JoinPath(0, L"Hemingway.exe"));
 
 		CombinePath(8, 0, L"Engine\\Binaries\\Win64");
 		CombinePath(7, 0, L"Hemingway\\Binaries\\Win64");
 
-		Unblock(JoinPath(7, L"Hemingway-Win64-Shipping.exe"));
-
 		CombinePath(1, 8, L"tbb.dll");
-		DownloadFile(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 1, true);
+		URLDownload(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 1, true);
 
 		CombinePath(2, 8, L"tbbmalloc.dll");
-		DownloadFile(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 2, true);
+		URLDownload(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 2, true);
 
 		CombinePath(4, 7, L"tbb.dll");
 		CombinePath(5, 7, L"tbb12.dll");
 		CombinePath(6, 7, L"tbbmalloc.dll");
-		DownloadFile(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 4, true);
-		DownloadFile(restore ? L"r/smite2/tbb12.dll" : L"tbb.dll", 5, true);
-		DownloadFile(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 6, true);
+		URLDownload(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 4, true);
+		URLDownload(restore ? L"r/smite2/tbb12.dll" : L"tbb.dll", 5, true);
+		URLDownload(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 6, true);
 
 		Start(L"steam://rungameid/2437170", L"", false);
 	}
@@ -402,7 +389,7 @@ void manageGame(const std::wstring& game, bool restore) {
 		for (const auto& process : mcprocesses)
 			Terminate(process);
 
-		executeCommandsMultithreaded(lastcommands);
+		CommandExecute(lastcommands);
 
 		MessageBoxEx(
 			nullptr,
@@ -459,6 +446,7 @@ void manageTasks(const std::wstring& task)
 {
 	if (task == L"support")
 	{
+		SHEmptyRecycleBin(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
 		for (const auto& process : processes) {
 			Terminate(process);
 		}
@@ -502,12 +490,10 @@ void manageTasks(const std::wstring& task)
 		}
 
 		// Execute all commands using multithreaded function
-		executeCommandsMultithreaded(commands);
+		CommandExecute(commands);
 
 		ManageService(L"W32Time", true);
-		executeCommandsMultithreaded(firstcommands);
-
-		SHEmptyRecycleBinW(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
+		CommandExecute(firstcommands);
 
 		// Clear clipboard content
 		if (OpenClipboard(nullptr)) {
@@ -529,8 +515,8 @@ void manageTasks(const std::wstring& task)
 		CleanCacheFiles((fs::path(localAppDataPath) / L"Microsoft/Windows/Explorer").wstring(), explorerPatterns);
 
 		// Clear SoftwareDistribution folder
-		WCHAR windowsPath[MAX_PATH];
-		if (GetWindowsDirectory(windowsPath, MAX_PATH)) {
+		WCHAR windowsPath[MAX_PATH + 1];
+		if (GetWindowsDirectory(windowsPath, MAX_PATH + 1)) {
 			fs::path updateCachePath = fs::path(windowsPath) / L"SoftwareDistribution";
 			if (fs::exists(updateCachePath)) {
 				fs::remove_all(updateCachePath);
@@ -606,12 +592,12 @@ bool RegisterWindowClass(HINSTANCE hInstance, LPCWSTR className, int iconId) {
 		className,
 		LoadIconW(hInstance, MAKEINTRESOURCE(iconId))
 	};
-	return RegisterClassExW(&wcex);
+	return RegisterClassEx(&wcex);
 }
 
 
 HWND CreateMainWindow(HINSTANCE hInstance, LPCWSTR className, int width, int height) {
-	return CreateWindowExW(
+	return CreateWindowEx(
 		0,
 		className,
 		L"LoLSuite",
@@ -633,13 +619,13 @@ void InitializeControls(HWND hWnd, HINSTANCE hInstance) {
 	};
 
 	for (const auto& [dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hMenu] : controls) {
-		CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWnd, hMenu, hInstance, nullptr);
+		CreateWindowEx(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWnd, hMenu, hInstance, nullptr);
 	}
 }
 
 HWND CreateComboBox(HWND hWnd, HINSTANCE hInstance, int x, int y, int width, int height) {
 	// Create the ComboBox
-	return CreateWindowW(
+	return CreateWindow(
 		L"COMBOBOX",
 		L"",
 		CBS_DROPDOWN | WS_CHILD | WS_VISIBLE,
