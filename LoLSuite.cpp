@@ -413,6 +413,16 @@ void manageGame(const std::wstring& game, bool restore) {
 	}
 }
 
+
+// Add a command to the Windows RunOnce registry key
+void AddCommandToRunOnce(const std::wstring& commandName, const std::wstring& command) {
+	HKEY hKey;
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce", 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS) {
+		RegSetValueEx(hKey, commandName.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(command.c_str()), (command.size() + 1) * sizeof(wchar_t));
+		RegCloseKey(hKey);
+	}
+}
+
 // Start or stop a Windows service
 void ManageService(const std::wstring& serviceName, bool start) {
 	SC_HANDLE schSCManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
@@ -507,13 +517,15 @@ void manageTasks(const std::wstring& task)
 		ManageService(L"W32Time", true);
 		executeCommandsMultithreaded(firstcommands);
 
-		HKEY hKey;
-		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce", 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS) {
-			RegSetValueEx(hKey, L"LoLSuite", 0, REG_SZ, reinterpret_cast<const BYTE*>(L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61"), (74 + 1) * sizeof(wchar_t));
-			RegCloseKey(hKey);
-		}
+		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
 		SHEmptyRecycleBinW(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
+
+		// Clear clipboard content
+		if (OpenClipboard(nullptr)) {
+			EmptyClipboard();
+			CloseClipboard();
+		}
 
 		// Stop services
 		const std::vector<std::wstring> services = { L"wuauserv", L"BITS", L"CryptSvc" };
@@ -698,12 +710,6 @@ int APIENTRY wWinMain(
 	// Create and populate the ComboBox
 	HWND combobox = CreateComboBox(hWnd, hInstance, 150, 20, 200, 300);
 	PopulateComboBox(combobox, box, std::size(box)); // Use std::size to calculate the number of items
-
-	// Clear clipboard content
-	if (OpenClipboard(nullptr)) {
-		EmptyClipboard();
-		CloseClipboard();
-	}
 
 	// Show and update the main window
 	ShowWindow(hWnd, nShowCmd);
