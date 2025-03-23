@@ -57,6 +57,7 @@ std::vector<std::wstring> installApps = {
 std::vector<std::wstring> firstcommands = {
 L"w32tm /resync",
 L"powercfg -restoredefaultschemes",
+L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
 L"powercfg /h off",
 L"wsreset -i",
 L"Clear-DnsClientCache",
@@ -364,7 +365,7 @@ void manageGame(const std::wstring& game, bool restore) {
 		DownloadFile(restore ? L"r/dota2/embree3.dll" : L"embree4.dll", 1, true);
 
 		// Launch Dota 2 via Steam
-		Start(L"steam://rungameid/570//-high/", L"", false);
+		Start(L"steam://rungameid/570//-high -dx11 -fullscreen/", L"", false);
 	}
 	else if (game == L"smite2") {
 		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2\\Windows", L"LoLSuite", MB_OK, 0);
@@ -413,16 +414,6 @@ void manageGame(const std::wstring& game, bool restore) {
 	}
 }
 
-
-// Add a command to the Windows RunOnce registry key
-void AddCommandToRunOnce(const std::wstring& commandName, const std::wstring& command) {
-	HKEY hKey;
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce", 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS) {
-		RegSetValueEx(hKey, commandName.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(command.c_str()), (command.size() + 1) * sizeof(wchar_t));
-		RegCloseKey(hKey);
-	}
-}
-
 // Start or stop a Windows service
 void ManageService(const std::wstring& serviceName, bool start) {
 	SC_HANDLE schSCManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
@@ -468,7 +459,6 @@ void manageTasks(const std::wstring& task)
 {
 	if (task == L"support")
 	{
-
 		for (const auto& process : processes) {
 			Terminate(process);
 		}
@@ -516,8 +506,6 @@ void manageTasks(const std::wstring& task)
 
 		ManageService(L"W32Time", true);
 		executeCommandsMultithreaded(firstcommands);
-
-		AddCommandToRunOnce(L"PowerCfgDuplicateScheme", L"cmd.exe /c powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61");
 
 		SHEmptyRecycleBinW(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
 
