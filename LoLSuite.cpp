@@ -625,7 +625,8 @@ void InitializeControls(HWND hWnd, HINSTANCE hInstance) {
 
 HWND CreateComboBox(HWND hWnd, HINSTANCE hInstance, int x, int y, int width, int height) {
 	// Create the ComboBox
-	return CreateWindow(
+	return CreateWindowEx(
+		0, // Extended window style
 		L"COMBOBOX",
 		L"",
 		CBS_DROPDOWN | WS_CHILD | WS_VISIBLE,
@@ -635,6 +636,7 @@ HWND CreateComboBox(HWND hWnd, HINSTANCE hInstance, int x, int y, int width, int
 		hInstance,
 		nullptr
 	);
+
 }
 
 void PopulateComboBox(HWND comboBox, const wchar_t* items[], size_t itemCount) {
