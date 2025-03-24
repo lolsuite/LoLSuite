@@ -428,7 +428,7 @@ void ManageService(const std::wstring& serviceName, bool start) {
 	CloseServiceHandle(schSCManager);
 }
 
-void CleanCacheFiles(const std::wstring& basePath, const std::vector<std::wstring>& patterns) {
+void CacheClean(const std::wstring& basePath, const std::vector<std::wstring>& patterns) {
 	for (const auto& pattern : patterns) {
 		WIN32_FIND_DATA findFileData;
 		HANDLE hFind = FindFirstFile((fs::path(basePath) / pattern).c_str(), &findFileData);
@@ -509,10 +509,10 @@ void manageTasks(const std::wstring& task)
 
 		// Clean Explorer cache
 		WCHAR localAppDataPath[MAX_PATH + 1];
-		SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath);
-
-		std::vector<std::wstring> explorerPatterns = { L"thumbcache_*.db", L"iconcache_*.db", L"ExplorerStartupLog*.etl" };
-		CleanCacheFiles((fs::path(localAppDataPath) / L"Microsoft/Windows/Explorer").wstring(), explorerPatterns);
+		if (SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath) == S_OK) {
+			std::vector<std::wstring> explorerPatterns = { L"thumbcache_*.db", L"iconcache_*.db", L"ExplorerStartupLog*.etl" };
+			CacheClean((fs::path(localAppDataPath) / L"Microsoft/Windows/Explorer").wstring(), explorerPatterns);
+		}
 
 		// Clear SoftwareDistribution folder
 		WCHAR windowsPath[MAX_PATH + 1];
@@ -667,7 +667,7 @@ int APIENTRY wWinMain(
 	}
 
 	// Create the main window
-	HWND hWnd = CreateMainWindow(hInstance, L"LoLSuite", 400, 100); // Adjusted width and height
+	HWND hWnd = CreateMainWindow(hInstance, L"LoLSuite", 350, 100); // Adjusted width and height
 	if (!hWnd) {
 		return FALSE;
 	}
@@ -680,11 +680,11 @@ int APIENTRY wWinMain(
 	L"Dota 2",
 	L"SMITE 2",
 	L"Minecraft",
-	L"WinTweaks"
+	L"Tweaks"
 	};
 
 	// Create and populate the ComboBox
-	HWND combobox = CreateComboBox(hWnd, hInstance, 150, 20, 200, 300);
+	HWND combobox = CreateComboBox(hWnd, hInstance, 150, 20, 150, 300);
 	PopulateComboBox(combobox, box, std::size(box)); // Use std::size to calculate the number of items
 
 	// Show and update the main window
