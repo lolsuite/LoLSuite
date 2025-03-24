@@ -343,14 +343,14 @@ void manageGame(const std::wstring& game, bool restore) {
 	}
 	else if (game == L"dota2") {
 		// Prompt the user to select the Dota 2 directory
-		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta", L"LoLSuite", MB_OK, 0);
+		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta\\game", L"LoLSuite", MB_OK, 0);
 		BrowseFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 
 		// Terminate any running Dota 2 process
 		Terminate(L"dota2.exe");
 
 		// Prepare paths and handle required files
-		AppendPath(0, L"game\\bin\\win64");
+		AppendPath(0, L"bin\\win64");
 		CombinePath(1, 0, L"embree3.dll");
 		URLDownload(restore ? L"r/dota2/embree3.dll" : L"embree4.dll", 1, true);
 
