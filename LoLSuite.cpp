@@ -680,8 +680,7 @@ int APIENTRY wWinMain(
 	L"Dota 2",
 	L"SMITE 2",
 	L"Minecraft",
-	L"Tweaks"
-	};
+	L"Tweaks" };
 
 	// Create and populate the ComboBox
 	HWND combobox = CreateComboBox(hWnd, hInstance, 150, 20, 150, 300);
