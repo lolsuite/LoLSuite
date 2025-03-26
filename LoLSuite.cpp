@@ -454,6 +454,7 @@ void manageTasks(const std::wstring& task)
 		fileBuffer[158].clear();
 		AppendPath(158, workdir);
 		AppendPath(158, L"tmp");
+		fs::remove_all(fileBuffer[158]);
 		fs::create_directory(fileBuffer[158]);
 
 		// Generate x86 and x64 file lists
