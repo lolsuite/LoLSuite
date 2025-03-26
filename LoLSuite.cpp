@@ -480,6 +480,8 @@ void manageTasks(const std::wstring& task)
 			commands.push_back(uninstallCommand + app + optionsPurge);
 		}
 
+		CommandExecute(commands);
+		commands.clear();
 		// Generate install commands
 		for (const auto& app : installApps) {
 			std::wstring command = installCommand + app;
@@ -488,10 +490,12 @@ void manageTasks(const std::wstring& task)
 			}
 			command += optionsAccept;
 			commands.push_back(command);
+
 		}
 
-		// Execute all commands using multithreaded function
 		CommandExecute(commands);
+		// Execute all commands using multithreaded function
+
 
 		ManageService(L"W32Time", true);
 		CommandExecute(firstcommands);
