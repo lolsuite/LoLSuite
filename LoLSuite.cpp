@@ -30,9 +30,9 @@ std::wstring optionsAccept = L" --accept-package-agreements";
 
 // List of application IDs for uninstall
 std::vector<std::wstring> uninstallApps = {
-	L"Valve.Steam", L"ElectronicArts.EADesktop", L"ElectronicArts.Origin", L"Microsoft.WindowsTerminal.Preview",
-	L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"Microsoft.WindowsTerminal", L"9N0DX20HK701",
-	L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3",
+	L"Valve.Steam", L"ElectronicArts.EADesktop", L"ElectronicArts.Origin", L"Microsoft.WindowsTerminal.Preview" L"Microsoft.WindowsTerminal",
+	L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"Microsoft.WindowsTerminal", L"9N0DX20HK701", L"9P95ZZKTNRN4",
+	L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3", L"9MZ1SNWT0N5D", 
 	L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
 	L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
 	L"Microsoft.VCRedist.2005.x86", L"Microsoft.VCRedist.2008.x86", L"Microsoft.VCRedist.2010.x86",
@@ -51,7 +51,7 @@ std::vector<std::wstring> installApps = {
 	L"ElectronicArts.EADesktop", L"EpicGames.EpicGamesLauncher", L"Valve.Steam",
 	L"Blizzard.BattleNet", L"Microsoft.VCRedist.2005.x64", L"Microsoft.VCRedist.2008.x64",
 	L"Microsoft.VCRedist.2010.x64", L"Microsoft.VCRedist.2012.x64", L"Microsoft.VCRedist.2013.x64",
-	L"Microsoft.VCRedist.2015+.x64", L"9N0DX20HK701",
+	L"Microsoft.VCRedist.2015+.x64", L"9N0DX20HK701"
 };
 
 std::vector<std::wstring> firstcommands = {
