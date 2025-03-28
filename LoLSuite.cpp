@@ -30,8 +30,8 @@ std::wstring optionsAccept = L" --accept-package-agreements";
 
 // List of application IDs for uninstall
 std::vector<std::wstring> apps_remove = {
-	L"Valve.Steam", L"ElectronicArts.EADesktop", L"ElectronicArts.Origin", L"Microsoft.WindowsTerminal.Preview" L"Microsoft.WindowsTerminal",
-	L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"Microsoft.WindowsTerminal", L"9N0DX20HK701", L"9P95ZZKTNRN4",
+	L"Valve.Steam", L"ElectronicArts.EADesktop", L"ElectronicArts.Origin", L"Microsoft.WindowsTerminal.Preview", L"Microsoft.WindowsTerminal",
+	L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"9N0DX20HK701", L"9P95ZZKTNRN4",
 	L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3", L"9MZ1SNWT0N5D", 
 	L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
 	L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
