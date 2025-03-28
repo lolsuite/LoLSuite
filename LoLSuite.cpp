@@ -1,4 +1,23 @@
-#include "LoLSuite.h"
+#define UNICODE
+#define WIN32_LEAN_AND_MEAN
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+#include "resource.h"
+#include <ShObjIdl_core.h>
+#include <ShlObj_core.h>
+#include <TlHelp32.h>
+#include <vector>
+#include <shellapi.h>
+#include <windows.h>
+#include <functional>
+#include <wininet.h>
+#include <filesystem>
+#include <urlmon.h>
+#include <thread>
+#include <future>
+#include <fstream>
+#include <locale>
+#include <sstream>
+#include <codecvt>
 
 int cb = 0;
 namespace fs = std::filesystem;
@@ -22,6 +41,25 @@ const std::vector<std::wstring> processes = {
 	L"EpicGamesLauncher.exe"             // Epic Games Launcher
 };
 
+std::vector<std::wstring> commands_oldminecraft = {
+L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
+L"winget uninstall Mojang.MinecraftLauncher --purge -h",
+L"winget uninstall Oracle.JDK.17 --purge -h", // Consolidated uninstalls
+L"winget uninstall Oracle.JDK.18 --purge -h", // Consolidated uninstalls
+L"winget uninstall Oracle.JDK.19 --purge -h", // Consolidated uninstalls
+L"winget uninstall Oracle.JDK.20 --purge -h", // Consolidated uninstalls
+L"winget uninstall Oracle.JDK.21 --purge -h", // Consolidated uninstalls
+L"winget uninstall Oracle.JDK.22 --purge -h", // Consolidated uninstalls
+L"winget uninstall Oracle.JDK.23 --purge -h", // Consolidated uninstalls
+};
+
+std::vector<std::wstring> commands_newminecraft = {
+L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
+L"winget install Oracle.JDK.24 --accept-package-agreements"
+};
+
+
+
 // Define common prefixes and suffixes
 std::wstring uninstallCommand = L"winget uninstall ";
 std::wstring installCommand = L"winget install ";
@@ -32,7 +70,7 @@ std::wstring optionsAccept = L" --accept-package-agreements";
 std::vector<std::wstring> apps_remove = {
 	L"Valve.Steam", L"ElectronicArts.EADesktop", L"ElectronicArts.Origin", L"Microsoft.WindowsTerminal.Preview", L"Microsoft.WindowsTerminal",
 	L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"9N0DX20HK701", L"9P95ZZKTNRN4",
-	L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3", L"9MZ1SNWT0N5D", 
+	L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3", L"9MZ1SNWT0N5D",
 	L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
 	L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
 	L"Microsoft.VCRedist.2005.x86", L"Microsoft.VCRedist.2008.x86", L"Microsoft.VCRedist.2010.x86",
@@ -55,25 +93,16 @@ std::vector<std::wstring> apps_install = {
 };
 
 std::vector<std::wstring> commands_helper = {
-L"w32tm /resync",
-L"powercfg -restoredefaultschemes",
-L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
-L"powercfg /h off",
-L"wsreset -i",
-L"Add-WindowsCapability -Online -Name NetFx3~~~~",
-L"Update-Help -Force -ErrorAction SilentlyContinue",
-L"Get-AppxPackage -AllUsers | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\\AppxManifest.xml\" }"
+	L"w32tm /resync",
+	L"powercfg -restoredefaultschemes",
+	L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
+	L"powercfg /h off",
+	L"wsreset -i",
+	L"Add-WindowsCapability -Online -Name NetFx3~~~~",
+	L"Update-Help -Force -ErrorAction SilentlyContinue",
+	L"Get-AppxPackage -AllUsers | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\\AppxManifest.xml\" }"
 };
 
-
-
-std::vector<std::wstring> commands_minecraft = {
-L"winget uninstall Mojang.MinecraftLauncher --purge -h",
-L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
-L"winget uninstall Oracle.JDK.{17-23} --purge -h", // Consolidated uninstalls
-L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
-L"winget install Oracle.JDK.23 --accept-package-agreements"
-};
 
 // Helper function to generate file names dynamically
 std::vector<std::wstring> generateFiles(const std::vector<std::wstring>& prefixes, const std::wstring& suffix) {
@@ -309,7 +338,9 @@ void manageGame(const std::wstring& game, bool restore) {
 			L"RiotClientCrashHandler.exe", L"LeagueCrashHandler64.exe"
 		};
 
-		for (const auto& process : processes) Terminate(process);
+		for (const auto& process : processes) {
+			Terminate(process);
+		}
 
 		CombinePath(56, 0, L"Riot Client\\RiotClientElectron");
 		AppendPath(0, L"League of Legends");
@@ -331,8 +362,12 @@ void manageGame(const std::wstring& game, bool restore) {
 		CombinePath(55, 51, L"tbb.dll");
 		CombinePath(54, 0, L"d3dcompiler_47.dll");
 
-		if (restore) fs::remove(fileBuffer[55]);
-		else URLDownload(L"tbb.dll", 55, true);
+		if (restore) {
+			fs::remove(fileBuffer[55]);
+		}
+		else {
+			URLDownload(L"tbb.dll", 55, true);
+		}
 
 		const auto d3dcompilerPath = restore ? L"r/lol/D3DCompiler_47.dll" :
 			(IsProcess64Bit() ? L"D3DCompiler_47.dll_x64" : L"D3DCompiler_47.dll");
@@ -342,9 +377,12 @@ void manageGame(const std::wstring& game, bool restore) {
 
 		Start(JoinPath(56, L"Riot Client.exe"), L"", false);
 	}
+
 	else if (game == L"dota2") {
 		// Prompt the user to select the Dota 2 directory
-		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta\\game", L"LoLSuite", MB_OK, 0);
+		MessageBoxEx(nullptr,
+			L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\dota 2 beta\\game",
+			L"LoLSuite", MB_OK, 0);
 		BrowseFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
 
 		// Terminate any running Dota 2 process
@@ -358,18 +396,28 @@ void manageGame(const std::wstring& game, bool restore) {
 		// Launch Dota 2 via Steam
 		Start(L"steam://rungameid/570//-high -dx11 -fullscreen/", L"", false);
 	}
+
 	else if (game == L"smite2") {
-		MessageBoxEx(nullptr, L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2\\Windows", L"LoLSuite", MB_OK, 0);
+		// Prompt the user to select the SMITE 2 directory
+		MessageBoxEx(nullptr,
+			L"Select: C:\\Program Files (x86)\\Steam\\steamapps\\common\\SMITE 2\\Windows",
+			L"LoLSuite", MB_OK, 0);
 		BrowseFolder(nullptr, szFolderPath, ARRAYSIZE(szFolderPath));
+
 		// Terminate running SMITE 2 processes
-		std::vector<std::wstring> processes = { L"Hemingway.exe", L"Hemingway-Win64-Shipping.exe" };
+		std::vector<std::wstring> processes = {
+			L"Hemingway.exe",
+			L"Hemingway-Win64-Shipping.exe"
+		};
 		for (const auto& process : processes) {
 			Terminate(process);
 		}
 
+		// Prepare paths
 		CombinePath(8, 0, L"Engine\\Binaries\\Win64");
 		CombinePath(7, 0, L"Hemingway\\Binaries\\Win64");
 
+		// Download required files
 		CombinePath(1, 8, L"tbb.dll");
 		URLDownload(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 1, true);
 
@@ -379,6 +427,7 @@ void manageGame(const std::wstring& game, bool restore) {
 		CombinePath(4, 7, L"tbb.dll");
 		CombinePath(5, 7, L"tbb12.dll");
 		CombinePath(6, 7, L"tbbmalloc.dll");
+
 		URLDownload(restore ? L"r/smite2/tbb.dll" : L"tbb.dll", 4, true);
 		URLDownload(restore ? L"r/smite2/tbb12.dll" : L"tbb.dll", 5, true);
 		URLDownload(restore ? L"r/smite2/tbbmalloc.dll" : L"tbbmalloc.dll", 6, true);
@@ -390,15 +439,96 @@ void manageGame(const std::wstring& game, bool restore) {
 		for (const auto& process : mcprocesses)
 			Terminate(process);
 
-		CommandExecute(commands_minecraft);
+		CommandExecute(commands_oldminecraft);
+		CommandExecute(commands_newminecraft);
+		Start(L"C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe", L"", false);
+		// Define the Java executable path
+		std::wstring javaPath = L"C:\\\\Program Files\\\\Java\\\\jdk-24\\\\bin\\\\javaw.exe";
 
-		MessageBoxEx(
-			nullptr,
-			L"Minecraft Launcher > Java Edition > Latest Release > More Options > Java Executable > Browse > C:\\Program Files\\Java\\jdk-23\\bin\\javaw.exe",
-			L"LoLSuite",
-			MB_OK,
-			0
-		);
+		// Use getenv_s for safer environment variable retrieval
+		const size_t bufferSize = MAX_PATH + 1; // Define buffer size for APPDATA
+		char appdataBuffer[bufferSize];
+		size_t retrievedSize = 0; // Variable to store the size of the retrieved string
+		errno_t err = getenv_s(&retrievedSize, appdataBuffer, bufferSize, "APPDATA");
+
+		// Combine paths using filesystem
+		fs::path configPath = appdataBuffer;
+		configPath /= ".minecraft";
+		configPath /= "launcher_profiles.json";
+
+		// Repeatedly check for configPath existence
+		while (!std::filesystem::exists(configPath)) {
+			// Sleep for 3 seconds
+			std::this_thread::sleep_for(std::chrono::seconds(5));
+		}
+
+		// Open and modify the configuration file (if applicable)
+		std::wifstream configFile(configPath);
+		configFile.imbue(std::locale(configFile.getloc(), new std::codecvt_utf8_utf16<wchar_t>));
+
+		if (configFile.is_open()) {
+			std::wstring configData((std::istreambuf_iterator<wchar_t>(configFile)),
+				std::istreambuf_iterator<wchar_t>());
+			configFile.close();
+
+// Remove "javaDir" and "skipJreVersionCheck" entries
+std::wstringstream configStream(configData);
+std::wstring line;
+std::wstring updatedConfigData;
+
+while (std::getline(configStream, line)) {
+    // Check if the line contains "javaDir" or "skipJreVersionCheck"
+    if (line.find(L"\"javaDir\"") == std::wstring::npos &&
+        line.find(L"\"skipJreVersionCheck\"") == std::wstring::npos) {
+        // Include the line in the updated configuration
+        updatedConfigData.append(line).append(L"\n");
+    }
+}
+
+
+			// Process for both "latest-release" and "latest-snapshot"
+			std::vector<std::wstring> types = { L"\"type\" : \"latest-release\"", L"\"type\" : \"latest-snapshot\"" };
+
+			for (const auto& type : types) {
+				size_t typePos = updatedConfigData.find(type);
+
+				if (typePos != std::wstring::npos) {
+					// Find the line before the type entry for "skipJreVersionCheck"
+					size_t lineStartPos = updatedConfigData.rfind(L'\n', typePos); // Position of the newline before the target
+					if (lineStartPos != std::wstring::npos) {
+						// Prepare the "skipJreVersionCheck" entry
+						std::wstring skipJreCheckEntry = L"      \"skipJreVersionCheck\" : true,\n";
+						// Insert the entry one line above the type entry
+						updatedConfigData.insert(lineStartPos + 1, skipJreCheckEntry);
+					}
+
+					// Calculate position to add "javaDir" 5 lines above the type entry
+					size_t javaDirPos = typePos;
+					for (int i = 0; i < 4; ++i) { // Adjust to move back 5 lines
+						javaDirPos = updatedConfigData.rfind(L'\n', javaDirPos - 1);
+						if (javaDirPos == std::wstring::npos) {
+							break; // Stop if fewer than 5 lines above
+						}
+					}
+					if (javaDirPos != std::wstring::npos) {
+						// Prepare the "javaDir" key-value pair
+						std::wstring javaDirEntry = L"      \"javaDir\" : \"" + javaPath + L"\",\n";
+						// Insert "javaDir" entry 5 lines above
+						updatedConfigData.insert(javaDirPos + 1, javaDirEntry);
+					}
+				}
+			}
+
+			// Write back to the configuration file
+			std::wofstream outFile(configPath);
+			outFile.imbue(std::locale(outFile.getloc(), new std::codecvt_utf8_utf16<wchar_t>));
+			outFile << updatedConfigData;
+			outFile.close();
+		}
+		for (const auto& process : mcprocesses)
+			Terminate(process);
+		Start(L"C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe", L"", false);
+
 	}
 }
 
@@ -691,7 +821,7 @@ int APIENTRY wWinMain(
 	L"League of Legends",
 	L"Dota 2",
 	L"SMITE 2",
-	L"Minecraft",
+	L"Minecraft Java (x64)",
 	L"Tweaks" };
 
 	// Create and populate the ComboBox
