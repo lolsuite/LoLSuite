@@ -50,7 +50,7 @@ L"winget uninstall Oracle.JDK.19 --purge -h", // Consolidated uninstalls
 L"winget uninstall Oracle.JDK.20 --purge -h", // Consolidated uninstalls
 L"winget uninstall Oracle.JDK.21 --purge -h", // Consolidated uninstalls
 L"winget uninstall Oracle.JDK.22 --purge -h", // Consolidated uninstalls
-L"winget uninstall Oracle.JDK.23 --purge -h", // Consolidated uninstalls
+L"winget uninstall Oracle.JDK.23 --purge -h"
 };
 
 std::vector<std::wstring> commands_newminecraft = {
