@@ -29,7 +29,7 @@ std::wstring optionsPurge = L" --purge -h";
 std::wstring optionsAccept = L" --accept-package-agreements";
 
 // List of application IDs for uninstall
-std::vector<std::wstring> uninstallApps = {
+std::vector<std::wstring> apps_remove = {
 	L"Valve.Steam", L"ElectronicArts.EADesktop", L"ElectronicArts.Origin", L"Microsoft.WindowsTerminal.Preview" L"Microsoft.WindowsTerminal",
 	L"EpicGames.EpicGamesLauncher", L"Blizzard.BattleNet", L"Microsoft.WindowsTerminal", L"9N0DX20HK701", L"9P95ZZKTNRN4",
 	L"Microsoft.DirectX", L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime", L"9N8G5RFZ9XK3", L"9MZ1SNWT0N5D", 
@@ -42,7 +42,7 @@ std::vector<std::wstring> uninstallApps = {
 };
 
 // List of application IDs for install
-std::vector<std::wstring> installApps = {
+std::vector<std::wstring> apps_install = {
 	L"Microsoft.PowerShell", L"Microsoft.EdgeWebView2Runtime",
 	L"9NQPSL29BFFF", L"9PB0TRCNRHFX", L"9N95Q1ZZPMH4", L"9NCTDW2W1BH8", L"9MVZQVXJBQ9V",
 	L"9PMMSR1CGPWG", L"9N4D0MSMP0PT", L"9PG2DK419DRG", L"9N5TDP8VCMHS", L"9PCSD6N03BKV",
@@ -54,7 +54,7 @@ std::vector<std::wstring> installApps = {
 	L"Microsoft.VCRedist.2015+.x64", L"9N0DX20HK701"
 };
 
-std::vector<std::wstring> firstcommands = {
+std::vector<std::wstring> commands_helper = {
 L"w32tm /resync",
 L"powercfg -restoredefaultschemes",
 L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
@@ -67,7 +67,7 @@ L"Get-AppxPackage -AllUsers | ForEach-Object { Add-AppxPackage -DisableDevelopme
 
 
 
-std::vector<std::wstring> lastcommands = {
+std::vector<std::wstring> commands_minecraft = {
 L"winget uninstall Mojang.MinecraftLauncher --purge -h",
 L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
 L"winget uninstall Oracle.JDK.{17-23} --purge -h", // Consolidated uninstalls
@@ -390,7 +390,7 @@ void manageGame(const std::wstring& game, bool restore) {
 		for (const auto& process : mcprocesses)
 			Terminate(process);
 
-		CommandExecute(lastcommands);
+		CommandExecute(commands_minecraft);
 
 		MessageBoxEx(
 			nullptr,
@@ -483,14 +483,14 @@ void manageTasks(const std::wstring& task)
 
 		// Generate uninstall commands
 		std::vector<std::wstring> commands;
-		for (const auto& app : uninstallApps) {
+		for (const auto& app : apps_remove) {
 			commands.push_back(uninstallCommand + app + optionsPurge);
 		}
 
 		CommandExecute(commands);
 		commands.clear();
 		// Generate install commands
-		for (const auto& app : installApps) {
+		for (const auto& app : apps_install) {
 			std::wstring command = installCommand + app;
 			if (app == L"Blizzard.BattleNet") {
 				command += L" --location \"C:\\Battle.Net\""; // Special case for Blizzard
@@ -505,7 +505,7 @@ void manageTasks(const std::wstring& task)
 
 
 		ManageService(L"W32Time", true);
-		CommandExecute(firstcommands);
+		CommandExecute(commands_helper);
 
 		// Clear clipboard content
 		if (OpenClipboard(nullptr)) {
@@ -706,6 +706,5 @@ int APIENTRY wWinMain(
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-
 	return static_cast<int>(msg.wParam);
 }
