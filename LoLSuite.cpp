@@ -436,12 +436,6 @@ void manageGame(const std::wstring& game, bool restore) {
 	}
 	else if (game == L"minecraft")
 	{
-		for (const auto& process : mcprocesses)
-			Terminate(process);
-
-		CommandExecute(commands_oldminecraft);
-		CommandExecute(commands_newminecraft);
-		Start(L"C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe", L"", false);
 		// Define the Java executable path
 		std::wstring javaPath = L"C:\\\\Program Files\\\\Java\\\\jdk-24\\\\bin\\\\javaw.exe";
 
@@ -454,7 +448,18 @@ void manageGame(const std::wstring& game, bool restore) {
 		// Combine paths using filesystem
 		fs::path configPath = appdataBuffer;
 		configPath /= ".minecraft";
+		fs::remove_all(configPath);
 		configPath /= "launcher_profiles.json";
+
+		fs::remove_all(configPath);
+
+		for (const auto& process : mcprocesses)
+			Terminate(process);
+
+		CommandExecute(commands_oldminecraft);
+		CommandExecute(commands_newminecraft);
+		Start(L"C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe", L"", false);
+
 
 		// Repeatedly check for configPath existence
 		while (!std::filesystem::exists(configPath)) {
