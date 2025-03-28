@@ -6,7 +6,7 @@ auto workdir = fs::current_path();
 WCHAR szFolderPath[MAX_PATH + 1];
 std::vector<std::wstring> fileBuffer(258);
 MSG msg;
-
+typedef BOOL(WINAPI* DnsFlushResolverCacheFuncPtr)();
 const std::vector<std::wstring> processes = {
 	L"cmd.exe",                          // Command Prompt
 	L"pwsh.exe",                         // PowerShell Core/Modern
@@ -60,11 +60,12 @@ L"powercfg -restoredefaultschemes",
 L"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61",
 L"powercfg /h off",
 L"wsreset -i",
-L"Clear-DnsClientCache",
 L"Add-WindowsCapability -Online -Name NetFx3~~~~",
 L"Update-Help -Force -ErrorAction SilentlyContinue",
 L"Get-AppxPackage -AllUsers | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\\AppxManifest.xml\" }"
 };
+
+
 
 std::vector<std::wstring> lastcommands = {
 L"winget uninstall Mojang.MinecraftLauncher --purge -h",
@@ -447,6 +448,12 @@ void manageTasks(const std::wstring& task)
 	if (task == L"support")
 	{
 		SHEmptyRecycleBin(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
+
+		HMODULE dnsapi = LoadLibraryW(L"dnsapi.dll");
+		DnsFlushResolverCacheFuncPtr DnsFlushResolverCache = (DnsFlushResolverCacheFuncPtr)GetProcAddress(dnsapi, "DnsFlushResolverCache");
+		DnsFlushResolverCache();
+		FreeLibrary(dnsapi);
+
 		for (const auto& process : processes) {
 			Terminate(process);
 		}
