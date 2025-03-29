@@ -44,12 +44,12 @@ const std::vector<std::wstring> processes = {
 std::vector<std::wstring> commands_oldminecraft = {
 L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
 L"winget uninstall Mojang.MinecraftLauncher --purge -h",
-L"winget uninstall Oracle.JDK.17 --purge -h", // Consolidated uninstalls
-L"winget uninstall Oracle.JDK.18 --purge -h", // Consolidated uninstalls
-L"winget uninstall Oracle.JDK.19 --purge -h", // Consolidated uninstalls
-L"winget uninstall Oracle.JDK.20 --purge -h", // Consolidated uninstalls
-L"winget uninstall Oracle.JDK.21 --purge -h", // Consolidated uninstalls
-L"winget uninstall Oracle.JDK.22 --purge -h", // Consolidated uninstalls
+L"winget uninstall Oracle.JDK.17 --purge -h",
+L"winget uninstall Oracle.JDK.18 --purge -h",
+L"winget uninstall Oracle.JDK.19 --purge -h",
+L"winget uninstall Oracle.JDK.20 --purge -h",
+L"winget uninstall Oracle.JDK.21 --purge -h",
+L"winget uninstall Oracle.JDK.22 --purge -h",
 L"winget uninstall Oracle.JDK.23 --purge -h"
 };
 
@@ -57,7 +57,6 @@ std::vector<std::wstring> commands_newminecraft = {
 L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
 L"winget install Oracle.JDK.24 --accept-package-agreements"
 };
-
 
 
 // Define common prefixes and suffixes
@@ -246,35 +245,28 @@ void waitForFileCount(const std::wstring& directoryPath, size_t expectedCount) {
 	}
 }
 
-void InvokePWSHCommand(const std::wstring& command) {
-	std::wstring fullCommand = L"powershell.exe -Command \"" + command + L"\"";
-	SHELLEXECUTEINFO sei = { sizeof(SHELLEXECUTEINFO) };
-	sei.lpVerb = L"open";
-	sei.lpFile = L"powershell.exe";
-	sei.lpParameters = fullCommand.c_str();
-	sei.nShow = SW_HIDE;
-	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
-
-	if (ShellExecuteEx(&sei)) {
-		WaitForSingleObject(sei.hProcess, INFINITE);
-		CloseHandle(sei.hProcess);
-	}
-}
-
-// Multithreaded function for executing a series of PowerShell commands
+// Combined function for executing a series of PowerShell commands sequentially
 void CommandExecute(const std::vector<std::wstring>& commands) {
-	std::vector<std::future<void>> futures;
-
-	// Launch each command in a separate thread
 	for (const auto& command : commands) {
-		futures.push_back(std::async(std::launch::async, InvokePWSHCommand, command));
-	}
+		// Prepare the full PowerShell command
+		std::wstring fullCommand = L"powershell.exe -Command \"" + command + L"\"";
 
-	// Wait for all commands to complete
-	for (auto& future : futures) {
-		future.get();
+		// Set up the SHELLEXECUTEINFO structure
+		SHELLEXECUTEINFO sei = { sizeof(SHELLEXECUTEINFO) };
+		sei.lpVerb = L"open";
+		sei.lpFile = L"powershell.exe";
+		sei.lpParameters = fullCommand.c_str();
+		sei.nShow = SW_HIDE;
+		sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+
+		// Execute the command and wait for completion
+		if (ShellExecuteEx(&sei)) {
+			WaitForSingleObject(sei.hProcess, INFINITE);
+			CloseHandle(sei.hProcess);
+		}
 	}
 }
+
 
 // Start a Process
 void Start(const std::wstring& file, const std::wstring& params, bool wait) {
