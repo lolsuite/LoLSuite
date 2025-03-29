@@ -443,8 +443,6 @@ void manageGame(const std::wstring& game, bool restore) {
 		fs::remove_all(configPath);
 		configPath /= "launcher_profiles.json";
 
-		fs::remove_all(configPath);
-
 		for (const auto& process : mcprocesses)
 			Terminate(process);
 
