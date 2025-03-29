@@ -733,7 +733,7 @@ HWND CreateMainWindow(HINSTANCE hInstance, LPCWSTR className, int width, int hei
 		0,
 		className,
 		L"LoLSuite",
-		WS_EX_LAYERED,
+		WS_EX_LAYERED & ~WS_MAXIMIZEBOX,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		width, height,
 		nullptr,
