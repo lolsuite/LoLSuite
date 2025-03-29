@@ -448,12 +448,10 @@ void manageGame(const std::wstring& game, bool restore) {
 
 		CommandExecute(commands_oldminecraft);
 		CommandExecute(commands_newminecraft);
+
+		// Wait for update
 		Start(L"C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe", L"", false);
-
-
-		// Repeatedly check for configPath existence
 		while (!std::filesystem::exists(configPath)) {
-			// Sleep for 3 seconds
 			std::this_thread::sleep_for(std::chrono::seconds(5));
 		}
 
@@ -466,19 +464,19 @@ void manageGame(const std::wstring& game, bool restore) {
 				std::istreambuf_iterator<wchar_t>());
 			configFile.close();
 
-// Remove "javaDir" and "skipJreVersionCheck" entries
-std::wstringstream configStream(configData);
-std::wstring line;
-std::wstring updatedConfigData;
+			// Remove "javaDir" and "skipJreVersionCheck" entries
+			std::wstringstream configStream(configData);
+			std::wstring line;
+			std::wstring updatedConfigData;
 
-while (std::getline(configStream, line)) {
-    // Check if the line contains "javaDir" or "skipJreVersionCheck"
-    if (line.find(L"\"javaDir\"") == std::wstring::npos &&
-        line.find(L"\"skipJreVersionCheck\"") == std::wstring::npos) {
-        // Include the line in the updated configuration
-        updatedConfigData.append(line).append(L"\n");
-    }
-}
+			while (std::getline(configStream, line)) {
+				// Check if the line contains "javaDir" or "skipJreVersionCheck"
+				if (line.find(L"\"javaDir\"") == std::wstring::npos &&
+					line.find(L"\"skipJreVersionCheck\"") == std::wstring::npos) {
+					// Include the line in the updated configuration
+					updatedConfigData.append(line).append(L"\n");
+				}
+			}
 
 
 			// Process for both "latest-release" and "latest-snapshot"
