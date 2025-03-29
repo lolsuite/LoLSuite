@@ -41,23 +41,19 @@ const std::vector<std::wstring> processes = {
 	L"EpicGamesLauncher.exe"             // Epic Games Launcher
 };
 
-std::vector<std::wstring> commands_oldminecraft = {
-L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
+std::vector<std::wstring> commands_minecraft = {
 L"winget uninstall Mojang.MinecraftLauncher --purge -h",
+L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
 L"winget uninstall Oracle.JDK.17 --purge -h",
 L"winget uninstall Oracle.JDK.18 --purge -h",
 L"winget uninstall Oracle.JDK.19 --purge -h",
 L"winget uninstall Oracle.JDK.20 --purge -h",
 L"winget uninstall Oracle.JDK.21 --purge -h",
 L"winget uninstall Oracle.JDK.22 --purge -h",
-L"winget uninstall Oracle.JDK.23 --purge -h"
+L"winget uninstall Oracle.JDK.23 --purge -h",
+L"winget install Oracle.JDK.24 --accept-package-agreements",
+L"winget install Mojang.MinecraftLauncher --accept-package-agreements"
 };
-
-std::vector<std::wstring> commands_newminecraft = {
-L"winget install Mojang.MinecraftLauncher --accept-package-agreements",
-L"winget install Oracle.JDK.24 --accept-package-agreements"
-};
-
 
 // Define common prefixes and suffixes
 std::wstring uninstallCommand = L"winget uninstall ";
@@ -428,6 +424,9 @@ void manageGame(const std::wstring& game, bool restore) {
 	}
 	else if (game == L"minecraft")
 	{
+		for (const auto& process : mcprocesses)
+			Terminate(process);
+
 		// Define the Java executable path
 		std::wstring javaPath = L"C:\\\\Program Files\\\\Java\\\\jdk-24\\\\bin\\\\javaw.exe";
 
@@ -443,17 +442,16 @@ void manageGame(const std::wstring& game, bool restore) {
 		fs::remove_all(configPath);
 		configPath /= "launcher_profiles.json";
 
-		for (const auto& process : mcprocesses)
-			Terminate(process);
-
-		CommandExecute(commands_oldminecraft);
-		CommandExecute(commands_newminecraft);
+		CommandExecute(commands_minecraft);
 
 		// Wait for update
 		Start(L"C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe", L"", false);
 		while (!std::filesystem::exists(configPath)) {
-			std::this_thread::sleep_for(std::chrono::seconds(5));
+			std::this_thread::sleep_for(std::chrono::seconds(10));
 		}
+
+		for (const auto& process : mcprocesses)
+			Terminate(process);
 
 		// Open and modify the configuration file (if applicable)
 		std::wifstream configFile(configPath);
@@ -518,8 +516,7 @@ void manageGame(const std::wstring& game, bool restore) {
 			outFile << updatedConfigData;
 			outFile.close();
 		}
-		for (const auto& process : mcprocesses)
-			Terminate(process);
+
 		Start(L"C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe", L"", false);
 
 	}
