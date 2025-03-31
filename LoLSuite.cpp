@@ -621,8 +621,6 @@ void manageTasks(const std::wstring& task)
 		}
 
 		CommandExecute(commands);
-		// Execute all commands using multithreaded function
-
 
 		ManageService(L"W32Time", true);
 		CommandExecute(commands_helper);
@@ -812,7 +810,8 @@ int APIENTRY wWinMain(
 	L"Dota 2",
 	L"SMITE 2",
 	L"Minecraft Java (x64)",
-	L"Tweaks" };
+	L"Tweaks"
+	};
 
 	// Create and populate the ComboBox
 	HWND combobox = CreateComboBox(hWnd, hInstance, 150, 20, 150, 300);
