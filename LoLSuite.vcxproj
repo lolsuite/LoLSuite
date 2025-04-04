@@ -48,7 +48,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_UNICODE;UNICODE;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <DebugInformationFormat>None</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
@@ -59,14 +59,14 @@
       <IncludeInUnityFile>false</IncludeInUnityFile>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
-      <CompileAs>CompileAsCpp</CompileAs>
+      <CompileAs>CompileAsHeaderUnit</CompileAs>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <UseUnicodeForAssemblerListing>true</UseUnicodeForAssemblerListing>
       <OpenMPSupport>false</OpenMPSupport>
       <FloatingPointExceptions>true</FloatingPointExceptions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <EnableModules>false</EnableModules>
+      <EnableModules>true</EnableModules>
       <BuildStlModules>false</BuildStlModules>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ErrorReporting>None</ErrorReporting>

@@ -1,26 +1,28 @@
 #define UNICODE
 #define WIN32_LEAN_AND_MEAN
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+
 #include "resource.h"
 #include <ShObjIdl_core.h>
 #include <ShlObj_core.h>
 #include <TlHelp32.h>
-#include <vector>
-#include <shellapi.h>
 #include <windows.h>
-#include <functional>
+#include <shellapi.h>
 #include <wininet.h>
-#include <filesystem>
 #include <urlmon.h>
-#include <thread>
-#include <future>
-#include <fstream>
-#include <locale>
-#include <sstream>
-#include <codecvt>
+
+// Use C++20 module imports for standard libraries
+import <filesystem>;
+import <vector>;
+import <functional>;
+import <thread>;
+import <fstream>;
+import <sstream>;
+
+
+namespace fs = std::filesystem;
 
 int cb = 0;
-namespace fs = std::filesystem;
 auto workdir = fs::current_path();
 WCHAR szFolderPath[MAX_PATH + 1];
 std::vector<std::wstring> fileBuffer(258);
@@ -453,28 +455,34 @@ void manageGame(const std::wstring& game, bool restore) {
 		for (const auto& process : mcprocesses)
 			Terminate(process);
 
-		// Open and modify the configuration file (if applicable)
 		std::wifstream configFile(configPath);
-		configFile.imbue(std::locale(configFile.getloc(), new std::codecvt_utf8_utf16<wchar_t>));
+		configFile.imbue(std::locale("en_US.UTF-8")); // Use UTF-8 locale directly without <codecvt>
 
 		if (configFile.is_open()) {
+			// Read the entire configuration file
 			std::wstring configData((std::istreambuf_iterator<wchar_t>(configFile)),
 				std::istreambuf_iterator<wchar_t>());
 			configFile.close();
 
-			// Remove "javaDir" and "skipJreVersionCheck" entries
 			std::wstringstream configStream(configData);
 			std::wstring line;
 			std::wstring updatedConfigData;
 
 			while (std::getline(configStream, line)) {
-				// Check if the line contains "javaDir" or "skipJreVersionCheck"
+				// Check for "javaDir" and "skipJreVersionCheck"
 				if (line.find(L"\"javaDir\"") == std::wstring::npos &&
 					line.find(L"\"skipJreVersionCheck\"") == std::wstring::npos) {
-					// Include the line in the updated configuration
+					// Include valid lines
 					updatedConfigData.append(line).append(L"\n");
 				}
 			}
+
+			// Save updated configuration
+			fs::path updatedConfigPath = configPath.parent_path() / L"updated_config.txt";
+			std::wofstream updatedConfigFile(updatedConfigPath);
+			updatedConfigFile.imbue(std::locale("en_US.UTF-8"));
+			updatedConfigFile << updatedConfigData;
+			updatedConfigFile.close();
 
 
 			// Process for both "latest-release" and "latest-snapshot"
@@ -512,8 +520,8 @@ void manageGame(const std::wstring& game, bool restore) {
 
 			// Write back to the configuration file
 			std::wofstream outFile(configPath);
-			outFile.imbue(std::locale(outFile.getloc(), new std::codecvt_utf8_utf16<wchar_t>));
-			outFile << updatedConfigData;
+			outFile.imbue(std::locale("en_US.UTF-8")); // Use UTF-8 locale directly without codecvt
+			outFile << updatedConfigData; // Write the updated configuration data
 			outFile.close();
 		}
 
@@ -624,12 +632,6 @@ void manageTasks(const std::wstring& task)
 
 		ManageService(L"W32Time", true);
 		CommandExecute(commands_helper);
-
-		// Clear clipboard content
-		if (OpenClipboard(nullptr)) {
-			EmptyClipboard();
-			CloseClipboard();
-		}
 
 		// Stop services
 		const std::vector<std::wstring> services = { L"wuauserv", L"BITS", L"CryptSvc" };
@@ -816,6 +818,12 @@ int APIENTRY wWinMain(
 	// Create and populate the ComboBox
 	HWND combobox = CreateComboBox(hWnd, hInstance, 150, 20, 150, 300);
 	PopulateComboBox(combobox, box, std::size(box)); // Use std::size to calculate the number of items
+
+	// Clear clipboard content
+	if (OpenClipboard(nullptr)) {
+		EmptyClipboard();
+		CloseClipboard();
+	}
 
 	// Show and update the main window
 	ShowWindow(hWnd, nShowCmd);
