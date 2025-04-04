@@ -1,6 +1,5 @@
 #define UNICODE
 #define WIN32_LEAN_AND_MEAN
-#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 
 #include "resource.h"
 #include <ShObjIdl_core.h>
