@@ -1,6 +1,5 @@
 #define UNICODE
 #define WIN32_LEAN_AND_MEAN
-
 #include "resource.h"
 #include <ShObjIdl_core.h>
 #include <ShlObj_core.h>
@@ -9,8 +8,6 @@
 #include <shellapi.h>
 #include <wininet.h>
 #include <urlmon.h>
-
-// Use C++20 module imports for standard libraries
 import <filesystem>;
 import <vector>;
 import <functional>;
