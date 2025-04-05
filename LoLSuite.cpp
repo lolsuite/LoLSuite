@@ -40,20 +40,6 @@ const std::vector<std::wstring> processes = {
 	L"EpicGamesLauncher.exe"             // Epic Games Launcher
 };
 
-std::vector<std::wstring> commands_minecraft = {
-L"winget uninstall Mojang.MinecraftLauncher --purge -h",
-L"winget uninstall Oracle.JavaRuntimeEnvironment --purge -h",
-L"winget uninstall Oracle.JDK.17 --purge -h",
-L"winget uninstall Oracle.JDK.18 --purge -h",
-L"winget uninstall Oracle.JDK.19 --purge -h",
-L"winget uninstall Oracle.JDK.20 --purge -h",
-L"winget uninstall Oracle.JDK.21 --purge -h",
-L"winget uninstall Oracle.JDK.22 --purge -h",
-L"winget uninstall Oracle.JDK.23 --purge -h",
-L"winget install Oracle.JDK.24 --accept-package-agreements",
-L"winget install Mojang.MinecraftLauncher --accept-package-agreements"
-};
-
 // Define common prefixes and suffixes
 std::wstring uninstallCommand = L"winget uninstall ";
 std::wstring installCommand = L"winget install ";
@@ -440,6 +426,18 @@ void manageGame(const std::wstring& game, bool restore) {
 		configPath /= ".minecraft";
 		fs::remove_all(configPath);
 		configPath /= "launcher_profiles.json";
+
+		std::vector<std::wstring> commands_minecraft;
+
+		// Uninstall commands
+		for (const auto& version : { L"JavaRuntimeEnvironment", L"JDK.17", L"JDK.18", L"JDK.19", L"JDK.20", L"JDK.21", L"JDK.22", L"JDK.23" }) {
+			commands_minecraft.push_back(L"winget uninstall Oracle." + std::wstring(version) + L" --purge -h");
+		}
+		commands_minecraft.push_back(L"winget uninstall Mojang.MinecraftLauncher --purge -h");
+
+		// Install commands
+		commands_minecraft.push_back(L"winget install Oracle.JDK.24 --accept-package-agreements");
+		commands_minecraft.push_back(L"winget install Mojang.MinecraftLauncher --accept-package-agreements");
 
 		CommandExecute(commands_minecraft);
 
