@@ -67,6 +67,7 @@ void CombinePath(const int destIndex, const int srcIndex, const std::wstring& ad
 }
 
 void ManageService(const std::wstring& serviceName, bool start) {
+
 	SC_HANDLE schSCManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
 	if (!schSCManager) return;
 
