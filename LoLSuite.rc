@@ -68,7 +68,6 @@ END
 STRINGTABLE
 BEGIN
     IDS_APP_TITLE           "LoLSuite"
-    IDC_BUFFER              "empty"
 END
 
 #endif    // English (United States) resources

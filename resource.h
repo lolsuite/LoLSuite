@@ -5,7 +5,6 @@
 #define IDS_APP_TITLE                   100
 #define IDM_EXIT                        101
 #define IDI_ICON                        102
-#define IDC_BUFFER                      103
 
 // Next default values for new objects
 // 
