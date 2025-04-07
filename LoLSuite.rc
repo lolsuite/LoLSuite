@@ -104,12 +104,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "lolsuite.org"
             VALUE "FileDescription", "FPS Booster for League of Legends"
-            VALUE "FileVersion", "1.0.0.3"
+            VALUE "FileVersion", "1.0.0.4"
             VALUE "InternalName", "LoLSuite.exe"
             VALUE "LegalCopyright", "Copyright (C) 2025 - Elias Gudsson"
             VALUE "OriginalFilename", "LoLSuite.exe"
             VALUE "ProductName", "LoLSuite"
-            VALUE "ProductVersion", "1.0.0.3"
+            VALUE "ProductVersion", "1.0.0.4"
         END
     END
     BLOCK "VarFileInfo"
@@ -120,16 +120,4 @@ END
 
 #endif    // Swedish (Sweden) resources
 /////////////////////////////////////////////////////////////////////////////
-
-
-
-#ifndef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 3 resource.
-//
-
-
-/////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED
 
