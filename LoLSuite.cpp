@@ -604,12 +604,12 @@ bool RegisterWindowClass(HINSTANCE hInstance, LPCWSTR className, int iconId) {
 		WndProc,
 		0, 0,
 		hInstance,
-		LoadIconW(hInstance, MAKEINTRESOURCE(iconId)),
-		LoadCursorW(nullptr, IDC_ARROW),
+		NULL,
+		NULL,
 		reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
 		nullptr,
 		className,
-		LoadIconW(hInstance, MAKEINTRESOURCE(iconId))
+		NULL
 	};
 	return RegisterClassEx(&wcex);
 }
@@ -620,7 +620,7 @@ HWND CreateMainWindow(HINSTANCE hInstance, LPCWSTR className, int width, int hei
 		0,
 		className,
 		L"LoLSuite",
-		WS_EX_LAYERED & ~WS_MAXIMIZEBOX,
+		WS_EX_LAYERED & ~WS_MAXIMIZEBOX & ~WS_SYSMENU,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		width, height,
 		nullptr,
@@ -669,7 +669,7 @@ int APIENTRY wWinMain(
 		return 0;
 	}
 
-	if (!RegisterWindowClass(hInstance, L"LoLSuite", IDI_ICON)) {
+	if (!RegisterWindowClass(hInstance, L"LoLSuite", NULL)) {
 		return FALSE;
 	}
 
