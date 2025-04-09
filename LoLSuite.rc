@@ -86,8 +86,8 @@ LANGUAGE LANG_SWEDISH, SUBLANG_SWEDISH
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,3
- PRODUCTVERSION 1,0,0,3
+ FILEVERSION 1,0,0,5
+ PRODUCTVERSION 1,0,0,5
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -104,12 +104,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "lolsuite.org"
             VALUE "FileDescription", "FPS Booster for League of Legends"
-            VALUE "FileVersion", "1.0.0.4"
+            VALUE "FileVersion", "1.0.0.5"
             VALUE "InternalName", "LoLSuite.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2025 - Elias Gudsson"
+            VALUE "LegalCopyright", "Copyright (C) 2013-2025 - Elias Gudsson"
             VALUE "OriginalFilename", "LoLSuite.exe"
             VALUE "ProductName", "LoLSuite"
-            VALUE "ProductVersion", "1.0.0.4"
+            VALUE "ProductVersion", "1.0.0.5"
         END
     END
     BLOCK "VarFileInfo"
