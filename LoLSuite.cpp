@@ -597,7 +597,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	return 0;
 }
 
-bool RegisterWindowClass(HINSTANCE hInstance, LPCWSTR className, int iconId) {
+bool RegisterWindowClass(HINSTANCE hInstance) {
 	WNDCLASSEXW wcex = {
 		sizeof(WNDCLASSEXW),
 		CS_HREDRAW | CS_VREDRAW,
@@ -608,7 +608,7 @@ bool RegisterWindowClass(HINSTANCE hInstance, LPCWSTR className, int iconId) {
 		NULL,
 		reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
 		nullptr,
-		className,
+		L"LoLSuite",
 		NULL
 	};
 	return RegisterClassEx(&wcex);
@@ -669,7 +669,7 @@ int APIENTRY wWinMain(
 		return 0;
 	}
 
-	if (!RegisterWindowClass(hInstance, L"LoLSuite", NULL)) {
+	if (!RegisterWindowClass(hInstance)) {
 		return FALSE;
 	}
 
