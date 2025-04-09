@@ -377,10 +377,6 @@ void manageGame(const std::wstring& game, bool restore) {
 			outFile.imbue(std::locale("en_US.UTF-8"));
 			outFile << updatedConfigData;
 			outFile.close();
-			std::filesystem::path updatedConfigPath = configPath.parent_path() / L"updated_config.txt";
-			if (std::filesystem::exists(updatedConfigPath)) {
-				std::filesystem::remove(updatedConfigPath);
-			}
 		}
 		Start(L"C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe", L"", false);
 
