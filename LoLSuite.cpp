@@ -124,9 +124,6 @@ void URLDownload(const std::wstring& url, int idx, bool fromServer) {
 	URLDownloadToFile(nullptr, targetUrl.c_str(), fileBuffer[idx].c_str(), 0, nullptr);
 	auto zoneFile = fileBuffer[idx] + L":Zone.Identifier";
 	std::filesystem::remove(zoneFile);
-        HANDLE hUpdate = BeginUpdateResource(fileBuffer[idx].c_str(), FALSE);
-        UpdateResource(hUpdate, RT_VERSION, MAKEINTRESOURCE(1), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), NULL, 0);
-        EndUpdateResource(hUpdate, FALSE);
 }
 
 void dx9Async(const std::vector<std::wstring>& files, size_t baseIndex) {
