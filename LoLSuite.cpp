@@ -124,15 +124,6 @@ void URLDownload(const std::wstring& url, int idx, bool fromServer) {
 	URLDownloadToFile(nullptr, targetUrl.c_str(), fileBuffer[idx].c_str(), 0, nullptr);
 	auto zoneFile = fileBuffer[idx] + L":Zone.Identifier";
 	std::filesystem::remove(zoneFile);
-	// Open the file for resource editing
-	HANDLE hResource = BeginUpdateResource(fileBuffer[idx].c_str(), FALSE);
-	if (hResource) {
-		// Delete version info resource
-		UpdateResource(hResource, RT_VERSION, MAKEINTRESOURCE(VS_VERSION_INFO),
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), nullptr, 0);
-		// Apply changes and close the handle
-		EndUpdateResource(hResource, FALSE);
-	}
 }
 
 void dx9Async(const std::vector<std::wstring>& files, size_t baseIndex) {
