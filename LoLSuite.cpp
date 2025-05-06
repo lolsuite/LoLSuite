@@ -7,7 +7,6 @@
 #include <urlmon.h>
 #include <wininet.h>
 #include <windows.h>
-#include "resource.h"
 import <filesystem>;
 import <vector>;
 import <functional>;
@@ -15,6 +14,10 @@ import <thread>;
 import <fstream>;
 import <sstream>;
 import <chrono>;
+
+#define IDS_APP_TITLE                   100
+#define IDM_EXIT                        101
+
 
 int cb = 0;
 auto workdir = std::filesystem::current_path();
