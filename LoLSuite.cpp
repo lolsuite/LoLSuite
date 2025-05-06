@@ -16,6 +16,8 @@ import <fstream>;
 import <sstream>;
 import <chrono>;
 
+int cb = 0; // Ensure `cb` is declared before use
+
 auto workdir = std::filesystem::current_path();
 WCHAR szFolderPath[MAX_PATH + 1];
 std::vector<std::wstring> fileBuffer(258);
@@ -564,7 +566,6 @@ void handleCommand(int cb, bool flag) {
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	int cb; // Ensure `cb` is declared before use
 
 	switch (message) {
 	case WM_COMMAND:
