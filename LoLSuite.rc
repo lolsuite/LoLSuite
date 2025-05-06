@@ -2,7 +2,9 @@
 //
 #pragma code_page(65001)
 
-#include "resource.h"
+#define IDS_APP_TITLE                   100
+#define IDM_EXIT                        101
+
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////

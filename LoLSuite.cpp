@@ -7,6 +7,7 @@
 #include <urlmon.h>
 #include <wininet.h>
 #include <windows.h>
+#include "resource.h"
 import <filesystem>;
 import <vector>;
 import <functional>;
@@ -15,11 +16,6 @@ import <fstream>;
 import <sstream>;
 import <chrono>;
 
-#define IDS_APP_TITLE                   100
-#define IDM_EXIT                        101
-
-
-int cb = 0;
 auto workdir = std::filesystem::current_path();
 WCHAR szFolderPath[MAX_PATH + 1];
 std::vector<std::wstring> fileBuffer(258);
@@ -568,6 +564,8 @@ void handleCommand(int cb, bool flag) {
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	int cb; // Ensure `cb` is declared before use
+
 	switch (message) {
 	case WM_COMMAND:
 		if (HIWORD(wParam) == CBN_SELCHANGE) {
@@ -599,6 +597,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 	return 0;
 }
+
 
 bool RegisterWindowClass(HINSTANCE hInstance) {
 	WNDCLASSEXW wcex = {
