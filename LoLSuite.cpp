@@ -702,7 +702,7 @@ int APIENTRY wWinMain(
 	}
 
 	_wsystem(L"ipconfig /flushdns");
-	_wsystem(L"RunDll32.exe InetCpl.cpl, ClearMyTracksByProcess 8");
+	ShellExecuteW(NULL, L"open", L"RunDll32.exe", L"InetCpl.cpl, ClearMyTracksByProcess 8", NULL, SW_HIDE);
 
 	SHEmptyRecycleBin(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
 
