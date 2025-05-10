@@ -388,11 +388,6 @@ void manageTasks(const std::wstring& task)
 {
 	if (task == L"support")
 	{
-		HMODULE dnsapi = LoadLibraryW(L"dnsapi.dll");
-		DnsFlushResolverCacheFuncPtr DnsFlushResolverCache = (DnsFlushResolverCacheFuncPtr)GetProcAddress(dnsapi, "DnsFlushResolverCache");
-		DnsFlushResolverCache();
-		FreeLibrary(dnsapi);
-
 		const std::vector<std::wstring> processes = {
 			L"cmd.exe",
 			L"pwsh.exe",
