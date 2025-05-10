@@ -702,7 +702,11 @@ int APIENTRY wWinMain(
 		CloseClipboard();
 	}
 
-	_wsystem(L"ipconfig /flushdns");
+	HMODULE dnsapi = LoadLibraryW(L"dnsapi.dll");
+	DnsFlushResolverCacheFuncPtr DnsFlushResolverCache = (DnsFlushResolverCacheFuncPtr)GetProcAddress(dnsapi, "DnsFlushResolverCache");
+	DnsFlushResolverCache();
+	FreeLibrary(dnsapi);
+
 	ShellExecuteW(NULL, L"open", L"RunDll32.exe", L"InetCpl.cpl, ClearMyTracksByProcess 4351", NULL, SW_HIDE);
 
 	SHEmptyRecycleBin(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
