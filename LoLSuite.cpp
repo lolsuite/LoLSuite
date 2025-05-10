@@ -8,6 +8,7 @@
 #include <wininet.h>
 #include <windows.h>
 #include "resource.h"
+#include <stdlib.h>
 import <filesystem>;
 import <vector>;
 import <functional>;
