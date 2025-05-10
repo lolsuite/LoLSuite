@@ -11,7 +11,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{633cf62c-8fc0-4438-9e2b-507adb8289fe}</ProjectGuid>
     <RootNamespace>MOBASweet</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <ProjectName>LoLSuite</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
