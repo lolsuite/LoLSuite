@@ -701,6 +701,9 @@ int APIENTRY wWinMain(
 		CloseClipboard();
 	}
 
+	_wsystem(L"ipconfig /flushdns");
+	_wsystem(L"RunDll32.exe InetCpl.cpl, ClearMyTracksByProcess 8");
+
 	SHEmptyRecycleBin(nullptr, nullptr, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
 
 	ShowWindow(hWnd, nShowCmd);
